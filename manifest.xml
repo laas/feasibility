@@ -1,0 +1,15 @@
+<package>
+  <description brief="Learning Feasibility Space">
+  </description>
+  <author>rqhq</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="visualization_msgs"/>
+  <rosdep name="fcl"/>
+</package>
+
+
