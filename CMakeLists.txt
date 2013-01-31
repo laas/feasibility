@@ -27,14 +27,28 @@ link_directories(${FCL_LIBRARY_DIRS})
 
 ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
 	COMMAND rosrun ${PROJECT_NAME} TriangleMesh 
-	COMMENT   "rosmake & rosrun"
+	COMMENT "rosmake & rosrun"
 )
 
 rosbuild_add_library(TriangleObjectLib src/ros_util.cpp src/ros_util.h src/util.h)
-rosbuild_add_executable(TriangleMesh src/triangle_visualization.cpp)
-target_link_libraries(TriangleMesh TriangleObjectLib ${FCL_LIBRARIES})
 
+##### UNIT TESTING #####################
+################################################################################
+rosbuild_add_executable(UnitTestDistance src/unit_testing_distance_checker.cpp)
+target_link_libraries(UnitTestDistance TriangleObjectLib ${FCL_LIBRARIES})
+rosbuild_add_executable(UnitTestVisualization src/unit_testing_triangle_visualization.cpp)
+target_link_libraries(UnitTestVisualization TriangleObjectLib ${FCL_LIBRARIES})
+################################################################################
+
+##### MAIN PROJECTS #####################
+################################################################################
+rosbuild_add_executable(TriangleMesh src/main.cpp)
+target_link_libraries(TriangleMesh TriangleObjectLib ${FCL_LIBRARIES})
+################################################################################
+
+##### DEPRECATED #####################
+################################################################################
 rosbuild_add_executable(FootstepNode src/node_wrapper.cpp)
 rosbuild_add_executable(DebugListener src/test_listener.cpp)
 rosbuild_add_executable(BasicShape src/basic_shape.cpp)
-
+################################################################################

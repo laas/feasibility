@@ -118,10 +118,9 @@ struct FCLInterface{
 
 	void tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
 		
-		int res;
 		int ntris;
-		FILE *fp = fopen_s(fname,"r");                                                                                                                               
-		res=fscanf(fp, "%d", &ntris);
+		FILE *fp = fopen_s(fname,"r");
+		int res=fscanf(fp, "%d", &ntris);
 
 		std::vector<fcl::Vec3f> vertices;
 		std::vector<fcl::Triangle> triangles;

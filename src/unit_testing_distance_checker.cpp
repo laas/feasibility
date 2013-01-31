@@ -14,14 +14,15 @@
 
 #include "ros_util.h"
 #include "util.h"
+
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "triangle_shapes");
+	ros::init(argc, argv, "unit_test_distance_check");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
-	char *chair_file = "/home/orthez/git/fastReplanningData/data/chairLabo.tris";
-	char *robot_file = "/home/orthez/git/fastReplanningData/data/fullBodyApprox/fullbody_-14_-21_-29.tris";
+	char *chair_file = "../data/chairLabo.tris";
+	char *robot_file = "../data/fullbody_-14_-21_-29.tris";
 	if (ros::ok())
 	{
 		FILE *fp = fopen_s("result.tmp", "w");
