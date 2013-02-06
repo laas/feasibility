@@ -21,8 +21,8 @@ int main( int argc, char** argv )
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
-	char *chair_file = "../data/chairLabo.tris";
-	char *robot_file = "../data/fullbody_-14_-21_-29.tris";
+	std::string chair_file = "../data/chairLabo.tris";
+	std::string robot_file = "../data/fullbody_-14_-21_-29.tris";
 	if (ros::ok())
 	{
 		FILE *fp = fopen_s("result.tmp", "w");

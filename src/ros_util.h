@@ -25,8 +25,8 @@ private:
 
 public:
 	RVIZInterface(){
-		char *topic_name = "visualization_marker";
-		publisher = n.advertise<visualization_msgs::Marker>(topic_name, 1);
+		std::string topic_name = "visualization_marker";
+		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
 	}
 	void publish(visualization_msgs::Marker &m){
 		publisher.publish(m);
@@ -38,32 +38,32 @@ struct TriangleObject{
 private:
 
 	std::string tris_file_name;
-	double x,y,z; //position in the global world frame
 	uint id; //unique id for this object
 	static RVIZInterface *rviz; //singletons
 	static FCLInterface *fcl;
 	static uint mesh_counter;
 	fcl::BVHModel< BoundingVolume > bvh;
 	visualization_msgs::Marker marker;
+public:
+	double x,y,z; //position in the global world frame
 
 public:
-	TriangleObject(char *tris_file_name, double x, double y, double z);
-	void updatePosition(double x, double y, double z);
+	explicit TriangleObject(std::string tris_file_name, double x, double y, double z);
+	~TriangleObject();
+	void update_position(double x, double y, double z);
 	void rviz_publish();
+
 	double distance_to(TriangleObject &rhs);
-	void init_marker_default();
+	double distance_to2(TriangleObject &rhs);
+	void init_marker_default(double x, double y, double z);
 
 	void getFCL_TMatrix(fcl::Transform3f &f);
 	template <class T>
 	void getFCL_BVHModel(fcl::BVHModel<T> &b);
-	void read_tris_to_marker(visualization_msgs::Marker &marker, char *fname);
+	void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
 };
 
 struct FCLInterface{
-	//typedef fcl::AABB BoundingVolume;
-	//fcl::BVHModel< BoundingVolume > c1;
-	//fcl::BVHModel< BoundingVolume > c2;
- 
  	FCLInterface(){
 	}
 
@@ -84,43 +84,29 @@ struct FCLInterface{
 		ROS_INFO("Collision: %d (contacts: %d)\n", coll, contacts);
 		ROS_INFO("Finalized!");
 	}
-	double conduct_distance_analysis(fcl::BVHModel< BoundingVolume > &c1, fcl::BVHModel< BoundingVolume > &c2){
+	*/
+
+	void update_bvh_model(fcl::BVHModel< BoundingVolume > &m, double x, double y, double z){
 		
-		using namespace fcl;
+		//update vertices
+		std::vector<fcl::Vec3f> vertices;
+		uint N = m.num_vertices;
 	
-		fcl::Matrix3f r1 (1,0,0,
-				0,1,0,
-				0,0,1);
-		fcl::Vec3f d1(0,0,0);
-		fcl::Transform3f t1(r1, d1);
+		m.beginUpdateModel();
+		//Vec3f *vertexP = m.prev_vertices;
 
-		Transform3f t2;
-		t2.setIdentity();
-
-		DistanceRequest request;
-		DistanceResult result;
-		double d = fcl::distance (&c1, t1, &c2, t2, request, result);
-		//double d = fcl::distance (&co1, &co2, request, result);
-
-		//bool coll = result.isCollision();
-		//ROS_INFO("Collision: %d (contacts: %d)\n", coll, contacts);
-		ROS_INFO("Distance: %f\n", d);
-		return d;
+		for (uint i=0; i<N; i++){
+			fcl::Vec3f v(x,y,z);
+			m.updateVertex( v );
+		}
+		m.endUpdateModel();
 	}
-	*/
-
-	/*
-	void load_collision_pair(const char *c1name, const char *c2name){
-		tris_to_BVH(c1, c1name);
-		tris_to_BVH(c2, c2name);
-	}
-	*/
-
 	void tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
 		
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
 		int res=fscanf(fp, "%d", &ntris);
+		CHECK(res==1, "fscanf failed");
 
 		std::vector<fcl::Vec3f> vertices;
 		std::vector<fcl::Triangle> triangles;
@@ -128,6 +114,7 @@ struct FCLInterface{
 			double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
 			res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
+			CHECK(res==9, "fscanf failed");
 			
 			fcl::Vec3f a(p1x, p1y, p1z);
 			fcl::Vec3f b(p2x, p2y, p2z);
@@ -145,7 +132,7 @@ struct FCLInterface{
 		m.beginModel();
 		m.addSubModel(vertices, triangles);
 		m.endModel();
-		ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", m.num_tris, m.num_vertices);
+		//ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", m.num_tris, m.num_vertices);
 		fclose(fp);
 	}
 };

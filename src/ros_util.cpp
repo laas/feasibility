@@ -1,10 +1,19 @@
 #include "ros_util.h"
+#include "fcl/traversal/traversal_node_bvhs.h"
+#include "fcl/traversal/traversal_node_setup.h"
+#include "fcl/collision_node.h"
+/*
+#include <boost/timer.hpp>
+#include "fcl_resources/config.h"
+#include <boost/filesystem.hpp>
+*/
+
 uint TriangleObject::mesh_counter=0;
 RVIZInterface *TriangleObject::rviz = NULL;
 FCLInterface *TriangleObject::fcl = NULL;
 
-TriangleObject::TriangleObject(char *tris_file_name, double x, double y, double z){
-	this->tris_file_name = std::string(tris_file_name);
+TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double z){
+	this->tris_file_name = (tris_file_name);
 	this->x=x;
 	this->y=y;
 	this->z=z;
@@ -20,31 +29,47 @@ TriangleObject::TriangleObject(char *tris_file_name, double x, double y, double 
 	}
 
 	//id = mesh_counter++;
-	id = hashit(tris_file_name);
-
-	this->read_tris_to_marker( marker, tris_file_name );
-	this->init_marker_default();
-	this->updatePosition(x,y,z);
+	id = hashit(tris_file_name.c_str());
+	this->read_tris_to_marker( marker, tris_file_name.c_str() );
+	this->init_marker_default(x,y,z);
 
 	fcl->tris_to_BVH(bvh, this->tris_file_name.c_str() );
+	ROS_INFO("Created new tris object");
 }
-void TriangleObject::updatePosition(double x, double y, double z){
+TriangleObject::~TriangleObject(){
+	if(fcl!=NULL){
+		delete fcl;
+		fcl = NULL;
+	}
+	if(rviz!=NULL){
+		delete rviz;
+		rviz = NULL;
+	}
+}
+void TriangleObject::update_position(double x, double y, double z){
 	//Update RVIZ position marker
-	marker.pose.position.x = x;
-	marker.pose.position.y = y;
-	marker.pose.position.z = z;
+	this->marker.pose.position.x = x;
+	this->marker.pose.position.y = y;
+	this->marker.pose.position.z = z;
+	this->x=x;
+	this->y=y;
+	this->z=z;
 	//Update FCL BVH model
+	//
+	//possibilities: (1) map(vertices, x,y,z)
+	//fcl->update_bvh_model(bvh, x, y, z);
+
 }
-void TriangleObject::init_marker_default(){
+void TriangleObject::init_marker_default(double x=0, double y=0, double z=0){
 	uint32_t shape = visualization_msgs::Marker::TRIANGLE_LIST;
 
 	marker.ns = tris_file_name;
 	marker.id = id;
 	marker.type = shape;
 	marker.action = visualization_msgs::Marker::ADD;
-	marker.pose.position.x = 0;
-	marker.pose.position.y = 0;
-	marker.pose.position.z = 0;
+	marker.pose.position.x = x;
+	marker.pose.position.y = y;
+	marker.pose.position.z = z;
 	marker.pose.orientation.x = 0.0;
 	marker.pose.orientation.y = 0.0;
 	marker.pose.orientation.z = 0.0;
@@ -58,6 +83,7 @@ void TriangleObject::init_marker_default(){
 	marker.color.g = 1.0f;
 	marker.color.b = 0.0f;
 	marker.color.a = 1.0;
+
 }
 void TriangleObject::rviz_publish(){
 	marker.header.frame_id = "/my_frame";
@@ -70,13 +96,12 @@ void TriangleObject::rviz_publish(){
 double TriangleObject::distance_to(TriangleObject &rhs){
 	//fcl->load_collision_pair(this->tris_file_name.c_str() , rhs.tris_file_name.c_str());
 	
-	const TriangleObject lhs = *this;
 	fcl::Matrix3f r1 (1,0,0,
 			0,1,0,
 			0,0,1);
 	//ROS_INFO("LHS: x=%f, y=%f, z=%f\n", lhs.x, lhs.y, lhs.z);
 	//ROS_INFO("RHS: x=%f, y=%f, z=%f\n", rhs.x, rhs.y, rhs.z);
-	fcl::Vec3f d1(lhs.x,lhs.y,lhs.z);
+	fcl::Vec3f d1(this->x,this->y,this->z);
 	fcl::Vec3f d2(rhs.x,rhs.y,rhs.z);
 
 	fcl::Transform3f Tlhs(r1, d1);
@@ -84,15 +109,48 @@ double TriangleObject::distance_to(TriangleObject &rhs){
 
 	fcl::DistanceRequest request;
 	fcl::DistanceResult result;
-	double d = fcl::distance (&lhs.bvh, Tlhs, &rhs.bvh, Trhs, request, result);
+	//fcl::CollisionRequest request;
+	//fcl::CollisionResult result;
+	double d = fcl::distance (&this->bvh, Tlhs, &rhs.bvh, Trhs, request, result);
+	//double md = result.penetration_depth;
+	//ROS_INFO("distance: %f , min_dist: %f", d,md);
+	//result.clear();
+
 	return d;
 }
-void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, char *fname){
+double TriangleObject::distance_to2(TriangleObject &rhs){
+	//fcl->load_collision_pair(this->tris_file_name.c_str() , rhs.tris_file_name.c_str());
+	
+	using namespace fcl;
+	fcl::Matrix3f r1 (1,0,0,
+			0,1,0,
+			0,0,1);
+	fcl::Vec3f d1(this->x,this->y,this->z);
+	fcl::Vec3f d2(rhs.x,rhs.y,rhs.z);
+	fcl::Transform3f Tlhs(r1, d1);
+	fcl::Transform3f Trhs(r1, d2);
+
+	DistanceResult local_result;
+	//MeshDistanceTraversalNode<BoundingVolume> node;
+	//if(!initialize(node, (const BVHModel<BoundingVolume>&)this->bvh, Tlhs, &(const BVHModel<BoundingVolume>&)(*(&rhs.bvh)), Trhs, DistanceRequest(true), local_result))
+
+	//node.enable_statistics = true;
+
+	//int qsize = 0;
+	//distance(&node, NULL, qsize);
+
+	//double d = local_result.min_distance;
+	//return d;
+
+}
+
+void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname){
 	
 	int ntris;
 	FILE *fp = fopen_s(fname,"r");
 
 	int res=fscanf(fp, "%d", &ntris);
+	CHECK(res==1, "fscanf failed");
 
 	for (int i = 0; i < 3*ntris; i+=3){
 		geometry_msgs::Point p;
