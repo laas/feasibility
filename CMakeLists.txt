@@ -7,7 +7,7 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  Release        : w/o debug symbols, w/ optimization
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE RelWithDebInfo)
+set(ROS_BUILD_TYPE Debug)
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -26,8 +26,15 @@ include_directories(${FCL_INCLUDE_DIRS})
 link_directories(${FCL_LIBRARY_DIRS})
 
 ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
-	COMMAND rosrun ${PROJECT_NAME} TriangleMesh 
+	COMMAND rosrun ${PROJECT_NAME} Main 
 	COMMENT "rosmake & rosrun"
+)
+
+
+set(MAIN_EXECUTABLE Main)
+ADD_CUSTOM_TARGET( run
+	COMMAND ./../bin/${MAIN_EXECUTABLE}
+	COMMENT "execute main project"
 )
 
 rosbuild_add_library(TriangleObjectLib src/ros_util.cpp src/ros_util.h src/util.h)
@@ -42,8 +49,8 @@ target_link_libraries(UnitTestVisualization TriangleObjectLib ${FCL_LIBRARIES})
 
 ##### MAIN PROJECTS #####################
 ################################################################################
-rosbuild_add_executable(TriangleMesh src/main.cpp)
-target_link_libraries(TriangleMesh TriangleObjectLib ${FCL_LIBRARIES})
+rosbuild_add_executable(${MAIN_EXECUTABLE} src/main.cpp)
+target_link_libraries(${MAIN_EXECUTABLE} TriangleObjectLib ${FCL_LIBRARIES})
 ################################################################################
 
 ##### DEPRECATED #####################
