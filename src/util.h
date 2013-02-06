@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdlib> //rand
 #include <sstream> //fstream
+#include <string> //std::string
 
 #define CUR_LOCATION "@" << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << ">>"
 #define PRINT(msg) std::cout << CUR_LOCATION << " >> " << msg << std::endl
@@ -9,19 +10,11 @@
 #define COUT(msg) PRINT(msg);
 #define CHECK(cond, str) if(!(cond)){ PRINT(str); throw (str); }
 
-
 using std::endl;
 using std::cout;
+using std::string;
 
 FILE *fopen_s(const char *path, const char *mode){
-	errno=0;
-	FILE *tmp = fopen(path,mode);
-	if(tmp==NULL){
-		HALT("fopen failed, error code: " << errno << endl);
-	}
-	return tmp;
-}
-void *fscanf_s(const char *path, const char *mode){
 	errno=0;
 	FILE *tmp = fopen(path,mode);
 	if(tmp==NULL){
@@ -53,6 +46,15 @@ int hashit(const char *str){
     int h = 0;
     while (*str) h = h << 1 ^ *str++;
     return h;
+}
+
+std::string get_data_path(){
+	FILE *fp;
+	fp = fopen_s("robotDATA.dat", "r");
+	char line[1024];
+	fgets(line, 1024, fp);
+	string path = string(line);
+	return path;
 }
 
 

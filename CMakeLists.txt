@@ -21,39 +21,59 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_gensrv()
 
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
+
 pkg_check_modules(FCL REQUIRED fcl)
 include_directories(${FCL_INCLUDE_DIRS})
 link_directories(${FCL_LIBRARY_DIRS})
 
-ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
-	COMMAND rosrun ${PROJECT_NAME} Main 
-	COMMENT "rosmake & rosrun"
+pkg_check_modules(FPlanner REQUIRED fast-replanning)
+include_directories(${FPlanner_INCLUDE_DIRS})
+link_directories(${FPlanner_LIBRARY_DIRS})
+
+
+#ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
+#COMMAND rosrun ${PROJECT_NAME} Main 
+#COMMENT "rosmake & rosrun"
+#)
+
+set(MAIN Main)
+
+#ADD_CUSTOM_TARGET( run
+#COMMAND ./../bin/${MAIN}
+#COMMENT "execute main project"
+#)
+set(SOURCE
+	src/ros_util.cpp 
+	src/ros_util.h 
+	src/util.h
 )
+rosbuild_add_library(UTIL ${SOURCE})
+#target_link_libraries(UTIL ${FCL_LIBRARIES})
+rosbuild_add_link_flags(UTIL "-lfcl")
+rosbuild_add_link_flags(UTIL ${FCL_LIBRARY_DIRS})
 
-
-set(MAIN_EXECUTABLE Main)
-ADD_CUSTOM_TARGET( run
-	COMMAND ./../bin/${MAIN_EXECUTABLE}
-	COMMENT "execute main project"
-)
-
-rosbuild_add_library(TriangleObjectLib src/ros_util.cpp src/ros_util.h src/util.h)
-
+################################################################################
+###### MAIN PROJECTS #####################
+################################################################################
+rosbuild_add_executable(${MAIN} src/main.cpp )
+target_link_libraries(${MAIN} ${FPlanner_LIBRARIES} UTIL ${FCL_LIBRARIES})
+################################################################################
 ##### UNIT TESTING #####################
 ################################################################################
 rosbuild_add_executable(UnitTestDistance src/unit_testing_distance_checker.cpp)
-target_link_libraries(UnitTestDistance TriangleObjectLib ${FCL_LIBRARIES})
-rosbuild_add_executable(UnitTestVisualization src/unit_testing_triangle_visualization.cpp)
-target_link_libraries(UnitTestVisualization TriangleObjectLib ${FCL_LIBRARIES})
-################################################################################
+target_link_libraries(UnitTestDistance UTIL ${FCL_LIBRARIES})
 
-##### MAIN PROJECTS #####################
-################################################################################
-rosbuild_add_executable(${MAIN_EXECUTABLE} src/main.cpp)
-target_link_libraries(${MAIN_EXECUTABLE} TriangleObjectLib ${FCL_LIBRARIES})
-################################################################################
+rosbuild_add_executable(UnitTestVisualization
+	src/unit_testing_triangle_visualization.cpp )
+target_link_libraries(UnitTestVisualization UTIL ${FCL_LIBRARIES})
 
-##### DEPRECATED #####################
+#rosbuild_add_executable(UnitFastPlannerLibrary src/unit_testing_exec_replanning.cpp )
+#target_link_libraries(UnitFastPlannerLibrary UTIL  ${FPlanner_LIBRARIES})
+
+rosbuild_add_executable(UnitMCMCSampling src/unit_testing_mcmc_sampling.cpp )
+target_link_libraries(UnitMCMCSampling UTIL  ${FPlanner_LIBRARIES})
+#
+###### DEPRECATED #####################
 ################################################################################
 rosbuild_add_executable(FootstepNode src/node_wrapper.cpp)
 rosbuild_add_executable(DebugListener src/test_listener.cpp)

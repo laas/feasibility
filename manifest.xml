@@ -10,6 +10,7 @@
   <depend package="roscpp"/>
   <depend package="visualization_msgs"/>
   <rosdep name="fcl"/>
+  <rosdep name="fast-planning"/>
 </package>
 
 
