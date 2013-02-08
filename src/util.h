@@ -1,40 +1,48 @@
 #pragma once
 #include <cstdlib> //rand
 #include <sstream> //fstream
+#include <iostream> //cout
 #include <string> //std::string
+#include <vector>
+#include <errno.h> //errno
+#include <stdio.h> //fopen
+#include <stdarg.h> //va_arg
+#include <string.h> //strlen
 
 #define CUR_LOCATION "@" << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << ">>"
+
+//see also UTIL::cout for special outputs
+
 #define PRINT(msg) std::cout << CUR_LOCATION << " >> " << msg << std::endl
 #define ABORT(msg) PRINT(msg); throw msg;
 #define HALT(msg) PRINT(msg); exit(1);
 #define COUT(msg) PRINT(msg);
-#define CHECK(cond, str) if(!(cond)){ PRINT(str); throw (str); }
+#define CHECK(cond, str) if(!(cond)){ PRINT(str); throw(str); }
 
 using std::endl;
 using std::cout;
 using std::string;
+//##########################################################################
+// stable utility functions (misc)
+//##########################################################################
 
-FILE *fopen_s(const char *path, const char *mode){
+inline FILE *fopen_s(const char *path, const char *mode){
 	errno=0;
 	FILE *tmp = fopen(path,mode);
 	if(tmp==NULL){
-		HALT("fopen failed, error code: " << errno << endl);
+		HALT("file "<< path<<" failed, error code: " << errno << endl);
 	}
 	return tmp;
 }
-double rand(double lowerLimit, double upperLimit){
-	//ROS_INFO("%f %f",lowerLimit, upperLimit);
+inline double rand(double lowerLimit, double upperLimit){
 	double x= ((double)rand() / (double)RAND_MAX); //[0,1]
-	//ROS_INFO("%f",x);
 	double xs = x*(upperLimit-lowerLimit); //[0, upperLimit+lowerLimit]
-	//ROS_INFO("%f",xs);
 	double xp = xs + lowerLimit; //[lowerLimit, upperLimit]
-	//ROS_INFO("%f",xp);
 	return xp;
 }
 
 //approximate sampling from N(m,stddev) (probabilistic robotics, p.124)
-double randn(double m, double stddev){
+inline double randn(double m, double stddev){
 	double s=0;
 	for(uint i=0;i<12;i++){
 		s+=rand(-stddev,+stddev);
@@ -42,22 +50,30 @@ double randn(double m, double stddev){
 	return 0.5*s+m;
 }
 
-int hashit(const char *str){
+inline int hashit(const char *str){
     int h = 0;
     while (*str) h = h << 1 ^ *str++;
     return h;
 }
 
-std::string get_data_path(){
+inline std::string get_data_path(){
 	FILE *fp;
 	fp = fopen_s("robotDATA.dat", "r");
 	char line[1024];
-	fgets(line, 1024, fp);
+	//fgets(line, 1024, fp);
+	if ( fgets(line, 1024, fp) != NULL )
+	{
+		line[strlen(line)-1] = '\0';
+		fprintf(stderr, "%s\n", line);
+	}
 	string path = string(line);
 	return path;
 }
 
 
+//##########################################################################
+// logger / stable
+//##########################################################################
 struct Logger{
 private:
 	FILE *fp;
@@ -96,3 +112,63 @@ public:
 		fclose(fp);
 	}
 };
+
+//##########################################################################
+//Special functions / Experimental stuff / not yet stable
+//##########################################################################
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+	//generic array build by using recursive variadic templates
+	template<class T>
+	void ahelper(Array<T> &z, T t){ z(z.N-1)=t; }
+
+	template<class T, typename ...A>
+	void ahelper(Array<T> &z, T t, A ...args){
+		z(z.N-1-sizeof...(args))=t;
+		if(sizeof...(args)) ahelper<T>(z, args...);
+	}
+
+	//can be called by using e.g. 
+	//Array<double> d = ARRAY(1, 2, 3) //infinite arguments possible
+	template<class T, typename ...A>
+	Array<T> ARRAY( A ...args) {
+		Array<T> z(sizeof...(args));
+		ahelper<T>(z, args...);
+		return z;
+	}
+#endif
+
+// ostream to include current location and counter
+// use as "using util::cout" instead of "std::cout"
+// --> util::cout << "hello world" << util::endl;
+/*
+namespace util{
+	static uint counter = 0;
+	class LineNumberBuffer: public std::stringbuf{
+		std::ostream &output;
+	public:
+		LineNumberBuffer(std::ostream &str): output(str){}
+
+		virtual int sync(){
+			output <<  " " << str();
+			str("");
+			output.flush();
+			util::counter++;
+			return 0;
+		}
+	};
+	class UtilStream: public std::ostream{
+		LineNumberBuffer buffer;
+
+	public:
+		UtilStream(std::ostream& str): buffer(str), std::ostream(&buffer){}
+	};
+
+	UtilStream stream(std::cout);
+	//workaround for adding file and linenumber to stream
+	#define UTIL_LOCATION "[" << util::counter << "]@" << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << ">>"
+	#define ccout stream << UTIL_LOCATION
+}
+
+
+*/
+//##########################################################################

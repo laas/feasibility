@@ -8,6 +8,8 @@
 #include <fcl/shape/geometric_shapes.h>
 #include <fcl/math/vec_3f.h>
 #include <fcl/BVH/BVH_model.h>
+
+#include <fast-replanning/fast-replanning-interface.hh>
 //bounding vertex hierarchy
 
 #include "ros_util.h"
@@ -50,59 +52,28 @@ int main( int argc, char** argv )
 	ros::init(argc, argv, "main_project");
 	ros::NodeHandle n;
 	ros::Rate r(1);
-	Logger log("mcmc.tmp");
+	//Logger log("mcmc.tmp");
 
-	std::string chair_file = "../data/chairLabo.tris";
-	std::string robot_file = "../data/fullbody_-14_-21_-29.tris";
-	if (ros::ok())
+	std::string prefix = get_data_path();
+	ROS_INFO("PREFIX %s", prefix.c_str());
+
+	printf("%s", prefix.c_str());
+	//fastreplanning::FastReplanningInterface *planner = fastreplanning::fastReplanningInterfaceFactory(path, argc, argv);
+	//planner->mainLoop();
+
+	char chair_file[200];
+	sprintf(chair_file, "%s%s", prefix.c_str(), "chairLabo.tris");
+	//std::string chair_file = "/home/aorthey/git/fastReplanningData/data/chairLabo.tris";
+	ROS_INFO("%s", chair_file);
+	//std::string robot_file = "fullbody_-14_-21_-29.tris";
+	//TriangleObject robot(robot_file.c_str(), 0, 0, 0);
+	TriangleObject chair(chair_file, 0, 0, 0);
+	while (ros::ok())
 	{
 
+		chair.rviz_publish();
+		//robot.rviz_publish();
 		//for(uint i=0;i<Nsamples;i++){
-		TriangleObject chair(chair_file.c_str(), 2, 1, 0);
-		TriangleObject robot(robot_file.c_str(), 0, 0, 0);
-		uint Nsamples = 100;
-
-		//upper lower bound on robot workspace
-		int lInt = -3;
-		int hInt = 3;
-
-		//double x= rand(lInt, hInt);
-		//double y= rand(lInt, hInt);
-		double x= 0.0;
-		double y= 0.0;
-
-		//proposal distribution
-		double x_old = x;
-		double y_old = y;
-		for(uint i=0;i<Nsamples;i++){
-			double x_cand = draw_gaussian_proposal_dist(x);
-			double y_cand = draw_gaussian_proposal_dist(y);
-
-			double p_old = p(x_old, y_old, robot, chair);
-			double p_cur = p(x_cand, y_cand, robot, chair);
-
-			double a = p_cur / p_old;
-
-			if(a>=1){
-				x_old = x_cand;
-				y_old = y_cand;
-				accept_sample(x_old, y_old, robot, chair);
-				log("%f %f %f", x_old, y_old, chair.distance_to(robot));
-			}else{
-				double u = rand(0,1);
-				if(u<a){
-					x_old = x_cand;
-					y_old = y_cand;
-					accept_sample(x_old, y_old, robot, chair);
-					log("%f %f %f", x_old, y_old, chair.distance_to(robot));
-				}else{
-					x_old = x_old;
-					y_old = y_old;
-				}
-			}
-
-			r.sleep();
-		}
 		r.sleep();
 	}
 }

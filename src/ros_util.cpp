@@ -76,21 +76,21 @@ void TriangleObject::init_marker_default(double x=0, double y=0, double z=0){
 	marker.pose.orientation.w = 1.0;
 
 	// 1x1x1 => 1m
-	marker.scale.x = 1.0;
-	marker.scale.y = 1.0;
-	marker.scale.z = 1.0;
-	marker.color.r = 0.0f;
+	marker.scale.x = 2.0;
+	marker.scale.y = 2.0;
+	marker.scale.z = 2.0;
+	marker.color.r = 1.0f;
 	marker.color.g = 1.0f;
 	marker.color.b = 0.0f;
 	marker.color.a = 1.0;
 
 }
 void TriangleObject::rviz_publish(){
-	marker.header.frame_id = "/my_frame";
-	marker.header.stamp = ros::Time::now();
+	this->marker.header.frame_id = "/my_frame";
+	this->marker.header.stamp = ros::Time::now();
 
-	marker.lifetime = ros::Duration();
-	this->rviz->publish(marker);
+	this->marker.lifetime = ros::Duration();
+	this->rviz->publish(this->marker);
 }
 
 double TriangleObject::distance_to(TriangleObject &rhs){
