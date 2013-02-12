@@ -33,6 +33,23 @@ public:
 	}
 };
 
+
+struct FootStepObject{
+	uint id; //unique id for this object
+	static RVIZInterface *rviz; 
+	visualization_msgs::Marker marker;
+public:
+	double x,y,theta; //position in the global world frame
+public:
+	explicit FootStepObject(int id, double x, double y, double theta);
+	~FootStepObject();
+	void update_position(double x, double y, double theta);
+	void rviz_publish();
+	void init_marker_default(double x, double y, double theta);
+};
+
+
+
 typedef fcl::AABB BoundingVolume;
 struct TriangleObject{
 private:

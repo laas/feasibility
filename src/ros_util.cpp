@@ -179,4 +179,66 @@ void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, con
 	}
 	fclose(fp);
 }
+//######################################################
+// FootStepObject
+//######################################################
+RVIZInterface *FootStepObject::rviz = NULL;
 
+FootStepObject::FootStepObject(int id, double x, double y, double theta){
+	this->x=x;
+	this->y=y;
+	this->theta=theta;
+	if(rviz == NULL){
+		rviz = new RVIZInterface();
+	}
+
+	id = id;
+	this->init_marker_default(x,y,theta);
+}
+FootStepObject::~FootStepObject(){
+	if(rviz!=NULL){
+		delete rviz;
+		rviz = NULL;
+	}
+}
+void FootStepObject::update_position(double x, double y, double theta){
+	//Update RVIZ position marker
+	this->marker.pose.position.x = x;
+	this->marker.pose.position.y = y;
+	this->marker.pose.orientation.x = theta;
+	this->x=x;
+	this->y=y;
+	this->theta=theta;
+}
+void FootStepObject::rviz_publish(){
+	this->marker.header.frame_id = "/my_frame";
+	this->marker.header.stamp = ros::Time::now();
+
+	this->marker.lifetime = ros::Duration();
+	this->rviz->publish(this->marker);
+}
+
+void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0){
+	uint32_t shape = visualization_msgs::Marker::CUBE;
+
+	marker.id = id;
+	marker.type = shape;
+	marker.action = visualization_msgs::Marker::ADD;
+	marker.pose.position.x = x;
+	marker.pose.position.y = y;
+	marker.pose.position.z = 0;
+	marker.pose.orientation.x = theta;
+	marker.pose.orientation.y = 0.0;
+	marker.pose.orientation.z = 0.0;
+	marker.pose.orientation.w = 1.0;
+
+	// 1x1x1 => 1m
+	marker.scale.x = 0.2;
+	marker.scale.y = 0.1;
+	marker.scale.z = 0.01;
+	marker.color.r = 0.0f;
+	marker.color.g = 1.0f;
+	marker.color.b = 0.0f;
+	marker.color.a = 1.0;
+
+}
