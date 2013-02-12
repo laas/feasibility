@@ -50,6 +50,14 @@ inline double randn(double m, double stddev){
 	return 0.5*s+m;
 }
 
+inline double randn_boxmuller(double m, double stddev){
+	double x1 = rand(0,1);
+	double x2 = rand(0,1);
+	double y1 = sqrtf( -2*log(x1) )*cos(2*M_PI*x2);
+	//double y2 = sqrtf( -2*log(x1) )*sin(2*pi*x2);
+	return stddev*y1 + m;
+}
+
 inline int hashit(const char *str){
     int h = 0;
     while (*str) h = h << 1 ^ *str++;
