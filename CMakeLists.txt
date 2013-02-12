@@ -42,9 +42,13 @@ set(MAIN_EXE MainProject)
 message(STATUS "DEBUG OUTPUT ---- ")
 message(STATUS "")
 message(STATUS ${FPlanner_LIBRARY_DIRS})
+message(STATUS ${FPlanner_LIBRARIES})
+message(STATUS ${FPlanner_INCLUDE_DIRS})
+message(STATUS "------------------- ")
 message(STATUS ${FCLLIB_LIBRARY_DIRS})
 message(STATUS ${FCLLIB_LIBRARIES})
 message(STATUS ${FCLLIB_INCLUDE_DIRS})
+message(STATUS "------------------- ")
 
 #ADD_CUSTOM_TARGET( run
 #COMMAND ./../bin/${MAIN}
