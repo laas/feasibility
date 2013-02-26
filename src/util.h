@@ -78,6 +78,25 @@ inline std::string get_data_path(){
 	return path;
 }
 
+inline std::string get_robot_str(){
+	std::string prefix = get_data_path(); //robotDATA.dat path
+	char robot_file[200];
+	sprintf(robot_file, "%s%s", prefix.c_str(), "fullBodyApprox/fullbody_-14_-21_-29.tris");
+
+	std::string robot = robot_file;
+	return robot;
+
+}
+inline std::string get_chair_str(){
+	std::string prefix = get_data_path(); //robotDATA.dat path
+	char chair_file[200];
+	sprintf(chair_file, "%s%s", prefix.c_str(), "chairLabo.tris");
+	std::string chair = chair_file;
+	return chair;
+
+
+}
+
 
 //##########################################################################
 // logger / stable

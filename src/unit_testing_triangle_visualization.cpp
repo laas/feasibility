@@ -21,8 +21,8 @@ int main( int argc, char** argv )
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
-	std::string chair_file = "../data/chairLabo.tris";
-	std::string robot_file = "../data/fullbody_-14_-21_-29.tris";
+	std::string chair_file = get_chair_str();
+	std::string robot_file = get_robot_str();
 	while (ros::ok())
 	{
 		TriangleObject chair(chair_file, 1, 1, 0);

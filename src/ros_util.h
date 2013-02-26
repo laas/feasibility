@@ -33,6 +33,31 @@ public:
 	}
 };
 
+struct RVIZVisualMarker{
+protected:
+	uint id; //unique id for this object
+	static RVIZInterface *rviz; 
+	visualization_msgs::Marker marker;
+public:
+	double x,y,theta;
+public:
+	void rviz_publish();
+	void init_marker_default(double x, double y, double theta);
+};
+
+struct SphereMarker{
+	uint id; //unique id for this object
+	static RVIZInterface *rviz; 
+	visualization_msgs::Marker marker;
+public:
+	double x,y,r;
+public:
+	explicit SphereMarker(int id, double x, double y, double r);
+	~SphereMarker();
+	void update_position(double x, double y);
+	void rviz_publish();
+	void init_marker_default(double x, double y, double r);
+};
 
 struct FootStepObject{
 	uint id; //unique id for this object
@@ -47,8 +72,6 @@ public:
 	void rviz_publish();
 	void init_marker_default(double x, double y, double theta);
 };
-
-
 
 typedef fcl::AABB BoundingVolume;
 struct TriangleObject{

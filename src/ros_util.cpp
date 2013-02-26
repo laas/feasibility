@@ -141,6 +141,7 @@ double TriangleObject::distance_to2(TriangleObject &rhs){
 
 	//double d = local_result.min_distance;
 	//return d;
+	return -1;
 
 }
 
@@ -192,7 +193,7 @@ FootStepObject::FootStepObject(int id, double x, double y, double theta){
 		rviz = new RVIZInterface();
 	}
 
-	id = id;
+	this->id = id;
 	this->init_marker_default(x,y,theta);
 }
 FootStepObject::~FootStepObject(){
@@ -205,7 +206,9 @@ void FootStepObject::update_position(double x, double y, double theta){
 	//Update RVIZ position marker
 	this->marker.pose.position.x = x;
 	this->marker.pose.position.y = y;
-	this->marker.pose.orientation.x = theta;
+	this->marker.pose.orientation.x = 0;
+	this->marker.pose.orientation.y = 0;
+	this->marker.pose.orientation.z = theta;
 	this->x=x;
 	this->y=y;
 	this->theta=theta;
@@ -214,30 +217,101 @@ void FootStepObject::rviz_publish(){
 	this->marker.header.frame_id = "/my_frame";
 	this->marker.header.stamp = ros::Time::now();
 
-	this->marker.lifetime = ros::Duration();
+	//this->marker.lifetime = ros::Duration();
+	this->marker.lifetime = ros::Duration(1);
 	this->rviz->publish(this->marker);
 }
 
 void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0){
 	uint32_t shape = visualization_msgs::Marker::CUBE;
 
-	marker.id = id;
+	char fname[50];
+	sprintf(fname, "%d_footstep",this->id);
+
+
+	marker.ns = fname;
+	marker.id = this->id;
 	marker.type = shape;
 	marker.action = visualization_msgs::Marker::ADD;
 	marker.pose.position.x = x;
 	marker.pose.position.y = y;
 	marker.pose.position.z = 0;
-	marker.pose.orientation.x = theta;
+	marker.pose.orientation.x = 0.0;
+	marker.pose.orientation.y = 0.0;
+	marker.pose.orientation.z = theta;
+	marker.pose.orientation.w = 1.0;
+
+	// 1x1x1 => 1m
+	marker.scale.x = 0.2;
+	marker.scale.y = 0.10;
+	marker.scale.z = 0.01;
+	marker.color.r = 0.0f;
+	marker.color.g = 1.0f;
+	marker.color.b = 0.0f;
+	marker.color.a = 1.0;
+
+}
+//######################################################
+// SphereMarker
+//######################################################
+RVIZInterface *SphereMarker::rviz = NULL;
+
+SphereMarker::SphereMarker(int id, double x, double y, double r){
+	this->x=x;
+	this->y=y;
+	if(rviz == NULL){
+		rviz = new RVIZInterface();
+	}
+
+	this->id = id;
+	this->init_marker_default(x,y,r);
+}
+SphereMarker::~SphereMarker(){
+	if(rviz!=NULL){
+		delete rviz;
+		rviz = NULL;
+	}
+}
+void SphereMarker::update_position(double x, double y){
+	//Update RVIZ position marker
+	this->marker.pose.position.x = x;
+	this->marker.pose.position.y = y;
+	this->x=x;
+	this->y=y;
+}
+void SphereMarker::rviz_publish(){
+	this->marker.header.frame_id = "/my_frame";
+	this->marker.header.stamp = ros::Time::now();
+
+	this->marker.lifetime = ros::Duration();
+	this->rviz->publish(this->marker);
+}
+
+void SphereMarker::init_marker_default(double x=0, double y=0, double r=1){
+	uint32_t shape = visualization_msgs::Marker::CYLINDER;
+
+	char fname[50];
+	sprintf(fname, "%d_footstep",this->id);
+
+
+	marker.ns = fname;
+	marker.id = this->id;
+	marker.type = shape;
+	marker.action = visualization_msgs::Marker::ADD;
+	marker.pose.position.x = x;
+	marker.pose.position.y = y;
+	marker.pose.position.z = 0;
+	marker.pose.orientation.x = 0.0;
 	marker.pose.orientation.y = 0.0;
 	marker.pose.orientation.z = 0.0;
 	marker.pose.orientation.w = 1.0;
 
 	// 1x1x1 => 1m
-	marker.scale.x = 0.2;
-	marker.scale.y = 0.1;
+	marker.scale.x = r;
+	marker.scale.y = r;
 	marker.scale.z = 0.01;
-	marker.color.r = 0.0f;
-	marker.color.g = 1.0f;
+	marker.color.r = 1.0f;
+	marker.color.g = 0.5f;
 	marker.color.b = 0.0f;
 	marker.color.a = 1.0;
 
