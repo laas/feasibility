@@ -71,6 +71,8 @@ public:
 	void update_position(double x, double y, double theta);
 	void rviz_publish();
 	void init_marker_default(double x, double y, double theta);
+	void changeColor(double r, double g, double b);
+	void drawLine(double x_in, double y_in);
 };
 
 typedef fcl::AABB BoundingVolume;

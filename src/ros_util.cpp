@@ -11,6 +11,7 @@
 uint TriangleObject::mesh_counter=0;
 RVIZInterface *TriangleObject::rviz = NULL;
 FCLInterface *TriangleObject::fcl = NULL;
+const char *FRAME_NAME = "/base_link";
 
 TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double z){
 	this->tris_file_name = (tris_file_name);
@@ -86,7 +87,7 @@ void TriangleObject::init_marker_default(double x=0, double y=0, double z=0){
 
 }
 void TriangleObject::rviz_publish(){
-	this->marker.header.frame_id = "/my_frame";
+	this->marker.header.frame_id = FRAME_NAME;
 	this->marker.header.stamp = ros::Time::now();
 
 	this->marker.lifetime = ros::Duration();
@@ -214,11 +215,11 @@ void FootStepObject::update_position(double x, double y, double theta){
 	this->theta=theta;
 }
 void FootStepObject::rviz_publish(){
-	this->marker.header.frame_id = "/my_frame";
+	this->marker.header.frame_id = FRAME_NAME;
 	this->marker.header.stamp = ros::Time::now();
 
-	//this->marker.lifetime = ros::Duration();
-	this->marker.lifetime = ros::Duration(1);
+	this->marker.lifetime = ros::Duration();
+	//this->marker.lifetime = ros::Duration(1);
 	this->rviz->publish(this->marker);
 }
 
@@ -251,6 +252,49 @@ void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0)
 	marker.color.a = 1.0;
 
 }
+void FootStepObject::changeColor(double r, double g, double b){
+	marker.color.r = r;
+	marker.color.g = g;
+	marker.color.b = b;
+}
+void FootStepObject::drawLine(double x_in, double y_in){
+
+	visualization_msgs::Marker line;
+	uint32_t shape = visualization_msgs::Marker::LINE_STRIP;
+
+	char fname[50];
+	sprintf(fname, "%d_line",this->id);
+
+	line.ns = fname;
+	line.id = this->id;
+	line.type = shape;
+	line.action = visualization_msgs::Marker::ADD;
+
+	line.scale.x = 0.03;
+	geometry_msgs::Point p;
+	p.x = this->x;
+	p.y = this->y;
+	p.z = 0.0;
+
+	geometry_msgs::Point p2;
+	p2.x = x_in;
+	p2.y = y_in;
+	p2.z = 0.0;
+
+	line.points.push_back(p);
+	line.points.push_back(p2);
+
+	line.color.r = 1.0f;
+	line.color.g = 0.5f;
+	line.color.b = 0.0f;
+	line.color.a = 1.0f;
+
+	line.header.frame_id = FRAME_NAME;
+	line.header.stamp = ros::Time::now();
+	line.lifetime = ros::Duration();
+	this->rviz->publish(line);
+
+}
 //######################################################
 // SphereMarker
 //######################################################
@@ -280,7 +324,7 @@ void SphereMarker::update_position(double x, double y){
 	this->y=y;
 }
 void SphereMarker::rviz_publish(){
-	this->marker.header.frame_id = "/my_frame";
+	this->marker.header.frame_id = FRAME_NAME;
 	this->marker.header.stamp = ros::Time::now();
 
 	this->marker.lifetime = ros::Duration();
