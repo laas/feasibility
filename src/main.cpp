@@ -3,7 +3,7 @@
 #include <std_msgs/String.h>
 #include <visualization_msgs/Marker.h>
 #include <vector>
-#include <iostream> //cout
+#include <iostream>
 
 #include <fcl/shape/geometric_shapes.h>
 #include <fcl/math/vec_3f.h>
@@ -22,22 +22,22 @@ using fastreplanning::tools::STOP;
 
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "main_project");
+	ros::init(argc, argv, "footstep_planner");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
 	std::string prefix = get_data_path();
 	std::string chair_file = get_chair_str();
 	std::string robot_file = get_robot_str();
-	TriangleObject chair(chair_file, 2, 1, 0);
-	TriangleObject robot(robot_file, 3, 1, 0);
+	TriangleObject chair(chair_file, 2, 3, 0);
+	TriangleObject robot(robot_file, 3, 3, 0);
 
 	//######################################################
 	// fastPlanner
 	//######################################################
 	fastreplanning::FastReplanningInterface *planner 
 		= fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
-	planner->setVerboseLevel(15);
+	planner->setVerboseLevel(15); //0 5 15
 
 	//######################################################
 	// set robot start
@@ -46,12 +46,11 @@ int main( int argc, char** argv )
 	start.push_back(0.0);
 	start.push_back(0.0);
 	start.push_back(0.0);
-	planner->updateLocalizationProtected(start);
+	//planner->updateLocalizationProtected(start);
 
 	//planner->addObstacleFromDatabase(CHAIR, 0.49, -0.11, 0, 1,1,1); 
 	//planner->addObstacleFromDatabase(BOX, 0.49, 0.21, 0, 1,1,1); 
 
-	int c=0;
 	while (ros::ok())
 	{
 		ROS_INFO("foot step planner START->");
@@ -62,10 +61,10 @@ int main( int argc, char** argv )
 		ROS_INFO("NUMBER OF FOOTSTEPS: %d", fsi.size());
 		std::vector<FootStepObject> fso;
 
-		for(uint i=0;i<fsi.size();i++){
-			//ROS_INFO("data size fsi %d: %d", i, fsi.at(i).data.size());
-			//ROS_INFO("format fsi %s", fsi.at(i).format.c_str());
 
+		double last_x = 0;
+		double last_y = 0;
+		for(uint i=0;i<fsi.size();i++){
 			//half-foot-step-format v.3.0:
 			// 1: x
 			// 2: y
@@ -80,9 +79,19 @@ int main( int argc, char** argv )
 			double y = fsi.at(i).data.at(1);
 			double theta = fsi.at(i).data.at(2);
 			double scale=10;
-			FootStepObject f(i,10*x,10*y,10*theta);
+			FootStepObject f(i,scale*x,scale*y,scale*theta);
+
+			if(fsi.at(i).data.at(3) == 'R') f.changeColor(1,0,0);
+			else f.changeColor(0,1,0);
+
 			f.rviz_publish();
+			f.drawLine(scale*last_x, scale*last_y);
+			last_x = x;
+			last_y = y;
 			ROS_INFO("new footstep [%d] at x=%f, y=%f, theta=%f", i,x,y,theta);
+		}
+		if(fsi.size()>4){
+			//return 0;
 		}
 
 		//######################################################
