@@ -10,7 +10,6 @@
 
 uint TriangleObject::mesh_counter=0;
 RVIZInterface *TriangleObject::rviz = NULL;
-FCLInterface *TriangleObject::fcl = NULL;
 const char *FRAME_NAME = "/base_link";
 
 TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double z){
@@ -24,24 +23,22 @@ TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, d
 		rviz = new RVIZInterface();
 		mesh_counter=0;
 	}
-
-	if(fcl == NULL){
-		fcl = new FCLInterface();
-	}
-
 	//id = mesh_counter++;
 	id = hashit(tris_file_name.c_str());
-	this->read_tris_to_marker( marker, tris_file_name.c_str() );
 	this->init_marker_default(x,y,z);
 
-	fcl->tris_to_BVH(bvh, this->tris_file_name.c_str() );
+	this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
+	this->read_tris_to_BVH(this->bvh, this->tris_file_name.c_str() );
 	ROS_INFO("Created new tris object");
 }
-TriangleObject::~TriangleObject(){
-	if(fcl!=NULL){
-		delete fcl;
-		fcl = NULL;
+void TriangleObject::clean(){
+	if(rviz!=NULL){
+		delete rviz;
+		rviz = NULL;
 	}
+
+}
+TriangleObject::~TriangleObject(){
 	if(rviz!=NULL){
 		delete rviz;
 		rviz = NULL;
@@ -119,31 +116,40 @@ double TriangleObject::distance_to(TriangleObject &rhs){
 
 	return d;
 }
-double TriangleObject::distance_to2(TriangleObject &rhs){
-	//fcl->load_collision_pair(this->tris_file_name.c_str() , rhs.tris_file_name.c_str());
+void TriangleObject::read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
 	
-	using namespace fcl;
-	fcl::Matrix3f r1 (1,0,0,
-			0,1,0,
-			0,0,1);
-	fcl::Vec3f d1(this->x,this->y,this->z);
-	fcl::Vec3f d2(rhs.x,rhs.y,rhs.z);
-	fcl::Transform3f Tlhs(r1, d1);
-	fcl::Transform3f Trhs(r1, d2);
+	int ntris;
+	FILE *fp = fopen_s(fname,"r");
+	int res=fscanf(fp, "%d", &ntris);
+	CHECK(res==1, "fscanf failed");
 
-	DistanceResult local_result;
-	//MeshDistanceTraversalNode<BoundingVolume> node;
-	//if(!initialize(node, (const BVHModel<BoundingVolume>&)this->bvh, Tlhs, &(const BVHModel<BoundingVolume>&)(*(&rhs.bvh)), Trhs, DistanceRequest(true), local_result))
+	std::vector<fcl::Vec3f> vertices;
+	std::vector<fcl::Triangle> triangles;
+	for (int i = 0; i < 3*ntris; i+=3){
+		double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
+		res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+		       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
+		CHECK(res==9, "fscanf failed");
+		
+		fcl::Vec3f a(p1x, p1y, p1z);
+		fcl::Vec3f b(p2x, p2y, p2z);
+		fcl::Vec3f c(p3x, p3y, p3z);
+		vertices.push_back(a);
+		vertices.push_back(b);
+		vertices.push_back(c);
 
-	//node.enable_statistics = true;
+		fcl::Triangle t(i,i+1,i+2);
+		triangles.push_back(t);
 
-	//int qsize = 0;
-	//distance(&node, NULL, qsize);
+		//return;
+	}
+	fclose(fp);
 
-	//double d = local_result.min_distance;
-	//return d;
-	return -1;
-
+	bvh.bv_splitter.reset (new fcl::BVSplitter<BoundingVolume>(fcl::SPLIT_METHOD_MEAN));
+	bvh.beginModel();
+	bvh.addSubModel(vertices, triangles);
+	bvh.endModel();
+	ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh.num_tris, bvh.num_vertices);
 }
 
 void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname){
@@ -162,9 +168,9 @@ void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, con
 		res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 		       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
 		
-		double sX = 1;
-		double sY = 1;
-		double sZ = 1;
+		double sX = 2.5;
+		double sY = 2.5;
+		double sZ = 2.5;
 		p.x = sX*p1x;p.y = sY*p1y;p.z = sZ*p1z;
 		p1.x = sX*p2x;p1.y = sY*p2y;p1.z = sZ*p2z;
 		p2.x = sX*p3x;p2.y = sY*p3y;p2.z = sZ*p3z;
