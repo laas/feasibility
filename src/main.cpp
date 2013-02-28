@@ -10,15 +10,9 @@
 #include <fcl/BVH/BVH_model.h>
 
 #include <fast-replanning/fast-replanning-interface.hh>
-#include <fast-replanning/types.hh>
 
 #include "ros_util.h"
 #include "util.h"
-
-using fastreplanning::tools::WAIT;
-using fastreplanning::tools::READY;
-using fastreplanning::tools::RUN;
-using fastreplanning::tools::STOP;
 
 int main( int argc, char** argv )
 {
