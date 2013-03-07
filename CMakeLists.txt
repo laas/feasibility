@@ -38,7 +38,7 @@ link_directories(${FCLLIB_LIBRARY_DIRS})
 #COMMENT "rosmake & rosrun"
 #)
 
-set(MAIN_EXE MainProject)
+set(MAIN_EXE FootStepPlanner)
 message(STATUS "DEBUG OUTPUT ---- ")
 message(STATUS "")
 message(STATUS ${FPlanner_LIBRARY_DIRS})
@@ -72,6 +72,11 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 rosbuild_add_executable(${MAIN_EXE} src/main.cpp )
 target_link_libraries(${MAIN_EXE} ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+################################################################################
+##### PROJECTS #####################
+################################################################################
+rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
+target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### UNIT TESTING #####################
 ################################################################################
