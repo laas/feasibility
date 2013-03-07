@@ -47,7 +47,7 @@ double p(double x, double y, TriangleObject &robot, TriangleObject &chair){
 }
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "main_project");
+	ros::init(argc, argv, "Sampler");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 	Logger log("mcmc.tmp");
