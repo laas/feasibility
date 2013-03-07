@@ -93,7 +93,6 @@ void TriangleObject::rviz_publish(){
 
 double TriangleObject::distance_to(TriangleObject &rhs){
 	//fcl->load_collision_pair(this->tris_file_name.c_str() , rhs.tris_file_name.c_str());
-	
 	fcl::Matrix3f r1 (1,0,0,
 			0,1,0,
 			0,0,1);
