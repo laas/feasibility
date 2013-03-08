@@ -86,17 +86,17 @@ private:
 	fcl::BVHModel< BoundingVolume > bvh;
 	visualization_msgs::Marker marker;
 public:
-	double x,y,z; //position in the global world frame
+	double x,y,t; //position in the global world frame
 
 public:
-	explicit TriangleObject(std::string tris_file_name, double x, double y, double z);
+	explicit TriangleObject(std::string tris_file_name, double x, double y, double t);
 	~TriangleObject();
 	void clean();
-	void update_position(double x, double y, double z);
+	void update_position(double x, double y, double t);
 	void rviz_publish();
 
 	double distance_to(TriangleObject &rhs);
-	void init_marker_default(double x, double y, double z);
+	void init_marker_default(double x, double y, double t);
 
 	void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
 	void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);

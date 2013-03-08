@@ -12,11 +12,11 @@ uint TriangleObject::mesh_counter=0;
 RVIZInterface *TriangleObject::rviz = NULL;
 const char *FRAME_NAME = "/base_link";
 
-TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double z){
+TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double t){
 	this->tris_file_name = (tris_file_name);
 	this->x=x;
 	this->y=y;
-	this->z=z;
+	this->t=t;
 	//ROS_INFO("x=%f, y=%f, z=%f\n", x, y, z);
 
 	if(rviz == NULL){
@@ -25,7 +25,7 @@ TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, d
 	}
 	//id = mesh_counter++;
 	id = hashit(tris_file_name.c_str());
-	this->init_marker_default(x,y,z);
+	this->init_marker_default(x,y,t);
 
 	this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
 	this->read_tris_to_BVH(this->bvh, this->tris_file_name.c_str() );
@@ -44,21 +44,23 @@ TriangleObject::~TriangleObject(){
 		rviz = NULL;
 	}
 }
-void TriangleObject::update_position(double x, double y, double z){
+void TriangleObject::update_position(double x, double y, double t){
 	//Update RVIZ position marker
 	this->marker.pose.position.x = x;
 	this->marker.pose.position.y = y;
-	this->marker.pose.position.z = z;
+	this->marker.pose.orientation.z = t;
+	//this->marker.pose.position.z = z;
 	this->x=x;
 	this->y=y;
-	this->z=z;
+	this->t=t;
+	//this->z=z;
 	//Update FCL BVH model
 	//
 	//possibilities: (1) map(vertices, x,y,z)
 	//fcl->update_bvh_model(bvh, x, y, z);
 
 }
-void TriangleObject::init_marker_default(double x=0, double y=0, double z=0){
+void TriangleObject::init_marker_default(double x=0, double y=0, double t=0){
 	uint32_t shape = visualization_msgs::Marker::TRIANGLE_LIST;
 
 	marker.ns = tris_file_name;
@@ -67,10 +69,10 @@ void TriangleObject::init_marker_default(double x=0, double y=0, double z=0){
 	marker.action = visualization_msgs::Marker::ADD;
 	marker.pose.position.x = x;
 	marker.pose.position.y = y;
-	marker.pose.position.z = z;
+	marker.pose.position.z = 0;
 	marker.pose.orientation.x = 0.0;
 	marker.pose.orientation.y = 0.0;
-	marker.pose.orientation.z = 0.0;
+	marker.pose.orientation.z = t;
 	marker.pose.orientation.w = 1.0;
 
 	// 1x1x1 => 1m
@@ -93,13 +95,19 @@ void TriangleObject::rviz_publish(){
 
 double TriangleObject::distance_to(TriangleObject &rhs){
 	//fcl->load_collision_pair(this->tris_file_name.c_str() , rhs.tris_file_name.c_str());
-	fcl::Matrix3f r1 (1,0,0,
-			0,1,0,
-			0,0,1);
+	//fcl::Matrix3f r1 (1,0,0,
+			//0,1,0,
+			//0,0,1);
+
+	//rotation z-axis (as visualized in rviz)
+	fcl::Matrix3f r1 (cos(t),-sin(t),0,
+			  sin(t),cos(t) ,0,
+			  0     ,0      ,1);
+
 	//ROS_INFO("LHS: x=%f, y=%f, z=%f\n", lhs.x, lhs.y, lhs.z);
 	//ROS_INFO("RHS: x=%f, y=%f, z=%f\n", rhs.x, rhs.y, rhs.z);
-	fcl::Vec3f d1(this->x,this->y,this->z);
-	fcl::Vec3f d2(rhs.x,rhs.y,rhs.z);
+	fcl::Vec3f d1(this->x,this->y,0);
+	fcl::Vec3f d2(rhs.x,rhs.y,0);
 
 	fcl::Transform3f Tlhs(r1, d1);
 	fcl::Transform3f Trhs(r1, d2);
