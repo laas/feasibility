@@ -81,10 +81,10 @@ inline std::string get_data_path(){
 	return path;
 }
 
-inline std::string get_robot_str(){
+inline std::string get_robot_str(char *file="fullbody_-14_-21_-29.tris"){
 	std::string prefix = get_data_path(); //robotDATA.dat path
 	char robot_file[200];
-	sprintf(robot_file, "%s%s", prefix.c_str(), "fullBodyApprox/fullbody_-14_-21_-29.tris");
+	sprintf(robot_file, "%s%s%s", prefix.c_str(), "fullBodyApprox/", file);
 
 	std::string robot = robot_file;
 	return robot;
@@ -96,8 +96,34 @@ inline std::string get_chair_str(){
 	sprintf(chair_file, "%s%s", prefix.c_str(), "chairLabo.tris");
 	std::string chair = chair_file;
 	return chair;
+}
+inline std::string get_logging_str(char* prefix, std::string s){
+	char logfile[200];
 
 
+	std::string::reverse_iterator rit=s.rbegin();
+	std::string::iterator it=s.begin();
+
+	std::string x1,x2,x3;
+
+	printf("orig: %s\n",s.c_str());
+	//assume that file is called *[num]_[num]_[num].tris
+	while(*it != '_'){ it++;}
+	it++;
+	while(*it != '_'){ x1+=*it;it++; }
+	it++;
+	while(*it != '_'){ x2+=*it;it++; }
+	it++;
+	while(*it != '.'){ x3+=*it;it++; }
+	it++;
+	printf("%s\n",x1.c_str());
+	printf("%s\n",x2.c_str());
+	printf("%s\n",x3.c_str());
+
+
+	sprintf(logfile, "%ssample_%s_%s_%s.tmp", prefix, x1.c_str(),x2.c_str(),x3.c_str());
+	printf("%s\n",logfile);
+	return logfile;
 }
 
 
