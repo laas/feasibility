@@ -33,6 +33,7 @@ public:
 	}
 };
 
+
 struct RVIZVisualMarker{
 protected:
 	uint id; //unique id for this object
@@ -60,16 +61,17 @@ public:
 };
 
 struct FootStepObject{
-	uint id; //unique id for this object
 	static RVIZInterface *rviz; 
 	visualization_msgs::Marker marker;
 public:
+	uint id; //unique id for this object
 	double x,y,theta; //position in the global world frame
 public:
 	explicit FootStepObject(int id, double x, double y, double theta);
 	~FootStepObject();
 	void update_position(double x, double y, double theta);
 	void rviz_publish();
+	void remove();
 	void init_marker_default(double x, double y, double theta);
 	void changeColor(double r, double g, double b);
 	void drawLine(double x_in, double y_in);
