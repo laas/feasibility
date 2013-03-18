@@ -77,12 +77,12 @@ int main( int argc, char** argv )
 		double last_tR = 0;
 
 		double xold = 0;
-		double yold = 0.0;
-		double told = 0.0;
+		double yold = 0;
+		double told = 0;
 		//xold = fsi.at(0).at(0);
 		//yold = fsi.at(0).at(1);
 		//told = fsi.at(0).at(2);
-		for(uint i=1;i<fsi.size();i++){
+		for(uint i=0;i<fsi.size();i++){
 			//half-foot-step-format v.3.0:
 			// 1: x
 			// 2: y
@@ -108,9 +108,9 @@ int main( int argc, char** argv )
 //tempVector.at(i).abs_y = abs_y + sin(abs_theta)*x + cos(abs_theta)*y;
 //tempVector.at(i).abs_theta = abs_theta + theta;
 
-			x = fsi.at(i-1).at(0);
-			y = fsi.at(i-1).at(1);
-			t = fsi.at(i-1).at(2);
+			x = fsi.at(i).at(0);
+			y = fsi.at(i).at(1);
+			t = fsi.at(i).at(2);
 			double abs_x = xold;
 			double abs_y = yold;
 			double abs_t = told;
