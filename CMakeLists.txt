@@ -77,6 +77,9 @@ target_link_libraries(${MAIN_EXE} ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIB
 ################################################################################
 rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
 target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+
+rosbuild_add_executable(VisSteps src/vis_steps.cpp )
+target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### UNIT TESTING #####################
 ################################################################################
