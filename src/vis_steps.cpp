@@ -63,7 +63,7 @@ int main( int argc, char** argv )
 	if (ros::ok())
 	{
 		
-		CSVReader f("steps.dat");
+		CSVReader f("steps2.dat");
 		
 		std::vector< std::vector<double> > fsi;
 		f.getVV(fsi);

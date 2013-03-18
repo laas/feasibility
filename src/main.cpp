@@ -25,6 +25,14 @@ int main( int argc, char** argv )
 	std::string robot_file = get_robot_str();
 
 
+	// TODO:
+	// planner, objects (FCL), rviz
+	//
+	// classes needed: Environment (incl. object, FCLInterface), Visualizer
+	// (RViz interface, connection to environment?), Planner (either
+	// fast-replanner, obstacle-planner)
+
+
 	//######################################################
 	// set robot start
 	//######################################################
@@ -46,20 +54,19 @@ int main( int argc, char** argv )
 	fastreplanning::FastReplanningInterface *planner 
 		= fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
 
-	planner->setVerboseLevel(15); //0 5 15
+	planner->setVerboseLevel(0); //0 5 15
 	planner->mainLoop(); //init
 
 	planner->addObstacleFromDatabase(CHAIR, cx, cy, cz, 1,1,1); 
 	//planner->addObstacleFromDatabase(BOX, 0.49, 0.21, 0, 1,1,1); 
 	planner->updateLocalizationProtected(start);
 
-	std::vector<FootStepObject> fso;
 
 	while (ros::ok())
 	{
 
 		std::vector<double> goal;
-		goal.push_back(2.6); goal.push_back(0.5); goal.push_back(0.0);
+		goal.push_back(1.5); goal.push_back(-1.0); goal.push_back(0.0);
 		planner->update3DGoalPositionProtected(goal);
 
 		//Logger log("steps2.dat");
@@ -68,7 +75,6 @@ int main( int argc, char** argv )
 		planner->mainLoop();
 
 		chair.rviz_publish();
-		robot.rviz_publish();
 		ROS_INFO("published chair and sv");
 		
 		std::vector<fastreplanning::footStepInterface> fsi;
@@ -79,6 +85,7 @@ int main( int argc, char** argv )
 		double abs_y = 0.0;
 		double abs_t = 0.0;
 		for(uint i=0;i<fsi.size();i++){
+
 			//half-foot-step-format v.3.0:
 			// 1: x
 			// 2: y
@@ -109,6 +116,7 @@ int main( int argc, char** argv )
 			double newY = abs_y + sin(abs_t)*x+cos(abs_t)*y;
 			double newT = abs_t + t;
 			FootStepObject f(i, newX,newY,newT);
+			if(i==0) f.reset(); //clear all previous footsteps
 			abs_x=newX;
 			abs_y=newY;
 			abs_t=newT;

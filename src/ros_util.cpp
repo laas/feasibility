@@ -10,8 +10,6 @@
 
 uint TriangleObject::mesh_counter=0;
 RVIZInterface *TriangleObject::rviz = NULL;
-const char *FRAME_NAME = "/base_link";
-static const double ROS_DURATION = 1;
 
 TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double t){
 	this->tris_file_name = (tris_file_name);
@@ -64,7 +62,7 @@ void TriangleObject::update_position(double x, double y, double t){
 void TriangleObject::init_marker_default(double x=0, double y=0, double t=0){
 	uint32_t shape = visualization_msgs::Marker::TRIANGLE_LIST;
 
-	marker.ns = tris_file_name;
+	marker.ns = basename(tris_file_name.c_str());
 	marker.id = id;
 	marker.type = shape;
 	marker.action = visualization_msgs::Marker::ADD;
@@ -212,6 +210,9 @@ FootStepObject::FootStepObject(int id, double x, double y, double theta){
 	this->init_marker_default(x,y,theta);
 }
 FootStepObject::~FootStepObject(){
+}
+
+void FootStepObject::clean(){
 	if(rviz!=NULL){
 		delete rviz;
 		rviz = NULL;
@@ -233,12 +234,9 @@ void FootStepObject::rviz_publish(){
 	this->marker.header.stamp = ros::Time::now();
 
 	this->marker.lifetime = ros::Duration();
-	//this->marker.lifetime = ros::Duration(1);
-	this->rviz->publish(this->marker);
-}
-void FootStepObject::remove(){
-	this->marker.action = visualization_msgs::Marker::DELETE;
-	this->rviz->publish(this->marker);
+	//this->marker.lifetime = ros::Duration(ROS_DURATION);
+	this->rviz->footstep_publish(this->marker);
+
 }
 
 void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0){
@@ -261,13 +259,14 @@ void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0)
 	marker.pose.orientation.w = 1.0;
 
 	// 1x1x1 => 1m
-	marker.scale.x = 0.08;
-	marker.scale.y = 0.04;
+	marker.scale.x = 0.18;
+	marker.scale.y = 0.09;
 	marker.scale.z = 0.01;
 	marker.color.r = 0.0f;
 	marker.color.g = 1.0f;
 	marker.color.b = 0.0f;
-	marker.color.a = 0.8;
+	marker.color.a = 0.7;
+
 
 }
 void FootStepObject::changeColor(double r, double g, double b){
@@ -313,6 +312,9 @@ void FootStepObject::drawLine(double x_in, double y_in){
 	this->rviz->publish(line);
 
 }
+void FootStepObject::reset(){
+	this->rviz->reset();
+}
 //######################################################
 // SphereMarker
 //######################################################
@@ -330,8 +332,8 @@ SphereMarker::SphereMarker(int id, double x, double y, double r){
 }
 SphereMarker::~SphereMarker(){
 	if(rviz!=NULL){
-		delete rviz;
-		rviz = NULL;
+		//delete rviz;
+		//rviz = NULL;
 	}
 }
 void SphereMarker::update_position(double x, double y){
