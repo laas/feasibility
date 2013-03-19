@@ -169,6 +169,58 @@ public:
 	}
 };
 
+struct CSVReader{
+private:
+	FILE *fp;
+	std::string name;
+public:
+	CSVReader(std::string name, char delimiter=' '){
+		this->name = name;
+		fp = fopen_s(name.c_str(), "r");
+	}
+	bool line(std::vector<double> &in){
+		char line[200];
+		char t;
+		if( fgets( line, 200, fp ) ){
+		  	double d;
+			for(uint i=0;i<11;i++){
+				fscanf( fp, "%lg", &d);
+				fread(&t, sizeof(char), 1, fp);
+				in.push_back(d);
+			}
+		}
+		if( in.size() == 0){
+			return false;
+		}else{
+			return true;
+		}
+	}
+	void getVV(std::vector< std::vector<double> > &in){
+		char line[300];
+		char t;
+		while( fgets( line, 300, fp ) )
+		{
+		  	double d,x,y,t,c;
+			std::vector<double> vv;
+			char *tmp = line;
+			sscanf( tmp, "%lg %lg %lg %lg ", &x,&y,&t,&c);
+			vv.push_back(x);
+			vv.push_back(y);
+			vv.push_back(t);
+			vv.push_back(c);
+			vv.push_back(0);
+			in.push_back(vv);
+		}
+		//}
+
+	}
+	~CSVReader(){
+		fclose(fp);
+	}
+
+
+};
+
 //##########################################################################
 //Special functions / Experimental stuff / not yet stable
 //##########################################################################

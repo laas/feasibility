@@ -10,7 +10,6 @@
 
 uint TriangleObject::mesh_counter=0;
 RVIZInterface *TriangleObject::rviz = NULL;
-const char *FRAME_NAME = "/base_link";
 
 TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, double t){
 	this->tris_file_name = (tris_file_name);
@@ -24,7 +23,7 @@ TriangleObject::TriangleObject(std::string tris_file_name, double x, double y, d
 		mesh_counter=0;
 	}
 	//id = mesh_counter++;
-	id = hashit(tris_file_name.c_str());
+	this->id = hashit(tris_file_name.c_str());
 	this->init_marker_default(x,y,t);
 
 	this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
@@ -63,7 +62,7 @@ void TriangleObject::update_position(double x, double y, double t){
 void TriangleObject::init_marker_default(double x=0, double y=0, double t=0){
 	uint32_t shape = visualization_msgs::Marker::TRIANGLE_LIST;
 
-	marker.ns = tris_file_name;
+	marker.ns = basename(tris_file_name.c_str());
 	marker.id = id;
 	marker.type = shape;
 	marker.action = visualization_msgs::Marker::ADD;
@@ -76,9 +75,9 @@ void TriangleObject::init_marker_default(double x=0, double y=0, double t=0){
 	marker.pose.orientation.w = 1.0;
 
 	// 1x1x1 => 1m
-	marker.scale.x = 2.0;
-	marker.scale.y = 2.0;
-	marker.scale.z = 2.0;
+	marker.scale.x = 0.2;
+	marker.scale.y = 0.2;
+	marker.scale.z = 0.2;
 	marker.color.r = 1.0f;
 	marker.color.g = 1.0f;
 	marker.color.b = 0.0f;
@@ -175,9 +174,9 @@ void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, con
 		res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
 		       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
 		
-		double sX = 2.5;
-		double sY = 2.5;
-		double sZ = 2.5;
+		double sX = 1.5;
+		double sY = 1.5;
+		double sZ = 1.5;
 		p.x = sX*p1x;p.y = sY*p1y;p.z = sZ*p1z;
 		p1.x = sX*p2x;p1.y = sY*p2y;p1.z = sZ*p2z;
 		p2.x = sX*p3x;p2.y = sY*p3y;p2.z = sZ*p3z;
@@ -211,6 +210,9 @@ FootStepObject::FootStepObject(int id, double x, double y, double theta){
 	this->init_marker_default(x,y,theta);
 }
 FootStepObject::~FootStepObject(){
+}
+
+void FootStepObject::clean(){
 	if(rviz!=NULL){
 		delete rviz;
 		rviz = NULL;
@@ -232,8 +234,9 @@ void FootStepObject::rviz_publish(){
 	this->marker.header.stamp = ros::Time::now();
 
 	this->marker.lifetime = ros::Duration();
-	//this->marker.lifetime = ros::Duration(1);
-	this->rviz->publish(this->marker);
+	//this->marker.lifetime = ros::Duration(ROS_DURATION);
+	this->rviz->footstep_publish(this->marker);
+
 }
 
 void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0){
@@ -256,13 +259,14 @@ void FootStepObject::init_marker_default(double x=0, double y=0, double theta=0)
 	marker.pose.orientation.w = 1.0;
 
 	// 1x1x1 => 1m
-	marker.scale.x = 0.2;
-	marker.scale.y = 0.10;
+	marker.scale.x = 0.18;
+	marker.scale.y = 0.09;
 	marker.scale.z = 0.01;
 	marker.color.r = 0.0f;
 	marker.color.g = 1.0f;
 	marker.color.b = 0.0f;
-	marker.color.a = 1.0;
+	marker.color.a = 0.7;
+
 
 }
 void FootStepObject::changeColor(double r, double g, double b){
@@ -283,7 +287,7 @@ void FootStepObject::drawLine(double x_in, double y_in){
 	line.type = shape;
 	line.action = visualization_msgs::Marker::ADD;
 
-	line.scale.x = 0.03;
+	line.scale.x = 0.005;
 	geometry_msgs::Point p;
 	p.x = this->x;
 	p.y = this->y;
@@ -308,6 +312,9 @@ void FootStepObject::drawLine(double x_in, double y_in){
 	this->rviz->publish(line);
 
 }
+void FootStepObject::reset(){
+	this->rviz->reset();
+}
 //######################################################
 // SphereMarker
 //######################################################
@@ -325,8 +332,8 @@ SphereMarker::SphereMarker(int id, double x, double y, double r){
 }
 SphereMarker::~SphereMarker(){
 	if(rviz!=NULL){
-		delete rviz;
-		rviz = NULL;
+		//delete rviz;
+		//rviz = NULL;
 	}
 }
 void SphereMarker::update_position(double x, double y){
@@ -348,7 +355,7 @@ void SphereMarker::init_marker_default(double x=0, double y=0, double r=1){
 	uint32_t shape = visualization_msgs::Marker::CYLINDER;
 
 	char fname[50];
-	sprintf(fname, "%d_footstep",this->id);
+	sprintf(fname, "%d_spheremarker",this->id);
 
 
 	marker.ns = fname;
@@ -368,8 +375,8 @@ void SphereMarker::init_marker_default(double x=0, double y=0, double r=1){
 	marker.scale.y = r;
 	marker.scale.z = 0.01;
 	marker.color.r = 1.0f;
-	marker.color.g = 0.5f;
-	marker.color.b = 0.0f;
+	marker.color.g = 1.0f;
+	marker.color.b = 1.0f;
 	marker.color.a = 1.0;
 
 }

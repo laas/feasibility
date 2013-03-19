@@ -4,6 +4,7 @@
 #include <std_msgs/String.h>
 #include <vector>
 #include <sstream>
+#include <utility> //std::pair
 #include <iostream>
 #include <string>
 
@@ -18,20 +19,60 @@
 
 struct FCLInterface;
 
+const char *FRAME_NAME = "/base_link";
+static const double ROS_DURATION = 1;
+
 struct RVIZInterface{
 private:
 	ros::Publisher publisher;
 	ros::NodeHandle n;
+
+	typedef std::pair< std::string, uint> MarkerIdentifier;
+	typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
+	MarkerIdentifierVector published_marker;
+
 
 public:
 	RVIZInterface(){
 		std::string topic_name = "visualization_marker";
 		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
 	}
+	void reset(){
+		MarkerIdentifierVector::iterator it;
+		printf("reset %d marker\n", published_marker.size());
+		ROS_INFO("marker contains %d footsteps", published_marker.size());
+		for(it = published_marker.begin(); it != published_marker.end(); it++){
+			visualization_msgs::Marker tmp;
+			MarkerIdentifier m = (*it);
+			uint32_t shape = visualization_msgs::Marker::CUBE;
+			tmp.type = shape;
+			tmp.ns = m.first;
+			tmp.id = m.second;
+			tmp.color.r = 0.0f;
+			tmp.color.g = 0.0f;
+			tmp.color.b = 1.0f;
+			tmp.color.a = 1.0;
+			tmp.action = visualization_msgs::Marker::DELETE;
+			tmp.header.frame_id = FRAME_NAME;
+			tmp.header.stamp = ros::Time::now();
+			tmp.lifetime = ros::Duration(1);
+			publisher.publish(tmp);
+			ROS_INFO("deleted marker %s", m.first.c_str());
+		}
+		published_marker.clear();
+	}
 	void publish(visualization_msgs::Marker &m){
 		publisher.publish(m);
 	}
+	void footstep_publish(visualization_msgs::Marker &m){
+		publisher.publish(m);
+		MarkerIdentifier cur_m;
+		cur_m = std::make_pair( std::string(m.ns), m.id );
+		this->published_marker.push_back(cur_m);
+		ROS_INFO("marker contains %d footsteps", published_marker.size());
+	}
 };
+
 
 struct RVIZVisualMarker{
 protected:
@@ -60,16 +101,19 @@ public:
 };
 
 struct FootStepObject{
-	uint id; //unique id for this object
+public:
 	static RVIZInterface *rviz; 
 	visualization_msgs::Marker marker;
-public:
+	uint id; //unique id for this object
 	double x,y,theta; //position in the global world frame
+
 public:
 	explicit FootStepObject(int id, double x, double y, double theta);
 	~FootStepObject();
 	void update_position(double x, double y, double theta);
+	void reset();
 	void rviz_publish();
+	void clean();
 	void init_marker_default(double x, double y, double theta);
 	void changeColor(double r, double g, double b);
 	void drawLine(double x_in, double y_in);
