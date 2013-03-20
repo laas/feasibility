@@ -101,19 +101,6 @@ int main( int argc, char** argv )
 			// 4: ascii code for L or R
 			// 5-11: do not know
 			// 
-			/*
-			for(uint j=0;j<fsi.at(i).data.size();j++){
-				printf("%f - ",fsi.at(i).data.at(j));
-			}
-			printf("\n");
-			log("%f %f %f %f %f %f %f %f %f %f %f", fsi.at(i).data.at(0), fsi.at(i).data.at(1), 
-					fsi.at(i).data.at(2), fsi.at(i).data.at(3),
-					fsi.at(i).data.at(4), fsi.at(i).data.at(5),
-					fsi.at(i).data.at(6), fsi.at(i).data.at(7),
-					fsi.at(i).data.at(8), fsi.at(i).data.at(9),
-					fsi.at(i).data.at(10)
-					);
-			*/
 			///////////
 			double x = fsi.at(i).data.at(0);
 			double y = fsi.at(i).data.at(1);
@@ -152,10 +139,6 @@ int main( int argc, char** argv )
 		sm.publish();
 		//######################################################
 
-		r.sleep();
-		r.sleep();
-		r.sleep();
-		r.sleep();
 		r.sleep();
 	}
 }

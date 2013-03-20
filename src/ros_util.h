@@ -68,12 +68,15 @@ namespace ros{
 		typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
 		MarkerIdentifierVector published_marker;
 
+		std::vector<visualization_msgs::Marker> marker_list;
+
 	public:
 		RVIZInterface(){
 			std::string topic_name = "visualization_marker";
 			publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
 		}
 		void reset(){
+			/*
 			MarkerIdentifierVector::iterator it;
 			printf("reset %d marker\n", published_marker.size());
 			ROS_INFO("marker contains %d footsteps", published_marker.size());
@@ -91,21 +94,44 @@ namespace ros{
 				tmp.action = visualization_msgs::Marker::DELETE;
 				tmp.header.frame_id = FRAME_NAME;
 				tmp.header.stamp = ros::Time::now();
-				tmp.lifetime = ros::Duration(1);
+				//tmp.lifetime = ros::Duration();
 				publisher.publish(tmp);
 				ROS_INFO("deleted marker %s,%d", m.first.c_str(),m.second);
 			}
+			ROS_INFO("-------------------------------------");
 			published_marker.clear();
+			*/
+
+			std::vector<visualization_msgs::Marker>::iterator it;
+			for(it=marker_list.begin(); it!=marker_list.end(); it++){
+				visualization_msgs::Marker tmp = *it;
+				//tmp.header.stamp = ros::Time::now();
+				ros::Duration d = ros::Duration(0.1);
+				tmp.lifetime = d;
+				tmp.color.r = 0.0f;
+				tmp.color.g = 0.1f;
+				tmp.color.b = 1.0f;
+				tmp.color.a = 1.0;
+				//tmp.action = visualization_msgs::Marker::ADD;
+				publisher.publish(tmp);
+			}
+			marker_list.clear();
+
 		}
 		void publish(visualization_msgs::Marker &m){
 			publisher.publish(m);
 		}
 		void footstep_publish(visualization_msgs::Marker &m){
 			publisher.publish(m);
+			marker_list.push_back(m);
+
+			/*
 			MarkerIdentifier cur_m;
 			cur_m = std::make_pair( std::string(m.ns), m.id );
 			this->published_marker.push_back(cur_m);
+
 			ROS_INFO("created marker %s,%d", cur_m.first.c_str(),cur_m.second);
+			*/
 		}
 	};
 
@@ -137,7 +163,7 @@ namespace ros{
 		void drawLine(double x_in, double y_in);
 		void init_marker();
 		void reset(){
-			rviz->reset();
+			this->rviz->reset();
 		}
 	};
 
