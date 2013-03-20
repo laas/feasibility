@@ -74,11 +74,10 @@ inline std::string get_data_path(){
 	FILE *fp;
 	fp = fopen_s("robotDATA.dat", "r");
 	char line[1024];
-	//fgets(line, 1024, fp);
 	if ( fgets(line, 1024, fp) != NULL )
 	{
 		line[strlen(line)-1] = '\0';
-		fprintf(stderr, "%s\n", line);
+		//fprintf(stderr, "%s\n", line);
 	}
 	string path = string(line);
 	return path;
@@ -200,10 +199,9 @@ public:
 	}
 	void getVV(std::vector< std::vector<double> > &in){
 		char line[300];
-		char t;
 		while( fgets( line, 300, fp ) )
 		{
-		  	double d,x,y,t,c;
+		  	double x,y,t,c;
 			std::vector<double> vv;
 			char *tmp = line;
 			sscanf( tmp, "%lg %lg %lg %lg ", &x,&y,&t,&c);

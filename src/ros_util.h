@@ -19,129 +19,238 @@
 
 struct FCLInterface;
 
-const char *FRAME_NAME = "/base_link";
-static const double ROS_DURATION = 1;
 
-struct RVIZInterface{
-private:
-	ros::Publisher publisher;
-	ros::NodeHandle n;
+namespace ros{
+	const char *FRAME_NAME = "/base_link";
+	static const double ROS_DURATION = 1;
 
-	typedef std::pair< std::string, uint> MarkerIdentifier;
-	typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
-	MarkerIdentifierVector published_marker;
-
-
-public:
-	RVIZInterface(){
-		std::string topic_name = "visualization_marker";
-		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
-	}
-	void reset(){
-		MarkerIdentifierVector::iterator it;
-		printf("reset %d marker\n", published_marker.size());
-		ROS_INFO("marker contains %d footsteps", published_marker.size());
-		for(it = published_marker.begin(); it != published_marker.end(); it++){
-			visualization_msgs::Marker tmp;
-			MarkerIdentifier m = (*it);
-			uint32_t shape = visualization_msgs::Marker::CUBE;
-			tmp.type = shape;
-			tmp.ns = m.first;
-			tmp.id = m.second;
-			tmp.color.r = 0.0f;
-			tmp.color.g = 0.0f;
-			tmp.color.b = 1.0f;
-			tmp.color.a = 1.0;
-			tmp.action = visualization_msgs::Marker::DELETE;
-			tmp.header.frame_id = FRAME_NAME;
-			tmp.header.stamp = ros::Time::now();
-			tmp.lifetime = ros::Duration(1);
-			publisher.publish(tmp);
-			ROS_INFO("deleted marker %s", m.first.c_str());
+	struct Geometry{
+		Geometry(){
+			x=0;y=0;z=0;
+			tz=0;
+			sx=1;sy=1;sz=1;
 		}
-		published_marker.clear();
-	}
-	void publish(visualization_msgs::Marker &m){
-		publisher.publish(m);
-	}
-	void footstep_publish(visualization_msgs::Marker &m){
-		publisher.publish(m);
-		MarkerIdentifier cur_m;
-		cur_m = std::make_pair( std::string(m.ns), m.id );
-		this->published_marker.push_back(cur_m);
-		ROS_INFO("marker contains %d footsteps", published_marker.size());
-	}
-};
+		double x,y,z;
+		double tx;
+		double ty;
+		double tz; //rotation about z-axis
+		double sx,sy,sz;
+		void print(){
+			printf("X %f|Y %f|Z %f\n",x,y,z);
+			printf("TX %f|TY %f|TZ %f\n",tx,ty,tz);
+			printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
+		}
+	};
+
+	struct Color{
+		public:
+		Color(){
+			r=0;g=0;b=0;a=1;
+		}
+		Color(double r, double g, double b, double a=0.9){
+			this->r = r;this->g=g;this->b=b;this->a=a;
+		}
+
+		double r,g,b,a;
+	};
+	Color cdef(1.0,0.3,0.0);
+	Color RED(1.0,0.2,0.0,0.9);
+	Color BLUE(0.1,0.9,0.0,0.9);
+	Color MAGENTA(0.9,0.0,0.9,0.9);
 
 
-struct RVIZVisualMarker{
-protected:
-	uint id; //unique id for this object
-	static RVIZInterface *rviz; 
-	visualization_msgs::Marker marker;
-public:
-	double x,y,theta;
-public:
-	void rviz_publish();
-	void init_marker_default(double x, double y, double theta);
-};
+	struct RVIZInterface{
+	private:
+		ros::Publisher publisher;
+		ros::NodeHandle n;
 
-struct SphereMarker{
-	uint id; //unique id for this object
-	static RVIZInterface *rviz; 
-	visualization_msgs::Marker marker;
-public:
-	double x,y,r;
-public:
-	explicit SphereMarker(int id, double x, double y, double r);
-	~SphereMarker();
-	void update_position(double x, double y);
-	void rviz_publish();
-	void init_marker_default(double x, double y, double r);
-};
+		typedef std::pair< std::string, uint> MarkerIdentifier;
+		typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
+		MarkerIdentifierVector published_marker;
 
-struct FootStepObject{
-public:
-	static RVIZInterface *rviz; 
-	visualization_msgs::Marker marker;
-	uint id; //unique id for this object
-	double x,y,theta; //position in the global world frame
+	public:
+		RVIZInterface(){
+			std::string topic_name = "visualization_marker";
+			publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
+		}
+		void reset(){
+			MarkerIdentifierVector::iterator it;
+			printf("reset %d marker\n", published_marker.size());
+			ROS_INFO("marker contains %d footsteps", published_marker.size());
+			for(it = published_marker.begin(); it != published_marker.end(); it++){
+				visualization_msgs::Marker tmp;
+				MarkerIdentifier m = (*it);
+				uint32_t shape = visualization_msgs::Marker::CUBE;
+				tmp.type = shape;
+				tmp.ns = m.first;
+				tmp.id = m.second;
+				tmp.color.r = 0.0f;
+				tmp.color.g = 0.0f;
+				tmp.color.b = 1.0f;
+				tmp.color.a = 1.0;
+				tmp.action = visualization_msgs::Marker::DELETE;
+				tmp.header.frame_id = FRAME_NAME;
+				tmp.header.stamp = ros::Time::now();
+				tmp.lifetime = ros::Duration(1);
+				publisher.publish(tmp);
+				ROS_INFO("deleted marker %s,%d", m.first.c_str(),m.second);
+			}
+			published_marker.clear();
+		}
+		void publish(visualization_msgs::Marker &m){
+			publisher.publish(m);
+		}
+		void footstep_publish(visualization_msgs::Marker &m){
+			publisher.publish(m);
+			MarkerIdentifier cur_m;
+			cur_m = std::make_pair( std::string(m.ns), m.id );
+			this->published_marker.push_back(cur_m);
+			ROS_INFO("created marker %s,%d", cur_m.first.c_str(),cur_m.second);
+		}
+	};
 
-public:
-	explicit FootStepObject(int id, double x, double y, double theta);
-	~FootStepObject();
-	void update_position(double x, double y, double theta);
-	void reset();
-	void rviz_publish();
-	void clean();
-	void init_marker_default(double x, double y, double theta);
-	void changeColor(double r, double g, double b);
-	void drawLine(double x_in, double y_in);
-};
+	class RVIZVisualMarker{
+	protected:
+		static uint global_id;
+		uint id;
+		Geometry g;
+		Color c;
+		static RVIZInterface *rviz; 
+		visualization_msgs::Marker marker;
+	public:
+		RVIZVisualMarker(){
+			id=global_id;
+			global_id++;
+			if(rviz == NULL){
+				rviz = new RVIZInterface();
+			}
+		}
+		virtual void publish(){
+			marker.header.frame_id = FRAME_NAME;
+			marker.header.stamp = ros::Time::now();
+			marker.lifetime = ros::Duration();
+			rviz->publish(marker);
+		}
+		virtual std::string name() = 0;
+		virtual uint32_t get_shape() = 0;
+		virtual Color get_color() = 0;
+		void drawLine(double x_in, double y_in);
+		void init_marker();
+		void reset(){
+			rviz->reset();
+		}
+	};
 
-typedef fcl::AABB BoundingVolume;
-struct TriangleObject{
-private:
+	class FootMarker: public RVIZVisualMarker{
 
-	std::string tris_file_name;
-	uint id; //unique id for this object
-	static RVIZInterface *rviz; //singletons
-	static uint mesh_counter;
-	fcl::BVHModel< BoundingVolume > bvh;
-	visualization_msgs::Marker marker;
-public:
-	double x,y,t; //position in the global world frame
+	public:
+		FootMarker(double x, double y, double tz): RVIZVisualMarker(){
+			this->g.x = x;
+			this->g.y = y;
+			this->g.tz = tz;
+			this->g.sx=0.18;
+			this->g.sy=0.09;
+			this->g.sz=0.02;
+			init_marker();
+		}
+		virtual std::string name(){
+			return string("foot");
+		}
+		uint32_t get_shape(){
+			return visualization_msgs::Marker::CUBE;
+		}
+		virtual Color get_color(){
+			return Color(0.9,0.9,0.9,0.8);
+		}
+		virtual void publish(){
+			marker.header.frame_id = FRAME_NAME;
+			marker.header.stamp = ros::Time::now();
+			marker.lifetime = ros::Duration();
+			rviz->footstep_publish(marker);
+		}
+	};
+	class LeftFootMarker: public FootMarker{
+	public:
+		LeftFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {
+			init_marker();
+		}
+		virtual std::string name(){
+			return string("foot_L");
+		}
+		virtual Color get_color(){
+			return Color(0.9,0.1,0.0,0.8);
+		}
+	};
+	class RightFootMarker: public FootMarker{
+	public:
+		RightFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {
+			init_marker();
+		}
+		virtual std::string name(){
+			return string("foot_R");
+		}
+		virtual Color get_color(){
+			return Color(0.1,0.9,0.0,0.8);
+		}
+	};
 
-public:
-	explicit TriangleObject(std::string tris_file_name, double x, double y, double t);
-	~TriangleObject();
-	void clean();
-	void update_position(double x, double y, double t);
-	void rviz_publish();
+	struct SphereMarker: public RVIZVisualMarker{
+	public:
+		SphereMarker(double x, double y, double r=0.05): RVIZVisualMarker() {
+			this->g.x = x;
+			this->g.y = y;
+			this->g.tz = 0;
+			this->g.sx=r;
+			this->g.sy=r;
+			this->g.sz=0.01;
+			init_marker();
+		}
+		virtual std::string name(){
+			return string("sphere");
+		}
+		uint32_t get_shape(){
+			return visualization_msgs::Marker::CYLINDER;
+		}
+		virtual Color get_color(){
+			return ros::MAGENTA;
+		}
+	};
 
-	double distance_to(TriangleObject &rhs);
-	void init_marker_default(double x, double y, double t);
 
-	void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
-	void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
-};
+	struct TriangleObject: public RVIZVisualMarker{
+		typedef fcl::AABB BoundingVolume;
+		std::string tris_file_name;
+		fcl::BVHModel< BoundingVolume > bvh;
+		static uint mesh_counter;
+	public:
+		TriangleObject(std::string f, Geometry &in): RVIZVisualMarker() {
+			this->g.x = in.x;
+			this->g.y = in.y;
+			this->g.z = in.z;
+			this->g.tz = in.tz;
+
+			double scale = 0.7;
+			this->g.sx = scale;
+			this->g.sy = scale;
+			this->g.sz = scale;
+			this->tris_file_name=f;
+			this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
+			this->read_tris_to_BVH(this->bvh, tris_file_name.c_str() );
+			init_marker();
+		}
+		virtual std::string name(){
+			return string(basename(tris_file_name.c_str()));
+		}
+		uint32_t get_shape(){
+			return visualization_msgs::Marker::TRIANGLE_LIST;
+		}
+		virtual Color get_color(){
+			return ros::MAGENTA;
+		}
+		void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
+		void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
+		double distance_to(TriangleObject &rhs);
+
+	};
+
+};//namespace ROS
