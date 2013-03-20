@@ -1,5 +1,6 @@
 #pragma once
 #include "ros_util.h"
+#include "util.h"
 
 //doing mcmc or hmc for your convenience
 class SampleGenerator{

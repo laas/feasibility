@@ -34,6 +34,9 @@ inline FILE *fopen_s(const char *path, const char *mode){
 	}
 	return tmp;
 }
+inline void std_seed(){
+	srand(0);
+}
 inline double rand(double lowerLimit, double upperLimit){
 	double x= ((double)rand() / (double)RAND_MAX); //[0,1]
 	double xs = x*(upperLimit-lowerLimit); //[0, upperLimit+lowerLimit]

@@ -58,6 +58,7 @@ set(SOURCE
 	src/ros_util.cpp 
 	src/ros_util.h 
 	src/util.h 
+	src/sampler.h
 )
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lfcl -L/usr/local/bin")
 set(UTIL_LIB util)

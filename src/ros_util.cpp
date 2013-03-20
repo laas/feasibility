@@ -102,6 +102,9 @@ double TriangleObject::distance_to(TriangleObject &rhs){
 	fcl::Matrix3f r1 (cos(t),-sin(t),0,
 			  sin(t),cos(t) ,0,
 			  0     ,0      ,1);
+	fcl::Matrix3f r2 (cos(rhs.t),-sin(rhs.t),0,
+			  sin(rhs.t),cos(rhs.t) ,0,
+			  0     ,0      ,1);
 
 	//ROS_INFO("LHS: x=%f, y=%f, z=%f\n", lhs.x, lhs.y, lhs.z);
 	//ROS_INFO("RHS: x=%f, y=%f, z=%f\n", rhs.x, rhs.y, rhs.z);
@@ -109,7 +112,7 @@ double TriangleObject::distance_to(TriangleObject &rhs){
 	fcl::Vec3f d2(rhs.x,rhs.y,0);
 
 	fcl::Transform3f Tlhs(r1, d1);
-	fcl::Transform3f Trhs(r1, d2);
+	fcl::Transform3f Trhs(r2, d2);
 
 	fcl::DistanceRequest request;
 	fcl::DistanceResult result;
