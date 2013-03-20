@@ -14,6 +14,7 @@
 #include "ros_util.h"
 #include "util.h"
 
+using namespace ros;
 int main( int argc, char** argv )
 {
 	ros::init(argc, argv, "footstep_planner");
@@ -32,7 +33,6 @@ int main( int argc, char** argv )
 	// (RViz interface, connection to environment?), Planner (either
 	// fast-replanner, obstacle-planner)
 
-
 	//######################################################
 	// set robot start
 	//######################################################
@@ -40,13 +40,21 @@ int main( int argc, char** argv )
 	start.push_back(0.0);
 	start.push_back(0.0);
 	start.push_back(0.0);
-	SphereMarker ss(998, start.at(0), start.at(1), 0.05);
-	ss.rviz_publish();
+	SphereMarker ss(start.at(0), start.at(1));
+	ss.publish();
 
-	double cx=0.49,cy=0.05,cz=0.0;
-	double rx=1.0,ry=0.00,rz=0.0;
-	TriangleObject chair(chair_file, cx, cy, cz);
-	TriangleObject robot(robot_file, rx, ry, rz);
+	Geometry chair_pos;
+	chair_pos.x = 0.49;
+	chair_pos.y = 0.05;
+	chair_pos.tz = 0.0;
+
+	Geometry robot_pos;
+	robot_pos.x = 0;
+	robot_pos.y = 0;
+	robot_pos.tz = 0;
+
+	TriangleObject chair(chair_file, chair_pos);
+	TriangleObject robot(robot_file, robot_pos);
 
 	//######################################################
 	// fastPlanner
@@ -57,7 +65,7 @@ int main( int argc, char** argv )
 	planner->setVerboseLevel(0); //0 5 15
 	planner->mainLoop(); //init
 
-	planner->addObstacleFromDatabase(CHAIR, cx, cy, cz, 1,1,1); 
+	planner->addObstacleFromDatabase(CHAIR, chair_pos.x, chair_pos.y, chair_pos.tz, 1,1,1); 
 	//planner->addObstacleFromDatabase(BOX, 0.49, 0.21, 0, 1,1,1); 
 	planner->updateLocalizationProtected(start);
 
@@ -74,7 +82,7 @@ int main( int argc, char** argv )
 		ROS_INFO("foot step planner START->");
 		planner->mainLoop();
 
-		chair.rviz_publish();
+		chair.publish();
 		ROS_INFO("published chair and sv");
 		
 		std::vector<fastreplanning::footStepInterface> fsi;
@@ -115,27 +123,22 @@ int main( int argc, char** argv )
 			double newX = abs_x + cos(abs_t)*x-sin(abs_t)*y;
 			double newY = abs_y + sin(abs_t)*x+cos(abs_t)*y;
 			double newT = abs_t + t;
-			FootStepObject f(i, newX,newY,newT);
-			if(i==0) f.reset(); //clear all previous footsteps
+
 			abs_x=newX;
 			abs_y=newY;
 			abs_t=newT;
 
 			if(foot == 'R'){
-				f.changeColor(1,0,0);
+				RightFootMarker f( newX, newY, newT);
+				if(i==0) f.reset(); //clear all previous footsteps
+				f.publish();
 			}else{
-				f.changeColor(0,1,0);
+				LeftFootMarker f( newX, newY, newT);
+				if(i==0) f.reset(); //clear all previous footsteps
+				f.publish();
 			}
 
-			if(i==0 || i==1){
-				f.changeColor(1,1,0);
-			}
-			if(i==fsi.size()-1 || i==fsi.size()-2){
-				f.changeColor(1,0.6,0);
-			}
-
-			f.rviz_publish();
-			ROS_INFO("new footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
+			//ROS_INFO("new footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
 		}
 
 		//######################################################
@@ -145,10 +148,14 @@ int main( int argc, char** argv )
 		planner->getCurrentSetGoal(curgoal);
 		ROS_INFO("curgoal[%d]: %f %f", curgoal.size(), curgoal.at(0), curgoal.at(1));
 
-		SphereMarker sm(999, goal.at(0), goal.at(1), 0.05);
-		sm.rviz_publish();
+		SphereMarker sm(goal.at(0), goal.at(1));
+		sm.publish();
 		//######################################################
 
+		r.sleep();
+		r.sleep();
+		r.sleep();
+		r.sleep();
 		r.sleep();
 	}
 }

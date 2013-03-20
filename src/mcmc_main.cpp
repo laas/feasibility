@@ -12,8 +12,9 @@
 
 #include "ros_util.h"
 #include "util.h"
-#include "sampler.h"
+//#include "sampler.h"
 
+using namespace ros;
 int main( int argc, char** argv )
 {
 	ros::init(argc, argv, "mcmc_sampler");
@@ -25,6 +26,7 @@ int main( int argc, char** argv )
 		return -1;
 	}
 	printf("%s\n", argv[1]);
+	ROS_INFO("%s", argv[1]);
 	if (ros::ok())
 	{
 		uint Nsamples = 6;
@@ -33,11 +35,32 @@ int main( int argc, char** argv )
 		std::string robot_file = get_robot_str(argv[1]);
 
 		//Logger log(get_logging_str("data/hmc/", robot_file));
-		Logger log("test_log4");
-		TriangleObject chair(chair_file.c_str(), 2, 1, 0);
-		TriangleObject robot(robot_file.c_str(), 0, 0, 0);
+		Geometry chair_pos;
+		chair_pos.x = 0.8;
+		chair_pos.y = 0.05;
+		chair_pos.tz = 0.5;
 
-		SampleGenerator sampler(log);
-		sampler.mcmc( robot, chair, Nsamples);
+		Geometry robot_pos;
+		robot_pos.x = 0;
+		robot_pos.y = 0;
+		robot_pos.tz = 0;
+
+		TriangleObject chair(chair_file.c_str(), chair_pos);
+		TriangleObject robot(robot_file.c_str(), robot_pos);
+		chair.publish();
+		robot.publish();
+		r.sleep();
+
+		for(uint i=0;i<10;i++){
+			LeftFootMarker lfm(0+i/10.0,0,0);
+			//RightFootMarker rfm(0+i/10.0,1,0);
+			//SphereMarker ss(-1+i/10,0.5,0.2);
+			lfm.publish();
+			//ss.publish();
+		}
+
+
+		//SampleGenerator sampler(log);
+		//sampler.mcmc( robot, chair, Nsamples);
 	}
 }

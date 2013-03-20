@@ -79,22 +79,22 @@ target_link_libraries(${MAIN_EXE} ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIB
 rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
 target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
-rosbuild_add_executable(VisSteps src/vis_steps.cpp )
-target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
-################################################################################
-##### UNIT TESTING #####################
-################################################################################
-rosbuild_add_executable(UnitTestDistance src/unit_testing_distance_checker.cpp)
-target_link_libraries(UnitTestDistance ${UTIL_LIB} ${FCLLIB_LIBRARIES})
-
-rosbuild_add_executable(UnitTestVisualization src/unit_testing_triangle_visualization.cpp )
-target_link_libraries(UnitTestVisualization ${UTIL_LIB} ${FCLLIB_LIBRARIES})
-
-rosbuild_add_executable(UnitTestFastPlannerLibrary src/unit_testing_exec_replanning.cpp )
-target_link_libraries(UnitTestFastPlannerLibrary ${UTIL_LIB} ${FPlanner_LIBRARIES} ${FPlanner_LIBRARIES})
-
-rosbuild_add_executable(UnitTestMCMCSampling src/unit_testing_mcmc_sampling.cpp )
-target_link_libraries(UnitTestMCMCSampling ${UTIL_LIB} ${FPlanner_LIBRARIES})
+#rosbuild_add_executable(VisSteps src/vis_steps.cpp )
+#target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#################################################################################
+###### UNIT TESTING #####################
+#################################################################################
+#rosbuild_add_executable(UnitTestDistance src/unit_testing_distance_checker.cpp)
+#target_link_libraries(UnitTestDistance ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#
+#rosbuild_add_executable(UnitTestVisualization src/unit_testing_triangle_visualization.cpp )
+#target_link_libraries(UnitTestVisualization ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#
+#rosbuild_add_executable(UnitTestFastPlannerLibrary src/unit_testing_exec_replanning.cpp )
+#target_link_libraries(UnitTestFastPlannerLibrary ${UTIL_LIB} ${FPlanner_LIBRARIES} ${FPlanner_LIBRARIES})
+#
+#rosbuild_add_executable(UnitTestMCMCSampling src/unit_testing_mcmc_sampling.cpp )
+#target_link_libraries(UnitTestMCMCSampling ${UTIL_LIB} ${FPlanner_LIBRARIES})
 
 ###### DEPRECATED #####################
 ################################################################################
