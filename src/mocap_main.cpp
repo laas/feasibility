@@ -19,17 +19,6 @@ int main( int argc, char** argv )
 	std::string chair_file = get_chair_str();
 	std::string robot_file = get_robot_str();
 
-	// TODO:
-	// planner, objects (FCL), rviz
-	//
-	// classes needed: Environment (incl. object, FCLInterface), Visualizer
-	// (RViz interface, connection to environment?), Planner (either
-	// fast-replanner, obstacle-planner)
-
-	//######################################################
-	// set robot start
-	//######################################################
-
 	Geometry chair_pos;
 	chair_pos.x = 0.49;
 	chair_pos.y = 0.05;
@@ -42,11 +31,12 @@ int main( int argc, char** argv )
 
 	TriangleObject chair(chair_file, chair_pos);
 	TriangleObject robot(robot_file, robot_pos);
-	std::string mocap = std::string("/mocap/helmet/origin");
+	std::string mocap = std::string("/evart/helmet/origin");
 	chair.subscribeToEvart( mocap );
 
 	while (ros::ok())
 	{
+		ROS_INFO("ping");
 		chair.publish();
 		r.sleep();
 	}

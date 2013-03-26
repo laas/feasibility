@@ -186,7 +186,7 @@ namespace ros{
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
 			geometry_msgs::Transform t = tf.transform;
 			std::string name_id = tf.child_frame_id;
-			ROS_INFO("updating geometry of %s", name_id.c_str());
+			//ROS_INFO("updating geometry of %s", name_id.c_str());
 
 			g.x = t.translation.x;
 			g.y = t.translation.y;
@@ -203,7 +203,10 @@ namespace ros{
 		void Callback_init(){
 			assert(!m_subscriber);
 			m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
+			std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
+			ROS_INFO("thread %s started", name_id.c_str());
 			ros::spin();
+			ROS_INFO("thread %s finished", name_id.c_str());
 		}
 
 		void update_marker();
