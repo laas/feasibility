@@ -108,6 +108,7 @@ namespace ros{
 		}
 		fclose(fp);
 	}
+
 	void RVIZVisualMarker::init_marker(){
 		char fname[50];
 		std::string name = this->name();
@@ -135,6 +136,29 @@ namespace ros{
 		marker.color.b = c.b;
 		marker.color.a = c.a;
 	}
+
+	void RVIZVisualMarker::update_marker(){
+		marker.id = this->id;
+		marker.type = get_shape();
+		marker.pose.position.x = g.x;
+		marker.pose.position.y = g.y;
+		marker.pose.position.z = g.z;
+		marker.pose.orientation.x = g.tx;
+		marker.pose.orientation.y = g.ty;
+		marker.pose.orientation.z = g.tz;
+		marker.pose.orientation.w = g.tw;
+
+		marker.scale.x = g.sx;
+		marker.scale.y = g.sy;
+		marker.scale.z = g.sz;
+
+		Color c = get_color();
+		marker.color.r = c.r;
+		marker.color.g = c.g;
+		marker.color.b = c.b;
+		marker.color.a = c.a;
+	}
+
 	void RVIZVisualMarker::drawLine(double x_in, double y_in){
 
 		visualization_msgs::Marker line;

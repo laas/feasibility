@@ -1,12 +1,15 @@
 #pragma once
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/Transform.h>
 #include <std_msgs/String.h>
 #include <vector>
 #include <sstream>
 #include <utility> //std::pair
 #include <iostream>
 #include <string>
+#include <boost/thread.hpp>
 
 #include <fcl/shape/geometric_shapes.h>
 #include <fcl/broadphase/broadphase_bruteforce.h>
@@ -19,9 +22,8 @@
 
 struct FCLInterface;
 
-
 namespace ros{
-	const char *FRAME_NAME = "/base_link";
+	const char *FRAME_NAME = "/mocap_world";
 	static const double ROS_DURATION = 1;
 
 	struct Geometry{
@@ -31,10 +33,9 @@ namespace ros{
 			sx=1;sy=1;sz=1;
 		}
 		double x,y,z;
-		double tx;
-		double ty;
-		double tz; //rotation about z-axis
-		double sx,sy,sz;
+		double tx,ty,tz,tw; //quaternions
+		double sx,sy,sz; //scale
+
 		void print(){
 			printf("X %f|Y %f|Z %f\n",x,y,z);
 			printf("TX %f|TY %f|TZ %f\n",tx,ty,tz);
@@ -50,20 +51,20 @@ namespace ros{
 		Color(double r, double g, double b, double a=0.9){
 			this->r = r;this->g=g;this->b=b;this->a=a;
 		}
-
 		double r,g,b,a;
 	};
-	Color cdef(1.0,0.3,0.0);
+	Color DEFAULT(1.0,0.3,0.0,0.9);
 	Color RED(1.0,0.2,0.0,0.9);
 	Color BLUE(0.1,0.9,0.0,0.9);
 	Color MAGENTA(0.9,0.0,0.9,0.9);
 
 
 	struct RVIZInterface{
-	private:
+	public:
 		ros::Publisher publisher;
 		ros::NodeHandle n;
 
+	private:
 		typedef std::pair< std::string, uint> MarkerIdentifier;
 		typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
 		MarkerIdentifierVector published_marker;
@@ -133,6 +134,7 @@ namespace ros{
 			ROS_INFO("created marker %s,%d", cur_m.first.c_str(),cur_m.second);
 			*/
 		}
+		//void getTransformGeometry( Geometry &g );
 	};
 
 	class RVIZVisualMarker{
@@ -143,6 +145,10 @@ namespace ros{
 		Color c;
 		static RVIZInterface *rviz; 
 		visualization_msgs::Marker marker;
+
+		std::string geometry_subscribe_topic;
+		boost::shared_ptr<boost::thread> m_thread;
+		ros::Subscriber m_subscriber;
 	public:
 		RVIZVisualMarker(){
 			id=global_id;
@@ -157,13 +163,56 @@ namespace ros{
 			marker.lifetime = ros::Duration();
 			rviz->publish(marker);
 		}
+		void reset(){
+			this->rviz->reset();
+		}
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
 		virtual Color get_color() = 0;
 		void drawLine(double x_in, double y_in);
 		void init_marker();
-		void reset(){
-			this->rviz->reset();
+
+
+		// evart interface methods
+		~RVIZVisualMarker(){
+			if(m_thread!=NULL){
+				m_thread->interrupt();
+				std::string id = boost::lexical_cast<std::string>(m_thread->get_id());
+				ROS_INFO("waiting for thread %s to terminate", id.c_str());
+				m_thread->join();
+			}
+		}
+	private:
+		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
+			geometry_msgs::Transform t = tf.transform;
+			std::string name_id = tf.child_frame_id;
+			ROS_INFO("updating geometry of %s", name_id.c_str());
+
+			g.x = t.translation.x;
+			g.y = t.translation.y;
+			g.z = t.translation.z;
+			g.tx = t.rotation.x;
+			g.ty = t.rotation.y;
+			g.tz = t.rotation.z;
+			g.tw = t.rotation.w;
+
+			update_marker();
+			boost::this_thread::interruption_point();
+		}
+
+		void Callback_init(){
+			assert(!m_subscriber);
+			m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
+			ros::spin();
+		}
+
+		void update_marker();
+	public:
+		void subscribeToEvart(std::string &topic){
+			//m_thread = boost::thread(Callback_init());
+			geometry_subscribe_topic = topic;
+			assert(!m_thread);
+			m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&RVIZVisualMarker::Callback_init, this) );
 		}
 	};
 
