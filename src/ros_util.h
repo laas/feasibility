@@ -23,6 +23,10 @@
 struct FCLInterface;
 
 namespace ros{
+	//predefined objects
+	//
+	struct TriangleObjectChair;
+
 	const char *FRAME_NAME = "/mocap_world";
 	static const double ROS_DURATION = 1;
 
@@ -57,7 +61,6 @@ namespace ros{
 	Color RED(1.0,0.2,0.0,0.9);
 	Color BLUE(0.1,0.9,0.0,0.9);
 	Color MAGENTA(0.9,0.0,0.9,0.9);
-
 
 	struct RVIZInterface{
 	public:
@@ -301,7 +304,12 @@ namespace ros{
 		fcl::BVHModel< BoundingVolume > bvh;
 		static uint mesh_counter;
 	public:
+		explicit TriangleObject(): RVIZVisualMarker(){
+		}
 		TriangleObject(std::string f, Geometry &in): RVIZVisualMarker() {
+			init_object(f, in);
+		}
+		void init_object( std::string f, Geometry &in ){
 			this->g.x = in.x;
 			this->g.y = in.y;
 			this->g.z = in.z;
@@ -315,6 +323,7 @@ namespace ros{
 			this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
 			this->read_tris_to_BVH(this->bvh, tris_file_name.c_str() );
 			init_marker();
+
 		}
 		virtual std::string name(){
 			return string(basename(tris_file_name.c_str()));
@@ -329,6 +338,34 @@ namespace ros{
 		void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
 		double distance_to(TriangleObject &rhs);
 
+	};
+	struct TriangleObjectChair: public TriangleObject{
+		TriangleObjectChair(std::string mocap): TriangleObject(){
+			std::string prefix = get_data_path();
+			std::string chair_file = get_chair_str();
+			Geometry chair_pos;
+			chair_pos.x = 0.49;
+			chair_pos.y = 0.05;
+			chair_pos.tz = 0.0;
+			this->init_object(chair_file, chair_pos);
+
+			this->subscribeToEvart( mocap );
+		}
+	};
+	struct TriangleObjectRobot: public TriangleObject{
+		TriangleObjectRobot(std::string mocap): TriangleObject(){
+			std::string prefix = get_data_path();
+			std::string robot_file = get_robot_str();
+
+			Geometry robot_pos;
+			robot_pos.x = 0;
+			robot_pos.y = 0;
+			robot_pos.tz = 0;
+
+			this->init_object(robot_file, robot_pos);
+
+			this->subscribeToEvart( mocap );
+		}
 	};
 
 };//namespace ROS
