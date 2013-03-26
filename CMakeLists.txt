@@ -55,11 +55,13 @@ message(STATUS "------------------- ")
 #COMMENT "execute main project"
 #)
 set(SOURCE
+	src/environment.h
 	src/ros_util.cpp 
 	src/ros_util.h 
 	src/util.h 
 	src/sampler.h
 )
+include_directories(src)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lfcl -L/usr/local/bin")
 set(UTIL_LIB util)
 rosbuild_add_library(${UTIL_LIB} ${SOURCE})
@@ -76,11 +78,14 @@ target_link_libraries(${MAIN_EXE} ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIB
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
-target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
+#target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
-rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
-target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
+#target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+
+rosbuild_add_executable(ENVTester test/env_main.cpp )
+target_link_libraries(ENVTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 #rosbuild_add_executable(VisSteps src/vis_steps.cpp )
 #target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})

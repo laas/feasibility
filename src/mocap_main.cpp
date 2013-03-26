@@ -1,10 +1,6 @@
 #include <ros/ros.h>
 #include <ros/time.h>
-#include <std_msgs/String.h>
-#include <visualization_msgs/Marker.h>
-#include <vector>
 #include <iostream>
-
 #include "ros_util.h"
 #include "util.h"
 

@@ -207,8 +207,11 @@ namespace ros{
 			assert(!m_subscriber);
 			m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 			std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
-			ROS_INFO("thread %s started", name_id.c_str());
+			ROS_INFO("thread %s %d started", name_id.c_str());
 			ros::spin();
+			//ros::AsyncSpinner spinner(2);
+			//spinner.start();
+			ros::waitForShutdown();
 			ROS_INFO("thread %s finished", name_id.c_str());
 		}
 
@@ -250,6 +253,7 @@ namespace ros{
 			rviz->footstep_publish(marker);
 		}
 	};
+
 	class LeftFootMarker: public FootMarker{
 	public:
 		LeftFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {
@@ -262,6 +266,7 @@ namespace ros{
 			return Color(0.9,0.1,0.0,0.8);
 		}
 	};
+
 	class RightFootMarker: public FootMarker{
 	public:
 		RightFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {
