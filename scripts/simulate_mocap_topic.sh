@@ -1,0 +1,2 @@
+rostopic pub /evart/helmet/origin geomry_msgs/TransformStamped '{header: {frame_id: 'mocap_world'}, child_frame_id: 'id', transform: {translation: {x: 1., y: 0., z: 0.}, rotation: {x: 0., y: 0., z: 0., w: 1.}}}'
+rostopic pub /evart/chair/origin geomry_msgs/TransformStamped '{header: {frame_id: 'mocap_world'}, child_frame_id: 'id', transform: {translation: {x: -1., y: 0., z: 0.}, rotation: {x: 0., y: 0., z: 0., w: 1.}}}'
