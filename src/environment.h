@@ -3,8 +3,10 @@
 #include "ros_util.h"
 
 struct Environment{
+protected:
 	std::vector<ros::RVIZVisualMarker*> objects;
 
+public:
 	Environment(){
 	}
 	~Environment(){
@@ -23,14 +25,19 @@ struct Environment{
 		}
 		objects.clear();
 	}
+	std::vector<ros::RVIZVisualMarker*> getObjects(){
+		return objects;
+	}
 };
 
 struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){
+
 		ros::TriangleObjectChair *chair = new ros::TriangleObjectChair("/evart/chair/origin");
-		ros::TriangleObjectRobot *robot = new ros::TriangleObjectRobot("/evart/helmet/origin");
+		//ros::TriangleObjectRobot *robot = new ros::TriangleObjectRobot("/evart/helmet/origin");
+
 		objects.push_back(chair);
-		objects.push_back(robot);
+		//objects.push_back(robot);
 	}
 };
 

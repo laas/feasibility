@@ -56,6 +56,7 @@ message(STATUS "------------------- ")
 #)
 set(SOURCE
 	src/environment.h
+	src/planner.h
 	src/ros_util.cpp 
 	src/ros_util.h 
 	src/util.h 
@@ -73,8 +74,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ###### MAIN PROJECTS #####################
 ################################################################################
-rosbuild_add_executable(${MAIN_EXE} src/main.cpp )
-target_link_libraries(${MAIN_EXE} ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#rosbuild_add_executable(${MAIN_EXE} src/main.cpp )
+#target_link_libraries(${MAIN_EXE} ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
