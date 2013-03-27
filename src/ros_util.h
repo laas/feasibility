@@ -18,6 +18,8 @@
 #include <fcl/collision_data.h>
 #include <fcl/collision.h>
 #include <fcl/distance.h>
+
+#include <pqp/PQP.h>
 #include "util.h"
 
 struct FCLInterface;
@@ -174,6 +176,9 @@ namespace ros{
 		virtual Color get_color() = 0;
 		void drawLine(double x_in, double y_in);
 		void init_marker();
+		Geometry* getGeometry(){
+			return &g;
+		}
 
 
 		// evart interface methods
@@ -189,7 +194,7 @@ namespace ros{
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
 			geometry_msgs::Transform t = tf.transform;
 			std::string name_id = tf.child_frame_id;
-			//ROS_INFO("updating geometry of %s", name_id.c_str());
+			ROS_INFO("updating geometry of %s", name_id.c_str());
 
 			g.x = t.translation.x;
 			g.y = t.translation.y;
@@ -207,7 +212,7 @@ namespace ros{
 			assert(!m_subscriber);
 			m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 			std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
-			ROS_INFO("thread %s %d started", name_id.c_str());
+			ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str());
 			ros::spin();
 			//ros::AsyncSpinner spinner(2);
 			//spinner.start();
@@ -282,7 +287,7 @@ namespace ros{
 
 	struct SphereMarker: public RVIZVisualMarker{
 	public:
-		SphereMarker(double x, double y, double r=0.05): RVIZVisualMarker() {
+		SphereMarker(double x, double y, double r=0.08): RVIZVisualMarker() {
 			this->g.x = x;
 			this->g.y = y;
 			this->g.tz = 0;
@@ -307,6 +312,9 @@ namespace ros{
 		typedef fcl::AABB BoundingVolume;
 		std::string tris_file_name;
 		fcl::BVHModel< BoundingVolume > bvh;
+		PQP_Model *pqp_model;
+		PQP_Model *pqp_margin;
+
 		static uint mesh_counter;
 	public:
 		explicit TriangleObject(): RVIZVisualMarker(){
@@ -325,6 +333,11 @@ namespace ros{
 			this->g.sy = scale;
 			this->g.sz = scale;
 			this->tris_file_name=f;
+
+			this->pqp_model = new PQP_Model;
+			this->pqp_margin = new PQP_Model;
+			this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+
 			this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
 			this->read_tris_to_BVH(this->bvh, tris_file_name.c_str() );
 			init_marker();
@@ -340,7 +353,9 @@ namespace ros{
 			return ros::MAGENTA;
 		}
 		void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
+		void read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 		void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
+
 		double distance_to(TriangleObject &rhs);
 
 	};
@@ -351,6 +366,7 @@ namespace ros{
 			Geometry chair_pos;
 			chair_pos.x = 0.49;
 			chair_pos.y = 0.05;
+			chair_pos.z = 0.0;
 			chair_pos.tz = 0.0;
 			this->init_object(chair_file, chair_pos);
 
@@ -363,7 +379,7 @@ namespace ros{
 			std::string robot_file = get_robot_str();
 
 			Geometry robot_pos;
-			robot_pos.x = 0;
+			robot_pos.x = -2;
 			robot_pos.y = 0;
 			robot_pos.tz = 0;
 

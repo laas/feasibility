@@ -35,6 +35,45 @@ namespace ros{
 
 		return d;
 	}
+	void TriangleObject::read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){
+		int ntris;
+
+		FILE *fp = fopen_s(fname,"r");
+		int res=fscanf(fp, "%d", &ntris);
+		CHECK(res==1, "fscanf failed");
+		m->BeginModel();
+		m_margin->BeginModel();
+
+		std::vector<fcl::Vec3f> vertices;
+		std::vector<fcl::Triangle> triangles;
+		double scale = 1.0; //bigger obstacles for planning phase
+		double scale_x = 1.1; //bigger obstacles for planning phase
+		double scale_y = 1.1; //bigger obstacles for planning phase
+		double scale_z = 1.1; //bigger obstacles for planning phase
+		for (int i = 0; i < ntris; i++){
+			double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
+			res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
+			CHECK(res==9, "fscanf failed");
+
+			PQP_REAL p1[3],p2[3],p3[3],p4[3],p5[3],p6[3];
+			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
+			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
+			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
+			m->AddTri(p1,p2,p3,i);
+			p4[0] = (PQP_REAL)scale_x*p1x; p4[1] = (PQP_REAL)scale_y*p1y; p4[2] = (PQP_REAL)scale_z*p1z;
+			p5[0] = (PQP_REAL)scale_x*p2x; p5[1] = (PQP_REAL)scale_y*p2y; p5[2] = (PQP_REAL)scale_z*p2z;
+			p6[0] = (PQP_REAL)scale_x*p3x; p6[1] = (PQP_REAL)scale_y*p3y; p6[2] = (PQP_REAL)scale_z*p3z;
+			m_margin->AddTri(p4,p5,p6,i);
+			
+		}
+		m->EndModel();
+		m_margin->EndModel();
+		fclose(fp);
+
+		ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);
+
+	}
 	void TriangleObject::read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
 		
 		int ntris;
