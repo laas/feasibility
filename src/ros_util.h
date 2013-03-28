@@ -143,10 +143,11 @@ namespace ros{
 	};
 
 	class RVIZVisualMarker{
+	public:
+		Geometry g;
 	protected:
 		static uint global_id;
 		uint id;
-		Geometry g;
 		Color c;
 		static RVIZInterface *rviz; 
 		visualization_msgs::Marker marker;
@@ -194,15 +195,22 @@ namespace ros{
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
 			geometry_msgs::Transform t = tf.transform;
 			std::string name_id = tf.child_frame_id;
-			ROS_INFO("updating geometry of %s", name_id.c_str());
+			//ROS_INFO("updating geometry of %s", name_id.c_str());
 
 			g.x = t.translation.x;
 			g.y = t.translation.y;
+			//assume objects are on the floor (only rotation about
+			//Z)
+			g.z = 0.05;
+			g.tz = sin(t.rotation.z/2.);
+			g.tw = cos(t.rotation.z/2.);
+			/*
 			g.z = t.translation.z;
 			g.tx = t.rotation.x;
 			g.ty = t.rotation.y;
 			g.tz = t.rotation.z;
 			g.tw = t.rotation.w;
+			*/
 
 			update_marker();
 			boost::this_thread::interruption_point();
@@ -373,6 +381,19 @@ namespace ros{
 			this->subscribeToEvart( mocap );
 		}
 	};
+	struct TriangleObjectFloor: public TriangleObject{
+		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap): TriangleObject(){
+			std::string prefix = get_data_path();
+			std::string object_file = get_tris_str(fname);
+
+			Geometry object_pos;
+			object_pos.x = x;
+			object_pos.y = y;
+
+			this->init_object(object_file, object_pos);
+			this->subscribeToEvart( mocap );
+		}
+	};
 	struct TriangleObjectRobot: public TriangleObject{
 		TriangleObjectRobot(std::string mocap): TriangleObject(){
 			std::string prefix = get_data_path();
@@ -384,7 +405,6 @@ namespace ros{
 			robot_pos.tz = 0;
 
 			this->init_object(robot_file, robot_pos);
-
 			this->subscribeToEvart( mocap );
 		}
 	};
