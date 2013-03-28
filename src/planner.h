@@ -36,8 +36,6 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		start.push_back(0.0);
 		start.push_back(0.0);
 		start.push_back(0.0);
-		ros::SphereMarker ss(start.at(0), start.at(1));
-		ss.publish();
 		planner->updateLocalizationProtected(start);
 
 		ROS_INFO("finished init planner");
@@ -63,6 +61,11 @@ struct MotionPlannerPerrin: public MotionPlanner{
 			ROS_INFO("added PQP model with %d to planner\n", t->pqp_model->num_tris);
 		}
 
+		//get goal from environment
+		ros::Geometry goalG = environment->getGoal();
+		this->setGoal( goalG );
+
+
 		//get robots pose from environment
 	}
 
@@ -79,8 +82,9 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		goal.push_back(pos.x); goal.push_back(pos.y); goal.push_back(pos.z);
 		planner->update3DGoalPositionProtected(goal);
 
-		ros::SphereMarker ss( pos.x ,pos.y);
-		ss.publish();
+		//ros::SphereMarker ss( pos.x ,pos.y);
+		//ss.publish();
+		ROS_INFO("set GOAL TO  %f %f", pos.x , pos.y );
 	}
 	void publish(){
 		std::vector<fastreplanning::footStepInterface> fsi;

@@ -83,21 +83,18 @@ inline std::string get_data_path(){
 	return path;
 }
 
-inline std::string get_robot_str(char *file="fullbody_-14_-21_-29.tris"){
+inline std::string get_tris_str(std::string relative_path){
 	std::string prefix = get_data_path(); //robotDATA.dat path
-	char robot_file[200];
-	sprintf(robot_file, "%s%s%s", prefix.c_str(), "fullBodyApprox/", file);
-
-	std::string robot = string(robot_file);
-	return robot;
-
+	char tris_file[200];
+	sprintf(tris_file, "%s%s", prefix.c_str(), relative_path.c_str());
+	std::string tris = string(tris_file);
+	return tris;
+}
+inline std::string get_robot_str(){
+	return get_tris_str("fullBodyApprox/fullbody_-14_-21_-29.tris");
 }
 inline std::string get_chair_str(){
-	std::string prefix = get_data_path(); //robotDATA.dat path
-	char chair_file[200];
-	sprintf(chair_file, "%s%s", prefix.c_str(), "chairLabo.tris");
-	std::string chair = string(chair_file);
-	return chair;
+	return get_tris_str("chairLabo.tris");
 }
 inline std::string get_logging_str(char* prefix, std::string s){
 	char logfile[200];

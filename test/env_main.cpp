@@ -14,16 +14,13 @@ int main( int argc, char** argv )
 
 	MotionPlannerPerrin planner(environment, argc, argv);
 
-	ros::Geometry goal;
-	goal.x = 1.5;
-	goal.y = -1;
-	goal.tz = 0;
-	planner.setGoal( goal );
+	int counter=0;
 	while (ros::ok())
 	{
-		environment.publish();
+		//environment.publish();
 		planner.plan();
 		planner.publish();
 		r.sleep();
+		//if(counter++>1) return 0;
 	}
 }
