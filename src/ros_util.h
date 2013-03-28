@@ -1,8 +1,10 @@
 #pragma once
 #include <ros/ros.h>
 #include <visualization_msgs/Marker.h>
+#include <tf/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Transform.h>
+
 #include <std_msgs/String.h>
 #include <vector>
 #include <sstream>
@@ -166,7 +168,7 @@ namespace ros{
 		virtual void publish(){
 			marker.header.frame_id = FRAME_NAME;
 			marker.header.stamp = ros::Time::now();
-			marker.lifetime = ros::Duration();
+			marker.lifetime = ros::Duration(1);
 			rviz->publish(marker);
 		}
 		void reset(){
@@ -202,8 +204,32 @@ namespace ros{
 			//assume objects are on the floor (only rotation about
 			//Z)
 			g.z = 0.05;
-			g.tz = sin(t.rotation.z/2.);
-			g.tw = cos(t.rotation.z/2.);
+			 //btQuaternion q; btMatrix3x3(q).getRPY(roll, pitch, yaw);
+			double yaw = 0;
+			yaw = 2*acos(t.rotation.w);
+
+			ROS_INFO("yaw %f %f",yaw, t.rotation.w);
+
+
+			if( t.rotation.w < 0.01 && t.rotation.z < 0.01){
+				tf::Quaternion q(0,0,0,1);
+				g.tx = q.getX();
+				g.ty = q.getY();
+				g.tz = q.getZ();
+				g.tw = q.getW();
+			}else{
+				tf::Quaternion q;
+				q.setRPY(0, 0, yaw);
+				g.tx = q.getX();
+				g.ty = q.getY();
+				g.tz = q.getZ();
+				g.tw = q.getW();
+			}
+/*
+			ros::btMatrix3x3 rot;
+			btQuaternion q = btQuaternion(qx,qy,qz,qw);
+			rot.setRotation(q);
+*/
 			/*
 			g.z = t.translation.z;
 			g.tx = t.rotation.x;
@@ -262,7 +288,7 @@ namespace ros{
 		virtual void publish(){
 			marker.header.frame_id = FRAME_NAME;
 			marker.header.stamp = ros::Time::now();
-			marker.lifetime = ros::Duration();
+			marker.lifetime = ros::Duration(2);
 			rviz->footstep_publish(marker);
 		}
 	};
