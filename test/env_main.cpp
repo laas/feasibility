@@ -11,8 +11,8 @@ int main( int argc, char** argv )
 	ros::Rate r(1);
 
 	EnvironmentSalleBauzil environment;
-
 	MotionPlannerPerrin planner(environment, argc, argv);
+	//MotionPlannerHyperPlanar planner(environment, argc, argv);
 
 	int counter=0;
 	while (ros::ok())

@@ -7,9 +7,10 @@ struct Environment{
 protected:
 	std::vector<ros::RVIZVisualMarker*> objects;
 	ros::RVIZVisualMarker *goal;
+	ros::RVIZVisualMarker *start;
 	boost::shared_ptr<boost::thread> m_thread;
 
-protected:
+private:
 	void publish(){
 		ros::Rate r(10); //Hz
 		while(1){
@@ -23,14 +24,21 @@ protected:
 			r.sleep();
 		}
 	}
+protected:
 
 	void startThread(){
 		assert(!m_thread);
 		m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::publish, this) );
 	}
 
+	virtual void setGoalObject(){ }
+	virtual void setStartObject(){ }
+	virtual void setObjects(){ }
 public:
 	Environment(){
+		setGoalObject();
+		setStartObject();
+		setObjects();
 	}
 
 	~Environment(){
@@ -55,20 +63,31 @@ public:
 	ros::Geometry getGoal(){
 		return goal->g;
 	}
+	ros::Geometry getStart(){
+		return start->g;
+	}
 };
 
 struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){
+	}
+	virtual void setObjects(){
 		//ros::TriangleObjectChair *chair = new ros::TriangleObjectChair("/evart/chair/origin");
 		ros::TriangleObjectChair *chair = new ros::TriangleObjectChair("/evart/chair2/PO");
 		//ros::TriangleObjectRobot *robot = new ros::TriangleObjectRobot("/evart/helmet/origin");
 		//goal = new ros::TriangleObjectFloor(1, 0, "tris/TRIS_head0.tris", "/evart/helmet/origin");
 		//goal = new ros::TriangleObjectFloor(1.5, -0.5, "wall.tris", "/evart/helmet/origin");
-		goal = new ros::TriangleObjectFloor(1.5, -0.5, "wall.tris", "/evart/helmet2/PO");
 		objects.push_back(chair);
 		//objects.push_back(robot);
 		//
-		startThread();
+
 	}
+	virtual void setGoalObject(){
+		goal = new ros::TriangleObjectFloor(1.5, -0.5, "box.tris", "/evart/helmet2/PO");
+	}
+	virtual void setStartObject(){
+		start = new ros::TriangleObjectFloor(0.0, -0.0, "box.tris", "");
+	}
+
 };
 

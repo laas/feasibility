@@ -14,11 +14,27 @@ public:
 		environment = &env;
 	}
 
+	void update(){
+		ros::Geometry goalG = environment->getGoal();
+		setGoal( goalG );
+		ros::Geometry start = environment->getStart();
+		setStart( start );
+
+		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
+
+		std::vector<ros::RVIZVisualMarker*>::iterator it;
+		ROS_INFO("%d objects found", objects.size());
+		for(it=objects.begin(); it!=objects.end(); it++){
+			addObjectToPlanner(*it);
+		}
+	}
+
 	virtual void plan() = 0;
-
-	virtual void update() = 0;
-
+	virtual void publish() = 0;
+protected:
 	virtual void setGoal( ros::Geometry &goal ) = 0;
+	virtual void setStart( ros::Geometry &start ) = 0;
+	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m) = 0;
 
 };
 //Wrapper around fastReplanning library
@@ -31,43 +47,23 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		planner = fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
 		planner->setVerboseLevel(0); //0 5 15
 		planner->mainLoop(); //init
-
-		std::vector<double> start;
-		start.push_back(0.0);
-		start.push_back(0.0);
-		start.push_back(0.0);
-		planner->updateLocalizationProtected(start);
-
-		ROS_INFO("finished init planner");
 	}
-	virtual void update(){
-		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
 
-		std::vector<ros::RVIZVisualMarker*>::iterator it;
-		ROS_INFO("%d objects found", objects.size());
-		for(it=objects.begin(); it!=objects.end(); it++){
-			//ros::RVIZVisualMarker *m = *it;
-			ros::Geometry *g = (*it)->getGeometry();
+	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
+		//ros::RVIZVisualMarker *m = *it;
+		ros::Geometry *g = m->getGeometry();
 
-			ros::TriangleObject *t = static_cast<ros::TriangleObject*>( (*it) );
-			
-			ROS_INFO("%f %f %f %f", g->x, g->y, g->z, g->tz);
-			ROS_INFO("%f %f %f %f", g->x, g->y, g->z, g->tz);
-			if(t->pqp_model !=NULL)
-				ROS_INFO("exists");
+		ros::TriangleObject *t = static_cast<ros::TriangleObject*>( m );
+		
+		ROS_INFO("%f %f %f %f", g->x, g->y, g->z, g->tz);
+		ROS_INFO("%f %f %f %f", g->x, g->y, g->z, g->tz);
+		if(t->pqp_model !=NULL)
+			ROS_INFO("exists");
 
-			//the z-value has to be 0.05 --- otherwise the planner does not find a solution
-			//planner->addAGenericPQPModel2(t->pqp_model, t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
-			planner->addAGenericPQPModel(t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
-			ROS_INFO("added PQP model with %d to planner\n", t->pqp_model->num_tris);
-		}
-
-		//get goal from environment
-		ros::Geometry goalG = environment->getGoal();
-		this->setGoal( goalG );
-
-
-		//get robots pose from environment
+		//the z-value has to be 0.05 --- otherwise the planner does not find a solution
+		//planner->addAGenericPQPModel2(t->pqp_model, t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
+		planner->addAGenericPQPModel(t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
+		ROS_INFO("added PQP model with %d to planner\n", t->pqp_model->num_tris);
 	}
 
 	void plan(){
@@ -78,13 +74,16 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		planner->getCurrentSetGoal(curgoal);
 		ROS_INFO("curgoal[%d]: %f %f", curgoal.size(), curgoal.at(0), curgoal.at(1));
 	}
+	void setStart( ros::Geometry &pos ){
+		std::vector<double> start;
+		start.push_back(pos.x); start.push_back(pos.y); start.push_back(pos.z);
+		planner->updateLocalizationProtected(start);
+		ROS_INFO("set START TO  %f %f", pos.x , pos.y );
+	}
 	void setGoal( ros::Geometry &pos ){
 		std::vector<double> goal;
 		goal.push_back(pos.x); goal.push_back(pos.y); goal.push_back(pos.z);
 		planner->update3DGoalPositionProtected(goal);
-
-		//ros::SphereMarker ss( pos.x ,pos.y);
-		//ss.publish();
 		ROS_INFO("set GOAL TO  %f %f", pos.x , pos.y );
 	}
 	void publish(){
@@ -136,7 +135,9 @@ struct MotionPlannerPerrin: public MotionPlanner{
 };
 
 struct MotionPlannerHyperPlanar: public MotionPlanner{
+	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
+		std::string prefix = get_data_path();
+
+	}
 
 };
-
-
