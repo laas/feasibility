@@ -1,7 +1,8 @@
 #include <ros/ros.h>
 #include <ros/time.h>
 #include "environment.h"
-#include "planner.h"
+#include "motionplannerperrin.h"
+#include "motionplannerhyperplanar.h"
 
 using namespace ros;
 int main( int argc, char** argv )
@@ -11,10 +12,9 @@ int main( int argc, char** argv )
 	ros::Rate r(1);
 
 	EnvironmentSalleBauzil environment;
-	MotionPlannerPerrin planner(environment, argc, argv);
-	//MotionPlannerHyperPlanar planner(environment, argc, argv);
+	//MotionPlannerPerrin planner(environment, argc, argv);
+	MotionPlannerHyperPlanar planner(environment, argc, argv);
 
-	int counter=0;
 	while (ros::ok())
 	{
 		//environment.publish();

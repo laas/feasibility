@@ -37,7 +37,7 @@ namespace ros{
 	struct Geometry{
 		Geometry(){
 			x=0;y=0;z=0;
-			tz=0;
+			tx=0;ty=0;tz=0;tw=1;
 			sx=1;sy=1;sz=1;
 		}
 		double x,y,z;
@@ -46,8 +46,9 @@ namespace ros{
 
 		void print(){
 			printf("X %f|Y %f|Z %f\n",x,y,z);
-			printf("TX %f|TY %f|TZ %f\n",tx,ty,tz);
+			printf("TX %f|TY %f|TZ %f|TW %f\n",tx,ty,tz,tw);
 			printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
+			cout << endl;
 		}
 	};
 

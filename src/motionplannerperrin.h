@@ -1,42 +1,5 @@
-#pragma once
-#include <vector>
-#include <pqp/PQP.h>
-#include <fast-replanning/fast-replanning-interface.hh>
-#include "ros_util.h"
+#include "motionplanner.h"
 
-struct MotionPlanner{
-protected:
-	Environment *environment;
-	ros::Geometry goal;
-
-public:
-	MotionPlanner(Environment &env){
-		environment = &env;
-	}
-
-	void update(){
-		ros::Geometry goalG = environment->getGoal();
-		setGoal( goalG );
-		ros::Geometry start = environment->getStart();
-		setStart( start );
-
-		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
-
-		std::vector<ros::RVIZVisualMarker*>::iterator it;
-		ROS_INFO("%d objects found", objects.size());
-		for(it=objects.begin(); it!=objects.end(); it++){
-			addObjectToPlanner(*it);
-		}
-	}
-
-	virtual void plan() = 0;
-	virtual void publish() = 0;
-protected:
-	virtual void setGoal( ros::Geometry &goal ) = 0;
-	virtual void setStart( ros::Geometry &start ) = 0;
-	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m) = 0;
-
-};
 //Wrapper around fastReplanning library
 struct MotionPlannerPerrin: public MotionPlanner{
 	fastreplanning::FastReplanningInterface *planner;
@@ -66,26 +29,27 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		ROS_INFO("added PQP model with %d to planner\n", t->pqp_model->num_tris);
 	}
 
-	void plan(){
-		update();
+	void start_planner(){
 		planner->mainLoop();
-
 		std::vector<double> curgoal;
 		planner->getCurrentSetGoal(curgoal);
 		ROS_INFO("curgoal[%d]: %f %f", curgoal.size(), curgoal.at(0), curgoal.at(1));
 	}
+
 	void setStart( ros::Geometry &pos ){
 		std::vector<double> start;
 		start.push_back(pos.x); start.push_back(pos.y); start.push_back(pos.z);
 		planner->updateLocalizationProtected(start);
 		ROS_INFO("set START TO  %f %f", pos.x , pos.y );
 	}
+
 	void setGoal( ros::Geometry &pos ){
 		std::vector<double> goal;
 		goal.push_back(pos.x); goal.push_back(pos.y); goal.push_back(pos.z);
 		planner->update3DGoalPositionProtected(goal);
 		ROS_INFO("set GOAL TO  %f %f", pos.x , pos.y );
 	}
+
 	void publish(){
 		std::vector<fastreplanning::footStepInterface> fsi;
 		planner->getInterfaceSteps(fsi);
@@ -131,13 +95,5 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		}
 
 	}//publish
-
-};
-
-struct MotionPlannerHyperPlanar: public MotionPlanner{
-	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
-		std::string prefix = get_data_path();
-
-	}
 
 };
