@@ -3,9 +3,14 @@
 
 
 struct MotionPlannerHyperPlanar: public MotionPlanner{
+	Environment *environment;
+
 	struct ContactTransition
 	{
 		ros::Geometry g;
+		static std::map< int, std::vector<double> > hyperplane;
+		static bool loaded;
+
 		double cost_so_far;
 		ContactTransition(){
 		}
@@ -15,7 +20,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		ContactTransition( ros::Geometry &g){
 			this->g = g;
 		}
-		float GoalDistanceEstimate( ContactTransition &nodeGoal ){
+		double GoalDistanceEstimate( ContactTransition &nodeGoal ){
 			double xg = nodeGoal.g.x;
 			double yg = nodeGoal.g.y;
 			double x = this->g.x;
@@ -42,6 +47,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 						ng.y = newY;
 						ng.tz = newT;
 						ContactTransition next(ng);
+						//next.cost_so_far = this->getPlanarDistance(ng) + this->GoalDistanceEstimate( next );
 						next.cost_so_far = this->GoalDistanceEstimate( next );
 						astarsearch->AddSuccessor(next);
 					}
@@ -50,7 +56,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 			return true;
 		}
 
-		float GetCost( ContactTransition &successor ){
+		double GetCost( ContactTransition &successor ){
 			//return successor.cost_so_far;
 			return 0.0;
 		}
@@ -64,12 +70,44 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 			return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg) + (t-tg)*(t-tg))<0.01;
 		}
 
+		/*
+		double getPlanarDistance( ros::Geometry &g ){
+			std::vector<RVIZVisualMarker*> objects = environment->getObjects();
+
+			std::vector<ros::RVIZVisualMarker*>::iterator obj;
+			for(obj = objects.begin();obj!=objects.end();obj++){
+				double d = (*obj)->getDistanceToHyperPlane(g);
+			}
+
+
+		}
+		//hyperparameter realization
+		int computeHash(ros::Geometry &g){
+
+		}
+		void loadHyperPlaneParameters(char *file){
+			//FILE *fp = fopen_s(file,'r');
+
+		}
+
+		double getDistanceToHyperPlane(ros::Geometry &g){
+			std::vector<double> params = hyperplane[ computeHash(g) ];
+
+
+
+		}
+		void loadObjectPosition(Environment &env){
+
+		}
+		*/
+
 	};//contactTransition
 	ContactTransition goal;
 	ContactTransition start;
 	AStarSearch<ContactTransition> *astarsearch;
 
 	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
+		this->environment = &env;
 		astarsearch = new AStarSearch<ContactTransition>(100000);
 	}
 	void setGoal( ros::Geometry &goal ){
@@ -84,6 +122,9 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void start_planner(){
 		start.print();
 		goal.print();
+		//start.loadHyperPlaneParameters("data/hyperplane.csv");
+		//start.loadObjectPositions(environment);
+
 		astarsearch->SetStartAndGoalStates( start, goal );
 		unsigned int SearchSteps = 0;
 		uint SearchState;

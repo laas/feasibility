@@ -10,6 +10,26 @@ namespace ros{
 
 	//snippet from
 	//http://answers.ros.org/question/40223/placing-permanent-visual-marker-in-rviz/?answer=40230#post-id-40230
+	void Geometry::print(){
+		printf("X %f|Y %f|Z %f\n",x,y,z);
+		printf("TX %f|TY %f|TZ %f|TW %f\n",tx,ty,tz,tw);
+		printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
+		cout << endl;
+	}
+	RVIZInterface::RVIZInterface(){
+		std::string topic_name = "visualization_marker";
+		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
+	}
+	void RVIZInterface::publish(visualization_msgs::Marker &m){
+		waitForSubscribers(publisher, ros::Duration(5));
+		publisher.publish(m);
+	}
+
+	void RVIZInterface::footstep_publish(visualization_msgs::Marker &m){
+		marker_list.push_back(m);
+		this->publish(m);
+		ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
+	}
 	bool RVIZInterface::waitForSubscribers(ros::Publisher & pub, ros::Duration timeout)
 	{
 	    if(pub.getNumSubscribers() > 0)
@@ -66,6 +86,35 @@ namespace ros{
 			publisher.publish(tmp);
 		}
 		marker_list.clear();
+	}
+	RVIZVisualMarker::RVIZVisualMarker(){
+		id=global_id;
+		global_id++;
+		if(rviz == NULL){
+			rviz = new RVIZInterface();
+		}
+	}
+	void RVIZVisualMarker::publish(){
+		marker.header.frame_id = FRAME_NAME;
+		marker.header.stamp = ros::Time::now();
+		marker.lifetime = ros::Duration(ROS_DURATION);
+		rviz->publish(marker);
+		//ROS_INFO("published marker %s", marker.ns.c_str());
+	}
+	void RVIZVisualMarker::reset(){
+		this->rviz->reset();
+		global_id = 0;
+	}
+	Geometry* RVIZVisualMarker::getGeometry(){
+		return &g;
+	}
+	RVIZVisualMarker::~RVIZVisualMarker(){
+		if(m_thread!=NULL){
+			m_thread->interrupt();
+			std::string id = boost::lexical_cast<std::string>(m_thread->get_id());
+			ROS_INFO("waiting for thread %s to terminate", id.c_str());
+			m_thread->join();
+		}
 	}
 
 	double TriangleObject::distance_to(TriangleObject &rhs){
