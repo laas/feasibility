@@ -82,14 +82,17 @@ namespace ros{
 			std::string topic_name = "visualization_marker";
 			publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
 		}
+		bool waitForSubscribers(ros::Publisher &pub, ros::Duration timeout);
 		void reset();
+
 		void publish(visualization_msgs::Marker &m){
+			waitForSubscribers(publisher, ros::Duration(5));
 			publisher.publish(m);
 		}
-		void footstep_publish(visualization_msgs::Marker &m){
-			publisher.publish(m);
-			marker_list.push_back(m);
 
+		void footstep_publish(visualization_msgs::Marker &m){
+			marker_list.push_back(m);
+			this->publish(m);
 			ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
 		}
 	};

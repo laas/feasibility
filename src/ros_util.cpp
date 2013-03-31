@@ -8,6 +8,22 @@ namespace ros{
 	RVIZInterface *RVIZVisualMarker::rviz = NULL;
 	uint RVIZVisualMarker::global_id = 0;
 
+	//snippet from
+	//http://answers.ros.org/question/40223/placing-permanent-visual-marker-in-rviz/?answer=40230#post-id-40230
+	bool RVIZInterface::waitForSubscribers(ros::Publisher & pub, ros::Duration timeout)
+	{
+	    if(pub.getNumSubscribers() > 0)
+		return true;
+	    ros::Time start = ros::Time::now();
+	    ros::Rate waitTime(0.2);
+	    while(ros::Time::now() - start < timeout) {
+		waitTime.sleep();
+		if(pub.getNumSubscribers() > 0)
+		    break;
+	    }
+	    return pub.getNumSubscribers() > 0;
+	}
+
 	void RVIZInterface::reset(){
 		/*
 		MarkerIdentifierVector::iterator it;
