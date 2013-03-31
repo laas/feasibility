@@ -8,6 +8,50 @@ namespace ros{
 	RVIZInterface *RVIZVisualMarker::rviz = NULL;
 	uint RVIZVisualMarker::global_id = 0;
 
+	void RVIZInterface::reset(){
+		/*
+		MarkerIdentifierVector::iterator it;
+		printf("reset %d marker\n", published_marker.size());
+		ROS_INFO("marker contains %d footsteps", published_marker.size());
+		for(it = published_marker.begin(); it != published_marker.end(); it++){
+			visualization_msgs::Marker tmp;
+			MarkerIdentifier m = (*it);
+			uint32_t shape = visualization_msgs::Marker::CUBE;
+			tmp.type = shape;
+			tmp.ns = m.first;
+			tmp.id = m.second;
+			tmp.color.r = 0.0f;
+			tmp.color.g = 0.0f;
+			tmp.color.b = 1.0f;
+			tmp.color.a = 1.0;
+			tmp.action = visualization_msgs::Marker::DELETE;
+			tmp.header.frame_id = FRAME_NAME;
+			tmp.header.stamp = ros::Time::now();
+			//tmp.lifetime = ros::Duration();
+			publisher.publish(tmp);
+			ROS_INFO("deleted marker %s,%d", m.first.c_str(),m.second);
+		}
+		ROS_INFO("-------------------------------------");
+		published_marker.clear();
+		*/
+
+		std::vector<visualization_msgs::Marker>::iterator it;
+		for(it=marker_list.begin(); it!=marker_list.end(); it++){
+			visualization_msgs::Marker tmp = *it;
+			tmp.header.stamp = ros::Time::now();
+			ROS_INFO("delete marker %s,%d", tmp.ns.c_str(), tmp.id);
+			ros::Duration d = ros::Duration(1);
+			tmp.lifetime = d;
+			tmp.color.r = 0.0f;
+			tmp.color.g = 0.1f;
+			tmp.color.b = 1.0f;
+			tmp.color.a = 1.0;
+			tmp.action = visualization_msgs::Marker::DELETE;
+			publisher.publish(tmp);
+		}
+		marker_list.clear();
+	}
+
 	double TriangleObject::distance_to(TriangleObject &rhs){
 		//rotation z-axis (as visualized in rviz)
 		

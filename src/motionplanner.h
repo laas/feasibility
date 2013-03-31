@@ -21,7 +21,6 @@ public:
 		setStart( start );
 
 		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
-
 		std::vector<ros::RVIZVisualMarker*>::iterator it;
 		ROS_INFO("%d objects found", objects.size());
 		for(it=objects.begin(); it!=objects.end(); it++){

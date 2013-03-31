@@ -32,7 +32,7 @@ namespace ros{
 	struct TriangleObjectChair;
 
 	const char *FRAME_NAME = "/mocap_world";
-	static const double ROS_DURATION = 1;
+	static const double ROS_DURATION = 0;
 
 	struct Geometry{
 		Geometry(){
@@ -76,57 +76,13 @@ namespace ros{
 		typedef std::pair< std::string, uint> MarkerIdentifier;
 		typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
 		MarkerIdentifierVector published_marker;
-
 		std::vector<visualization_msgs::Marker> marker_list;
-
 	public:
 		RVIZInterface(){
 			std::string topic_name = "visualization_marker";
 			publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
 		}
-		void reset(){
-			/*
-			MarkerIdentifierVector::iterator it;
-			printf("reset %d marker\n", published_marker.size());
-			ROS_INFO("marker contains %d footsteps", published_marker.size());
-			for(it = published_marker.begin(); it != published_marker.end(); it++){
-				visualization_msgs::Marker tmp;
-				MarkerIdentifier m = (*it);
-				uint32_t shape = visualization_msgs::Marker::CUBE;
-				tmp.type = shape;
-				tmp.ns = m.first;
-				tmp.id = m.second;
-				tmp.color.r = 0.0f;
-				tmp.color.g = 0.0f;
-				tmp.color.b = 1.0f;
-				tmp.color.a = 1.0;
-				tmp.action = visualization_msgs::Marker::DELETE;
-				tmp.header.frame_id = FRAME_NAME;
-				tmp.header.stamp = ros::Time::now();
-				//tmp.lifetime = ros::Duration();
-				publisher.publish(tmp);
-				ROS_INFO("deleted marker %s,%d", m.first.c_str(),m.second);
-			}
-			ROS_INFO("-------------------------------------");
-			published_marker.clear();
-			*/
-
-			std::vector<visualization_msgs::Marker>::iterator it;
-			for(it=marker_list.begin(); it!=marker_list.end(); it++){
-				visualization_msgs::Marker tmp = *it;
-				//tmp.header.stamp = ros::Time::now();
-				ros::Duration d = ros::Duration(0.1);
-				tmp.lifetime = d;
-				tmp.color.r = 0.0f;
-				tmp.color.g = 0.1f;
-				tmp.color.b = 1.0f;
-				tmp.color.a = 1.0;
-				//tmp.action = visualization_msgs::Marker::ADD;
-				publisher.publish(tmp);
-			}
-			marker_list.clear();
-
-		}
+		void reset();
 		void publish(visualization_msgs::Marker &m){
 			publisher.publish(m);
 		}
@@ -134,15 +90,8 @@ namespace ros{
 			publisher.publish(m);
 			marker_list.push_back(m);
 
-			/*
-			MarkerIdentifier cur_m;
-			cur_m = std::make_pair( std::string(m.ns), m.id );
-			this->published_marker.push_back(cur_m);
-
-			ROS_INFO("created marker %s,%d", cur_m.first.c_str(),cur_m.second);
-			*/
+			ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
 		}
-		//void getTransformGeometry( Geometry &g );
 	};
 
 	class RVIZVisualMarker{
@@ -169,11 +118,14 @@ namespace ros{
 		virtual void publish(){
 			marker.header.frame_id = FRAME_NAME;
 			marker.header.stamp = ros::Time::now();
-			marker.lifetime = ros::Duration(1);
+			marker.lifetime = ros::Duration(ROS_DURATION);
 			rviz->publish(marker);
+			//ROS_INFO("published marker %s", marker.ns.c_str());
+
 		}
 		void reset(){
 			this->rviz->reset();
+			global_id = 0;
 		}
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
@@ -183,9 +135,6 @@ namespace ros{
 		Geometry* getGeometry(){
 			return &g;
 		}
-
-
-		// evart interface methods
 		~RVIZVisualMarker(){
 			if(m_thread!=NULL){
 				m_thread->interrupt();
@@ -289,7 +238,7 @@ namespace ros{
 		virtual void publish(){
 			marker.header.frame_id = FRAME_NAME;
 			marker.header.stamp = ros::Time::now();
-			marker.lifetime = ros::Duration(2);
+			marker.lifetime = ros::Duration(ROS_DURATION);
 			rviz->footstep_publish(marker);
 		}
 	};
@@ -394,20 +343,6 @@ namespace ros{
 		double distance_to(TriangleObject &rhs);
 
 	};
-	struct TriangleObjectChair: public TriangleObject{
-		TriangleObjectChair(std::string mocap): TriangleObject(){
-			std::string prefix = get_data_path();
-			std::string chair_file = get_chair_str();
-			Geometry chair_pos;
-			chair_pos.x = 0.49;
-			chair_pos.y = 0.05;
-			chair_pos.z = 0.0;
-			chair_pos.tz = 0.0;
-			this->init_object(chair_file, chair_pos);
-
-			this->subscribeToEvart( mocap );
-		}
-	};
 	struct TriangleObjectFloor: public TriangleObject{
 		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap): TriangleObject(){
 			std::string prefix = get_data_path();
@@ -418,6 +353,20 @@ namespace ros{
 			object_pos.y = y;
 
 			this->init_object(object_file, object_pos);
+			this->subscribeToEvart( mocap );
+		}
+	};
+	struct TriangleObjectChair: public TriangleObject{
+		TriangleObjectChair(std::string mocap): TriangleObject(){
+			std::string prefix = get_data_path();
+			std::string chair_file = get_chair_str();
+			Geometry chair_pos;
+			chair_pos.x = 0.49;
+			chair_pos.y = -0.1;
+			chair_pos.z = 0.0;
+			chair_pos.tz = 0.0;
+			this->init_object(chair_file, chair_pos);
+
 			this->subscribeToEvart( mocap );
 		}
 	};

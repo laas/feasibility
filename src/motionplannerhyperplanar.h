@@ -9,6 +9,9 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		double cost_so_far;
 		ContactTransition(){
 		}
+		void print(){
+			g.print();
+		}
 		ContactTransition( ros::Geometry &g){
 			this->g = g;
 		}
@@ -20,7 +23,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 			return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg)); 
 		}
 		bool IsGoal( ContactTransition &nodeGoal ){
-			return this->GoalDistanceEstimate(nodeGoal) < 0.15;
+			return this->GoalDistanceEstimate(nodeGoal) < 0.2;
 		}
 		bool GetSuccessors( AStarSearch<ContactTransition> *astarsearch, ContactTransition *parent_node ){
 			for (double valX = -0.35; valX < 0.351; valX+=0.05) {
@@ -49,8 +52,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 
 		float GetCost( ContactTransition &successor ){
 			//return successor.cost_so_far;
-			return 0;
-			
+			return 0.0;
 		}
 		bool IsSameState( ContactTransition &rhs ){
 			double xg = rhs.g.x;
@@ -73,16 +75,15 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void setGoal( ros::Geometry &goal ){
 		//this->goal = new ContactTransition( goal );
 		this->goal = goal;
-		goal.print();
 	}
 	void setStart( ros::Geometry &start ){
 		//this->start = new ContactTransition( start );
 		this->start = start;
-		start.print();
-		this->start.cost_so_far = 0.0;
 	}
 
 	void start_planner(){
+		start.print();
+		goal.print();
 		astarsearch->SetStartAndGoalStates( start, goal );
 		unsigned int SearchSteps = 0;
 		uint SearchState;
@@ -95,11 +96,11 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 
 		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
 		{
-			cout << "A* search successful!" << SearchSteps << " steps" <<endl;
+			cout << "A* search successful after " << SearchSteps << " iterations." <<endl;
 		}
 		else if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_FAILED ) 
 		{
-			cout << "Search terminated. Did not find goal state" << endl;
+			cout << "Search terminated. Did not find goal" << endl;
 		}
 	}
 	void publish(){
@@ -110,15 +111,17 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 			int steps = 0;
 
 			ros::LeftFootMarker m(node->g.x, node->g.y, node->g.tz);
+			m.reset();
 			m.publish();
 			for( ;; )
 			{
+				ROS_INFO("step[%d] %f %f", steps, node->g.x, node->g.y);
 				node = astarsearch->GetSolutionNext();
 				if( !node ) break;
 
 				ros::LeftFootMarker m(node->g.x, node->g.y, node->g.tz);
 				m.publish();
-				steps ++;
+				steps++;
 			};
 			cout << "Solution steps " << steps << endl;
 			astarsearch->FreeSolutionNodes();
@@ -129,8 +132,6 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		}
 
 		astarsearch->EnsureMemoryFreed();
-
-
 	}
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
 		ROS_INFO("adding objects to planner NOT YET IMPLEMENTED!");

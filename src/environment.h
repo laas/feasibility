@@ -19,7 +19,7 @@ private:
 				(*obj)->publish();
 			}
 			this->goal->publish();
-			//ROS_INFO("environment: published objects and goal");
+			this->start->publish();
 			boost::this_thread::interruption_point();
 			r.sleep();
 		}
@@ -31,13 +31,25 @@ protected:
 		m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::publish, this) );
 	}
 
-	virtual void setGoalObject(){
-		ROS_INFO("Environment setGoalObject not yet implemented");
-	}
-	virtual void setStartObject(){ }
-	virtual void setObjects(){ }
+	virtual void setGoalObject() = 0;
+		//ROS_INFO("Environment setGoalObject not yet implemented");
+	virtual void setStartObject() = 0;
+	virtual void setObjects() = 0;
 public:
 	Environment(){
+		goal = NULL;
+		start = NULL;
+		objects.empty();
+	}
+
+	void init(){
+		setGoalObject();
+		setStartObject();
+		setObjects();
+		CHECK(goal!=NULL, "goal state was not initialized in your Environment!");
+		CHECK(start!=NULL, "start state was not initialized in your Environment!");
+		CHECK(objects.size()>0, "objects were not initialized in your Environment!");
+		startThread();
 	}
 
 	~Environment(){
@@ -71,20 +83,16 @@ public:
 
 struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){
-		setGoalObject();
-		setStartObject();
-		setObjects();
 	}
-	virtual void setObjects(){
+	void setObjects(){
 		ros::TriangleObjectChair *chair = new ros::TriangleObjectChair("/evart/chair2/PO");
 		objects.push_back(chair);
 	}
-	virtual void setGoalObject(){
-		ROS_INFO("created goal");
-		goal = new ros::TriangleObjectFloor(1.5, 0.5, "box.tris", "/evart/helmet2/PO");
+	void setGoalObject(){
+		goal = new ros::TriangleObjectFloor(1.5, 0.5, "plant.tris", "/evart/helmet2/PO");
 	}
-	virtual void setStartObject(){
-		start = new ros::TriangleObjectFloor(0.0, 0.0, "box.tris", "/evart/robot/PO");
+	void setStartObject(){
+		start = new ros::TriangleObjectFloor(0.0, 0.0, "plant.tris", "/evart/robot/PO");
 	}
 
 };
