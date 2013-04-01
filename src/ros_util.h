@@ -43,13 +43,7 @@ namespace ros{
 		double x,y,z;
 		double tx,ty,tz,tw; //quaternions
 		double sx,sy,sz; //scale
-
-		void print(){
-			printf("X %f|Y %f|Z %f\n",x,y,z);
-			printf("TX %f|TY %f|TZ %f|TW %f\n",tx,ty,tz,tw);
-			printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
-			cout << endl;
-		}
+		void print();
 	};
 
 	struct Color{
@@ -68,81 +62,41 @@ namespace ros{
 	Color MAGENTA(0.9,0.0,0.9,0.9);
 
 	struct RVIZInterface{
+	private:
+		std::vector<visualization_msgs::Marker> marker_list;
 	public:
 		ros::Publisher publisher;
 		ros::NodeHandle n;
-
-	private:
-		typedef std::pair< std::string, uint> MarkerIdentifier;
-		typedef std::vector< MarkerIdentifier > MarkerIdentifierVector;
-		MarkerIdentifierVector published_marker;
-		std::vector<visualization_msgs::Marker> marker_list;
-	public:
-		RVIZInterface(){
-			std::string topic_name = "visualization_marker";
-			publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
-		}
+		RVIZInterface();
+		bool waitForSubscribers(ros::Publisher &pub, ros::Duration timeout);
 		void reset();
-		void publish(visualization_msgs::Marker &m){
-			publisher.publish(m);
-		}
-		void footstep_publish(visualization_msgs::Marker &m){
-			publisher.publish(m);
-			marker_list.push_back(m);
-
-			ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
-		}
+		void publish(visualization_msgs::Marker &m);
+		void footstep_publish(visualization_msgs::Marker &m);
 	};
 
 	class RVIZVisualMarker{
-	public:
-		Geometry g;
 	protected:
 		static uint global_id;
 		uint id;
 		Color c;
 		static RVIZInterface *rviz; 
 		visualization_msgs::Marker marker;
-
 		std::string geometry_subscribe_topic;
 		boost::shared_ptr<boost::thread> m_thread;
 		ros::Subscriber m_subscriber;
-	public:
-		RVIZVisualMarker(){
-			id=global_id;
-			global_id++;
-			if(rviz == NULL){
-				rviz = new RVIZInterface();
-			}
-		}
-		virtual void publish(){
-			marker.header.frame_id = FRAME_NAME;
-			marker.header.stamp = ros::Time::now();
-			marker.lifetime = ros::Duration(ROS_DURATION);
-			rviz->publish(marker);
-			//ROS_INFO("published marker %s", marker.ns.c_str());
 
-		}
-		void reset(){
-			this->rviz->reset();
-			global_id = 0;
-		}
+	public:
+		Geometry g;
+		RVIZVisualMarker();
+		virtual void publish();
+		void reset();
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
 		virtual Color get_color() = 0;
 		void drawLine(double x_in, double y_in);
 		void init_marker();
-		Geometry* getGeometry(){
-			return &g;
-		}
-		~RVIZVisualMarker(){
-			if(m_thread!=NULL){
-				m_thread->interrupt();
-				std::string id = boost::lexical_cast<std::string>(m_thread->get_id());
-				ROS_INFO("waiting for thread %s to terminate", id.c_str());
-				m_thread->join();
-			}
-		}
+		Geometry* getGeometry();
+		~RVIZVisualMarker();
 	private:
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
 			geometry_msgs::Transform t = tf.transform;
@@ -175,18 +129,6 @@ namespace ros{
 				g.tz = q.getZ();
 				g.tw = q.getW();
 			}
-/*
-			ros::btMatrix3x3 rot;
-			btQuaternion q = btQuaternion(qx,qy,qz,qw);
-			rot.setRotation(q);
-*/
-			/*
-			g.z = t.translation.z;
-			g.tx = t.rotation.x;
-			g.ty = t.rotation.y;
-			g.tz = t.rotation.z;
-			g.tw = t.rotation.w;
-			*/
 
 			update_marker();
 			boost::this_thread::interruption_point();
@@ -339,6 +281,7 @@ namespace ros{
 		void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
 		void read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 		void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
+
 
 		double distance_to(TriangleObject &rhs);
 

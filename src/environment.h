@@ -89,7 +89,7 @@ struct EnvironmentSalleBauzil: public Environment{
 		objects.push_back(chair);
 	}
 	void setGoalObject(){
-		goal = new ros::TriangleObjectFloor(1.5, 0.5, "plant.tris", "/evart/helmet2/PO");
+		goal = new ros::TriangleObjectFloor(2.5, 1.5, "plant.tris", "/evart/helmet2/PO");
 	}
 	void setStartObject(){
 		start = new ros::TriangleObjectFloor(0.0, 0.0, "plant.tris", "/evart/robot/PO");
