@@ -41,7 +41,7 @@ namespace ros{
 			cmarker.text = this->text;
 			cmarker.pose.position.x = g.x;
 			cmarker.pose.position.y = g.y;
-			cmarker.pose.position.z = g.z+g.sz+0.1;
+			cmarker.pose.position.z = this->getTextZ();
 			cmarker.pose.orientation.x = 0.0;
 			cmarker.pose.orientation.y = 0.0;
 			cmarker.pose.orientation.z = g.tz;

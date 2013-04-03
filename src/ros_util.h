@@ -112,6 +112,9 @@ namespace ros{
 		void addText( char *c );
 		void subscribeToEvart(std::string &topic);
 		void subscribeToEvart(char *c);
+		virtual double getTextZ(){
+			return g.z+g.sz/2+0.1;
+		}
 	};
 
 	class BlenderMesh: public RVIZVisualMarker{
@@ -344,6 +347,9 @@ namespace ros{
 		}
 		uint32_t get_shape(){
 			return visualization_msgs::Marker::MESH_RESOURCE;
+		}
+		virtual double getTextZ(){
+			return 0.75;
 		}
 		virtual Color get_color(){
 			return ros::TEXT_COLOR;
