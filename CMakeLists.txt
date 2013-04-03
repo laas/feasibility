@@ -56,7 +56,10 @@ message(STATUS "------------------- ")
 #)
 set(SOURCE
 	src/environment.h
-	src/planner.h
+	src/motionplanner.h
+	src/motionplannerperrin.h
+	src/rviz_triangleobject.cpp
+	src/rviz_visualmarker.cpp
 	src/ros_util.cpp 
 	src/ros_util.h 
 	src/util.h 

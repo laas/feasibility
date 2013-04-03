@@ -85,14 +85,19 @@ struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){
 	}
 	void setObjects(){
-		ros::TriangleObjectChair *chair = new ros::TriangleObjectChair("/evart/chair2/PO");
+		ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.49, 0.25, "chairLabo.tris", "/evart/chair2/PO");
+		chair->addText("/evart/chair2/PO");
 		objects.push_back(chair);
 	}
 	void setGoalObject(){
-		goal = new ros::TriangleObjectFloor(2.5, 1.5, "plant.tris", "/evart/helmet2/PO");
+		goal = new ros::SphereMarker(2.5, 1.5, 0.2, 0.0);
+		goal->addText("goal");
+		goal->subscribeToEvart("/evart/helmet2/PO");
 	}
 	void setStartObject(){
-		start = new ros::TriangleObjectFloor(0.0, 0.0, "plant.tris", "/evart/robot/PO");
+		start = new ros::SphereMarker(0.0, 0.0, 0.2, 0.0);
+		start->addText("start");
+		start->subscribeToEvart("/evart/robot/PO");
 	}
 
 };

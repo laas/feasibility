@@ -31,7 +31,7 @@ namespace ros{
 	//
 	struct TriangleObjectChair;
 
-	const char *FRAME_NAME = "/mocap_world";
+	static const char *FRAME_NAME = "/mocap_world";
 	static const double ROS_DURATION = 0;
 
 	struct Geometry{
@@ -56,10 +56,14 @@ namespace ros{
 		}
 		double r,g,b,a;
 	};
-	Color DEFAULT(1.0,0.3,0.0,0.9);
-	Color RED(1.0,0.2,0.0,0.9);
-	Color BLUE(0.1,0.9,0.0,0.9);
-	Color MAGENTA(0.9,0.0,0.9,0.9);
+	static Color DEFAULT(1.0,0.3,0.0,1.0);
+	static Color RED(1.0,0.2,0.0,1.0);
+	static Color BLUE(0.1,0.9,0.0,1.0);
+	static Color DARKGREEN(0.3,0.7,0.0,1.0);
+	static Color WHITE(1.0,1.0,1.0,1.0);
+	static Color MAGENTA(0.9,0.0,0.9,1.0);
+
+	static Color TEXT_COLOR(0.9,0.9,0.9,1.0);
 
 	struct RVIZInterface{
 	private:
@@ -81,10 +85,17 @@ namespace ros{
 		Color c;
 		static RVIZInterface *rviz; 
 		visualization_msgs::Marker marker;
+		//RVIZVisualMarker *textMarker;
+		bool textHover;
+
 		std::string geometry_subscribe_topic;
 		boost::shared_ptr<boost::thread> m_thread;
 		ros::Subscriber m_subscriber;
 
+	private:
+		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf);
+		void Callback_init();
+		void update_marker();
 	public:
 		Geometry g;
 		RVIZVisualMarker();
@@ -97,63 +108,9 @@ namespace ros{
 		void init_marker();
 		Geometry* getGeometry();
 		~RVIZVisualMarker();
-	private:
-		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
-			geometry_msgs::Transform t = tf.transform;
-			std::string name_id = tf.child_frame_id;
-			//ROS_INFO("updating geometry of %s", name_id.c_str());
-
-			g.x = t.translation.x;
-			g.y = t.translation.y;
-			//assume objects are on the floor (only rotation about
-			//Z)
-			g.z = 0.05;
-			 //btQuaternion q; btMatrix3x3(q).getRPY(roll, pitch, yaw);
-			double yaw = 0;
-			yaw = 2*acos(t.rotation.w);
-
-			ROS_INFO("yaw %f %f",yaw, t.rotation.w);
-
-
-			if( t.rotation.w < 0.01 && t.rotation.z < 0.01){
-				tf::Quaternion q(0,0,0,1);
-				g.tx = q.getX();
-				g.ty = q.getY();
-				g.tz = q.getZ();
-				g.tw = q.getW();
-			}else{
-				tf::Quaternion q;
-				q.setRPY(0, 0, yaw);
-				g.tx = q.getX();
-				g.ty = q.getY();
-				g.tz = q.getZ();
-				g.tw = q.getW();
-			}
-
-			update_marker();
-			boost::this_thread::interruption_point();
-		}
-
-		void Callback_init(){
-			assert(!m_subscriber);
-			m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
-			std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
-			ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str());
-			ros::spin();
-			//ros::AsyncSpinner spinner(2);
-			//spinner.start();
-			ros::waitForShutdown();
-			ROS_INFO("thread %s finished", name_id.c_str());
-		}
-
-		void update_marker();
-	public:
-		void subscribeToEvart(std::string &topic){
-			//m_thread = boost::thread(Callback_init());
-			geometry_subscribe_topic = topic;
-			assert(!m_thread);
-			m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&RVIZVisualMarker::Callback_init, this) );
-		}
+		void addText( char *c );
+		void subscribeToEvart(std::string &topic);
+		void subscribeToEvart(char *c);
 	};
 
 	class FootMarker: public RVIZVisualMarker{
@@ -213,13 +170,14 @@ namespace ros{
 
 	struct SphereMarker: public RVIZVisualMarker{
 	public:
-		SphereMarker(double x, double y, double r=0.08): RVIZVisualMarker() {
+		SphereMarker(double x, double y, double r=0.08, double z=0): RVIZVisualMarker() {
 			this->g.x = x;
 			this->g.y = y;
+			this->g.z = z;
 			this->g.tz = 0;
 			this->g.sx=r;
 			this->g.sy=r;
-			this->g.sz=0.01;
+			this->g.sz=0.05;
 			init_marker();
 		}
 		virtual std::string name(){
@@ -233,6 +191,31 @@ namespace ros{
 		}
 	};
 
+	struct Text: public RVIZVisualMarker{
+		std::string text;
+		public:
+		Text(double x, double y, double z, char *c): RVIZVisualMarker(){
+			this->g.x = x;
+			this->g.y = y;
+			this->g.z = z;
+			this->g.tz = 0;
+			this->g.sz=0.1;
+			init_marker();
+			marker.text = string(c);
+			text = marker.text;
+		}
+		virtual std::string name(){
+			return text;
+		}
+		uint32_t get_shape(){
+			return visualization_msgs::Marker::TEXT_VIEW_FACING;
+		}
+		virtual Color get_color(){
+			return ros::TEXT_COLOR;
+		}
+
+
+	};
 
 	struct TriangleObject: public RVIZVisualMarker{
 		typedef fcl::AABB BoundingVolume;
@@ -276,7 +259,7 @@ namespace ros{
 			return visualization_msgs::Marker::TRIANGLE_LIST;
 		}
 		virtual Color get_color(){
-			return ros::MAGENTA;
+			return ros::WHITE;
 		}
 		void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
 		void read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
@@ -309,7 +292,6 @@ namespace ros{
 			chair_pos.z = 0.0;
 			chair_pos.tz = 0.0;
 			this->init_object(chair_file, chair_pos);
-
 			this->subscribeToEvart( mocap );
 		}
 	};
@@ -317,12 +299,10 @@ namespace ros{
 		TriangleObjectRobot(std::string mocap): TriangleObject(){
 			std::string prefix = get_data_path();
 			std::string robot_file = get_robot_str();
-
 			Geometry robot_pos;
 			robot_pos.x = -2;
 			robot_pos.y = 0;
 			robot_pos.tz = 0;
-
 			this->init_object(robot_file, robot_pos);
 			this->subscribeToEvart( mocap );
 		}
