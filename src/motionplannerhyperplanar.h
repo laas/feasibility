@@ -10,8 +10,8 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		ros::Geometry g;
 		static std::map< int, std::vector<double> > hyperplane;
 		static bool loaded;
-
 		double cost_so_far;
+
 		ContactTransition(){
 		}
 		void print(){
@@ -122,7 +122,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void start_planner(){
 		start.print();
 		goal.print();
-		//start.loadHyperPlaneParameters("data/hyperplane.csv");
+		//start.loadHyperPlaneParameters("scripts/hyperparams.csv");
 		//start.loadObjectPositions(environment);
 
 		astarsearch->SetStartAndGoalStates( start, goal );

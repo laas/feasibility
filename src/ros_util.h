@@ -72,7 +72,7 @@ namespace ros{
 		ros::Publisher publisher;
 		ros::NodeHandle n;
 		RVIZInterface();
-		bool waitForSubscribers(ros::Publisher &pub, ros::Duration timeout);
+		bool waitForSubscribers(ros::Duration timeout);
 		void reset();
 		void publish(visualization_msgs::Marker &m);
 		void footstep_publish(visualization_msgs::Marker &m);
@@ -90,13 +90,16 @@ namespace ros{
 		std::string geometry_subscribe_topic;
 		boost::shared_ptr<boost::thread> m_thread;
 		ros::Subscriber m_subscriber;
+		bool changedPosition;
 	private:
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf);
 		void Callback_init();
 		void update_marker();
 	public:
 		Geometry g;
+		Geometry g_old;
 		RVIZVisualMarker();
+		bool isChanged(double threshold=0.01);
 		virtual void publish();
 		void reset();
 		virtual std::string name() = 0;
@@ -176,6 +179,8 @@ namespace ros{
 			this->g.sx=r;
 			this->g.sy=r;
 			this->g.sz=0.05;
+
+			this->g.z = this->g.z + this->g.sz;
 			init_marker();
 		}
 		virtual std::string name(){

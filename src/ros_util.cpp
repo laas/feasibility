@@ -15,10 +15,9 @@ namespace ros{
 	}
 	RVIZInterface::RVIZInterface(){
 		std::string topic_name = "visualization_marker";
-		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1);
+		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1000);
 	}
 	void RVIZInterface::publish(visualization_msgs::Marker &m){
-		waitForSubscribers(publisher, ros::Duration(5));
 		publisher.publish(m);
 	}
 
@@ -27,20 +26,19 @@ namespace ros{
 		this->publish(m);
 		ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
 	}
-	bool RVIZInterface::waitForSubscribers(ros::Publisher & pub, ros::Duration timeout)
+	bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 	{
-	    if(pub.getNumSubscribers() > 0)
+	    if(publisher.getNumSubscribers() > 0)
 		return true;
-	    ROS_INFO("wait for subscribers");
 	    ros::Time start = ros::Time::now();
 	    ros::Rate waitTime(0.1);
 	    while(ros::Time::now() - start < timeout) {
+		    ROS_INFO("wait for subscribers...");
 		waitTime.sleep();
-		if(pub.getNumSubscribers() > 0)
+		if(publisher.getNumSubscribers() > 0)
 		    break;
 	    }
-	    ROS_INFO("return from wait for subscribers");
-	    return pub.getNumSubscribers() > 0;
+	    return publisher.getNumSubscribers() > 0;
 	}
 
 	void RVIZInterface::reset(){

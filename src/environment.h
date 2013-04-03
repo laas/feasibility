@@ -9,17 +9,28 @@ protected:
 	ros::RVIZVisualMarker *goal;
 	ros::RVIZVisualMarker *start;
 	boost::shared_ptr<boost::thread> m_thread;
+	bool changedEnv;
 
 private:
 	void publish(){
 		ros::Rate r(10); //Hz
 		while(1){
+			bool change = false;
 			std::vector<ros::RVIZVisualMarker*>::iterator obj;
 			for(obj = objects.begin();obj!=objects.end();obj++){
 				(*obj)->publish();
+				change |= (*obj)->isChanged();
 			}
 			this->goal->publish();
 			this->start->publish();
+			change |= this->start->isChanged();
+			change |= this->goal->isChanged();
+
+			if(change && !changedEnv){
+				changedEnv = true;
+				ROS_INFO("environment changed!");
+			}
+
 			boost::this_thread::interruption_point();
 			r.sleep();
 		}
@@ -28,6 +39,7 @@ protected:
 
 	void startThread(){
 		assert(!m_thread);
+		ROS_INFO("starting environment thread");
 		m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::publish, this) );
 	}
 
@@ -36,10 +48,19 @@ protected:
 	virtual void setStartObject() = 0;
 	virtual void setObjects() = 0;
 public:
+	bool isChanged(){
+		if(changedEnv){
+			changedEnv = false;
+			return true;
+		}else{
+			return false;
+		}
+	}
 	Environment(){
 		goal = NULL;
 		start = NULL;
 		objects.empty();
+		changedEnv = false;
 	}
 
 	void init(){
@@ -85,7 +106,7 @@ struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){
 	}
 	void setObjects(){
-		ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.49, 0.25, "chairLabo.tris", "/evart/chair2/PO");
+		ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.8, 0.5, "chairLabo.tris", "/evart/chair2/PO");
 		chair->addText("/evart/chair2/PO");
 		objects.push_back(chair);
 	}

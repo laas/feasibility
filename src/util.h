@@ -60,8 +60,13 @@ inline double randn_boxmuller(double m, double stddev){
 	//double y2 = sqrtf( -2*log(x1) )*sin(2*pi*x2);
 	return stddev*y1 + m;
 }
+
 inline double normpdf(double x, double mu=0.0, double s=1.0){
 	return (1.0/(s*sqrtf(2*M_PI))) * exp (- (x-mu)*(x-mu) / (2*s*s));
+}
+
+inline double dist(double x1, double x2, double y1, double y2){
+	return sqrtf((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
 
 inline int hashit(const char *str){

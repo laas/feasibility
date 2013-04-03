@@ -22,7 +22,6 @@ public:
 
 		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
 		std::vector<ros::RVIZVisualMarker*>::iterator it;
-		ROS_INFO("%d objects found", objects.size());
 		for(it=objects.begin(); it!=objects.end(); it++){
 			addObjectToPlanner(*it);
 		}
@@ -30,6 +29,7 @@ public:
 	}
 
 	virtual void publish() = 0;
+	virtual bool success() = 0;
 protected:
 	virtual void start_planner() = 0;
 	virtual void setGoal( ros::Geometry &goal ) = 0;

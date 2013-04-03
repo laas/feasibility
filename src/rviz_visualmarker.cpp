@@ -8,10 +8,18 @@ namespace ros{
 		if(rviz == NULL){
 			rviz = new RVIZInterface();
 		}
+		changedPosition = false;
 	}
 	void RVIZVisualMarker::addText(char *cc){
 		textHover = true;
 		text = string(cc);
+	}
+	bool RVIZVisualMarker::isChanged(double threshold){
+		if( dist(g.x, g_old.x, g.y, g_old.y) > threshold ){
+			g_old = g;
+			return true;
+		}
+		return false;
 	}
 	void RVIZVisualMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
@@ -20,34 +28,37 @@ namespace ros{
 		rviz->publish(marker);
 
 		if(textHover){
-			visualization_msgs::Marker marker;// = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
+			visualization_msgs::Marker cmarker;// = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
 			//textMarker->publish();
 			char fname[50];
 			std::string name = this->name();
 			sprintf(fname, "%d_%s_text",this->id, name.c_str());
 
-			marker.ns = fname;
-			marker.id = this->id;
-			marker.type =  visualization_msgs::Marker::TEXT_VIEW_FACING;
-			marker.action = visualization_msgs::Marker::ADD;
-			marker.text = this->text;
-			marker.pose.position.x = g.x;
-			marker.pose.position.y = g.y;
-			marker.pose.position.z = g.z+1.0;
-			marker.pose.orientation.x = 0.0;
-			marker.pose.orientation.y = 0.0;
-			marker.pose.orientation.z = g.tz;
-			marker.pose.orientation.w = 1.0;
+			cmarker.ns = fname;
+			cmarker.id = this->id;
+			cmarker.type =  visualization_msgs::Marker::TEXT_VIEW_FACING;
+			cmarker.action = visualization_msgs::Marker::ADD;
+			cmarker.text = this->text;
+			cmarker.pose.position.x = g.x;
+			cmarker.pose.position.y = g.y;
+			cmarker.pose.position.z = g.z+g.sz+0.2;
+			cmarker.pose.orientation.x = 0.0;
+			cmarker.pose.orientation.y = 0.0;
+			cmarker.pose.orientation.z = g.tz;
+			cmarker.pose.orientation.w = 1.0;
 
-			marker.scale.z = 0.5;
+			cmarker.scale.z = 0.15;
 
 			Color c = ros::TEXT_COLOR;
-			marker.color.r = c.r;
-			marker.color.g = c.g;
-			marker.color.b = c.b;
-			marker.color.a = c.a;
+			cmarker.color.r = c.r;
+			cmarker.color.g = c.g;
+			cmarker.color.b = c.b;
+			cmarker.color.a = c.a;
+			cmarker.header.frame_id = FRAME_NAME;
+			cmarker.header.stamp = ros::Time::now();
+			cmarker.lifetime = ros::Duration(ROS_DURATION);
+			rviz->publish(cmarker);
 		}
-		//ROS_INFO("published marker %s", marker.ns.c_str());
 	}
 	void RVIZVisualMarker::reset(){
 		this->rviz->reset();
@@ -90,6 +101,8 @@ namespace ros{
 		marker.color.g = c.g;
 		marker.color.b = c.b;
 		marker.color.a = c.a;
+
+		g_old = g;
 	}
 
 	void RVIZVisualMarker::update_marker(){
