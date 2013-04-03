@@ -41,7 +41,7 @@ namespace ros{
 			cmarker.text = this->text;
 			cmarker.pose.position.x = g.x;
 			cmarker.pose.position.y = g.y;
-			cmarker.pose.position.z = g.z+g.sz+0.2;
+			cmarker.pose.position.z = g.z+g.sz+0.1;
 			cmarker.pose.orientation.x = 0.0;
 			cmarker.pose.orientation.y = 0.0;
 			cmarker.pose.orientation.z = g.tz;
@@ -87,10 +87,10 @@ namespace ros{
 		marker.pose.position.x = g.x;
 		marker.pose.position.y = g.y;
 		marker.pose.position.z = g.z;
-		marker.pose.orientation.x = 0.0;
-		marker.pose.orientation.y = 0.0;
+		marker.pose.orientation.x = g.tx;
+		marker.pose.orientation.y = g.ty;
 		marker.pose.orientation.z = g.tz;
-		marker.pose.orientation.w = 1.0;
+		marker.pose.orientation.w = g.tw;
 
 		marker.scale.x = g.sx;
 		marker.scale.y = g.sy;

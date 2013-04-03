@@ -15,16 +15,19 @@ public:
 	}
 
 	void plan(){
-		ros::Geometry goalG = environment->getGoal();
-		setGoal( goalG );
-		ros::Geometry start = environment->getStart();
-		setStart( start );
+		if(environment->isChanged()){
+			ros::Geometry goalG = environment->getGoal();
+			setGoal( goalG );
+			ros::Geometry start = environment->getStart();
+			setStart( start );
 
-		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
-		std::vector<ros::RVIZVisualMarker*>::iterator it;
-		for(it=objects.begin(); it!=objects.end(); it++){
-			addObjectToPlanner(*it);
+			std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
+			std::vector<ros::RVIZVisualMarker*>::iterator it;
+			for(it=objects.begin(); it!=objects.end(); it++){
+				addObjectToPlanner(*it);
+			}
 		}
+		ROS_INFO("start planner");
 		start_planner();
 	}
 

@@ -24,7 +24,7 @@ namespace ros{
 	void RVIZInterface::footstep_publish(visualization_msgs::Marker &m){
 		marker_list.push_back(m);
 		this->publish(m);
-		ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
+		//ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
 	}
 	bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 	{
@@ -47,7 +47,7 @@ namespace ros{
 		for(it=marker_list.begin(); it!=marker_list.end(); it++){
 			visualization_msgs::Marker tmp = *it;
 			tmp.header.stamp = ros::Time::now();
-			ROS_INFO("delete marker %s,%d", tmp.ns.c_str(), tmp.id);
+			//ROS_INFO("delete marker %s,%d", tmp.ns.c_str(), tmp.id);
 			ros::Duration d = ros::Duration(1);
 			tmp.lifetime = d;
 			tmp.color.r = 0.0f;

@@ -80,10 +80,10 @@ namespace ros{
 
 	class RVIZVisualMarker{
 	protected:
+		static RVIZInterface *rviz; 
 		static uint global_id;
 		uint id;
 		Color c;
-		static RVIZInterface *rviz; 
 		visualization_msgs::Marker marker;
 		std::string text;
 		bool textHover;
@@ -114,6 +114,46 @@ namespace ros{
 		void subscribeToEvart(char *c);
 	};
 
+	class BlenderMesh: public RVIZVisualMarker{
+		std::string filename;
+
+	public:
+		BlenderMesh(char *cfilename, double x, double y, double tz): RVIZVisualMarker(){
+			filename = string(cfilename);
+			this->g.x = x;
+			this->g.y = y;
+
+			tf::Quaternion qin;
+			qin.setEulerZYX(M_PI,0,M_PI/2);
+			this->g.tx = qin.getX();
+			this->g.ty = qin.getY();
+			this->g.tz = qin.getZ();
+			this->g.tw = qin.getW();
+
+			this->g.sx = 0.33;
+			this->g.sy = 0.33;
+			this->g.sz = 0.33;
+
+			init_marker();
+			marker.mesh_resource = filename;
+			marker.mesh_use_embedded_materials=true;
+		}
+		virtual std::string name(){
+			return filename;
+		}
+		uint32_t get_shape(){
+			return visualization_msgs::Marker::MESH_RESOURCE;
+		}
+		virtual Color get_color(){
+			return ros::TEXT_COLOR;
+		}
+		virtual void publish(){
+			marker.header.frame_id = FRAME_NAME;
+			marker.header.stamp = ros::Time::now();
+			marker.lifetime = ros::Duration(ROS_DURATION);
+			rviz->publish(marker);
+		}
+	};
 	class FootMarker: public RVIZVisualMarker{
 
 	public:
@@ -179,8 +219,7 @@ namespace ros{
 			this->g.sx=r;
 			this->g.sy=r;
 			this->g.sz=0.05;
-
-			this->g.z = this->g.z + this->g.sz;
+			this->g.z = this->g.z + this->g.sz/2;
 			init_marker();
 		}
 		virtual std::string name(){
@@ -272,9 +311,46 @@ namespace ros{
 		double distance_to(TriangleObject &rhs);
 
 	};
+	class BlenderMeshTriangleObject: public TriangleObject{
+		std::string filename;
+
+	public:
+		BlenderMeshTriangleObject(char *cfilename, char *trisname, double x, double y, double tz): TriangleObject(){
+			filename = string(cfilename);
+
+			tris_file_name = get_tris_str(trisname);
+
+			this->g.x = x;
+			this->g.y = y;
+
+			tf::Quaternion qin;
+			qin.setEulerZYX(M_PI,0,M_PI/2);
+			this->g.tx = qin.getX();
+			this->g.ty = qin.getY();
+			this->g.tz = qin.getZ();
+			this->g.tw = qin.getW();
+
+			this->g.sx = 0.33;
+			this->g.sy = 0.33;
+			this->g.sz = 0.33;
+
+			this->pqp_model = new PQP_Model;
+			this->pqp_margin = new PQP_Model;
+			this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+
+			init_marker();
+			marker.mesh_resource = filename;
+			marker.mesh_use_embedded_materials=true;
+		}
+		uint32_t get_shape(){
+			return visualization_msgs::Marker::MESH_RESOURCE;
+		}
+		virtual Color get_color(){
+			return ros::TEXT_COLOR;
+		}
+	};
 	struct TriangleObjectFloor: public TriangleObject{
 		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap): TriangleObject(){
-			std::string prefix = get_data_path();
 			std::string object_file = get_tris_str(fname);
 
 			Geometry object_pos;

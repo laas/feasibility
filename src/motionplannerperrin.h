@@ -29,9 +29,9 @@ struct MotionPlannerPerrin: public MotionPlanner{
 
 	void start_planner(){
 		planner->mainLoop();
-		std::vector<double> curgoal;
-		planner->getCurrentSetGoal(curgoal);
-		ROS_INFO("curgoal[%d]: %f %f", curgoal.size(), curgoal.at(0), curgoal.at(1));
+		//std::vector<double> curgoal;
+		//planner->getCurrentSetGoal(curgoal);
+		//ROS_INFO("curgoal[%d]: %f %f", curgoal.size(), curgoal.at(0), curgoal.at(1));
 	}
 
 	void setStart( ros::Geometry &pos ){
@@ -59,7 +59,6 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		planner->getInterfaceSteps(fsi);
 		if(fsi.size()>0){
 			ROS_INFO("NUMBER OF FOOTSTEPS: %d", fsi.size());
-
 			double abs_x = 0.0;
 			double abs_y = 0.0;
 			double abs_t = 0.0;
