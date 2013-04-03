@@ -11,7 +11,7 @@ namespace ros{
 	}
 	void RVIZVisualMarker::addText(char *cc){
 		textHover = true;
-		//textMarker = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
+		text = string(cc);
 	}
 	void RVIZVisualMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
@@ -20,7 +20,32 @@ namespace ros{
 		rviz->publish(marker);
 
 		if(textHover){
+			visualization_msgs::Marker marker;// = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
 			//textMarker->publish();
+			char fname[50];
+			std::string name = this->name();
+			sprintf(fname, "%d_%s_text",this->id, name.c_str());
+
+			marker.ns = fname;
+			marker.id = this->id;
+			marker.type =  visualization_msgs::Marker::TEXT_VIEW_FACING;
+			marker.action = visualization_msgs::Marker::ADD;
+			marker.text = this->text;
+			marker.pose.position.x = g.x;
+			marker.pose.position.y = g.y;
+			marker.pose.position.z = g.z+1.0;
+			marker.pose.orientation.x = 0.0;
+			marker.pose.orientation.y = 0.0;
+			marker.pose.orientation.z = g.tz;
+			marker.pose.orientation.w = 1.0;
+
+			marker.scale.z = 0.5;
+
+			Color c = ros::TEXT_COLOR;
+			marker.color.r = c.r;
+			marker.color.g = c.g;
+			marker.color.b = c.b;
+			marker.color.a = c.a;
 		}
 		//ROS_INFO("published marker %s", marker.ns.c_str());
 	}
@@ -65,8 +90,6 @@ namespace ros{
 		marker.color.g = c.g;
 		marker.color.b = c.b;
 		marker.color.a = c.a;
-		if(textHover){
-		}
 	}
 
 	void RVIZVisualMarker::update_marker(){

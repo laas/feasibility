@@ -85,13 +85,11 @@ namespace ros{
 		Color c;
 		static RVIZInterface *rviz; 
 		visualization_msgs::Marker marker;
-		//RVIZVisualMarker *textMarker;
+		std::string text;
 		bool textHover;
-
 		std::string geometry_subscribe_topic;
 		boost::shared_ptr<boost::thread> m_thread;
 		ros::Subscriber m_subscriber;
-
 	private:
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf);
 		void Callback_init();
