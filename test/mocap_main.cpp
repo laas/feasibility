@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <ros/time.h>
 #include <iostream>
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 #include "util.h"
 
 using namespace ros;

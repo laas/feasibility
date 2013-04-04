@@ -10,7 +10,7 @@
 #include <fcl/BVH/BVH_model.h>
 //bounding vertex hierarchy
 
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 #include "util.h"
 //#include "sampler.h"
 

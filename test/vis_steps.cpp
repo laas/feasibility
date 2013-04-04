@@ -11,7 +11,7 @@
 
 #include <fast-replanning/fast-replanning-interface.hh>
 
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 #include "util.h"
 
 int main( int argc, char** argv )

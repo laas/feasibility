@@ -1,5 +1,5 @@
 #pragma once
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 #include "util.h"
 
 //doing mcmc or hmc for your convenience
