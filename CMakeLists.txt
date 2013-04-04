@@ -56,6 +56,7 @@ message(STATUS "------------------- ")
 #)
 set(SOURCE
 	src/environment.h
+	src/environment.cpp
 	src/motionplanner.h
 	src/motionplannerperrin.h
 	src/rviz/rviz_visualmarker.h
