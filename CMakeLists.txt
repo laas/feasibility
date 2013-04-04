@@ -58,10 +58,13 @@ set(SOURCE
 	src/environment.h
 	src/motionplanner.h
 	src/motionplannerperrin.h
-	src/rviz_triangleobject.cpp
-	src/rviz_visualmarker.cpp
-	src/ros_util.cpp 
-	src/ros_util.h 
+	src/rviz/rviz_visualmarker.h
+	src/rviz/rviz_visualmarker.cpp
+	src/rviz/rviz_visualmarker_interface.cpp
+	src/rviz/rviz_visualmarker_triangleobject.cpp
+	src/rviz/rviz_visualmarker_footmarker.cpp
+	src/rviz/rviz_visualmarker_mesh.cpp
+	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
 	src/sampler.h
 )

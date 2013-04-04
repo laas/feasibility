@@ -1,0 +1,44 @@
+#include "rviz_visualmarker.h"
+
+namespace ros{
+	Text::Text(double x, double y, double z, char *c): RVIZVisualMarker(){
+		this->g.x = x;
+		this->g.y = y;
+		this->g.z = z;
+		this->g.tz = 0;
+		this->g.sz=0.1;
+		init_marker();
+		marker.text = string(c);
+		text = marker.text;
+	}
+	std::string Text::name(){
+		return text;
+	}
+	uint32_t Text::get_shape(){
+		return visualization_msgs::Marker::TEXT_VIEW_FACING;
+	}
+	Color Text::get_color(){
+		return ros::TEXT_COLOR;
+	}
+	SphereMarker::SphereMarker(double x, double y, double r, double z): RVIZVisualMarker() {
+		this->g.x = x;
+		this->g.y = y;
+		this->g.z = z;
+		this->g.tz = 0;
+		this->g.sx=r;
+		this->g.sy=r;
+		this->g.sz=0.05;
+		this->g.z = this->g.z + this->g.sz/2;
+		init_marker();
+	}
+	std::string SphereMarker::name(){
+		return string("sphere");
+	}
+	uint32_t SphereMarker::get_shape(){
+		return visualization_msgs::Marker::CYLINDER;
+	}
+	Color SphereMarker::get_color(){
+		return ros::MAGENTA;
+	}
+
+}

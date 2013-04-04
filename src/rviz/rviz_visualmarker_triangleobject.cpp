@@ -1,9 +1,78 @@
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 
 namespace ros{
+	TriangleObject::TriangleObject(): RVIZVisualMarker(){
+	}
+	TriangleObject::TriangleObject(std::string f, Geometry &in): RVIZVisualMarker() {
+		init_object(f, in);
+	}
+	void TriangleObject::init_object( std::string f, Geometry &in ){
+		this->g.x = in.x;
+		this->g.y = in.y;
+		this->g.z = in.z;
+		this->g.tz = in.tz;
+
+		double scale = 0.7;
+		this->g.sx = scale;
+		this->g.sy = scale;
+		this->g.sz = scale;
+		this->tris_file_name=f;
+
+		this->pqp_model = new PQP_Model;
+		this->pqp_margin = new PQP_Model;
+		this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+
+		this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
+		this->read_tris_to_BVH(this->bvh, tris_file_name.c_str() );
+		init_marker();
+
+	}
+	std::string TriangleObject::name(){
+		return string(basename(tris_file_name.c_str()));
+	}
+	uint32_t TriangleObject::get_shape(){
+		return visualization_msgs::Marker::TRIANGLE_LIST;
+	}
+	Color TriangleObject::get_color(){
+		return ros::WHITE;
+	}
+
+	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname, std::string mocap): TriangleObject(){
+		std::string object_file = get_tris_str(fname);
+
+		Geometry object_pos;
+		object_pos.x = x;
+		object_pos.y = y;
+
+		this->init_object(object_file, object_pos);
+		this->subscribeToEvart( mocap );
+	}
+	TriangleObjectChair::TriangleObjectChair(std::string mocap): TriangleObject(){
+		std::string prefix = get_data_path();
+		std::string chair_file = get_chair_str();
+		Geometry chair_pos;
+		chair_pos.x = 0.49;
+		chair_pos.y = -0.1;
+		chair_pos.z = 0.0;
+		chair_pos.tz = 0.0;
+		this->init_object(chair_file, chair_pos);
+		this->subscribeToEvart( mocap );
+	}
+	TriangleObjectRobot::TriangleObjectRobot(std::string mocap): TriangleObject(){
+		std::string prefix = get_data_path();
+		std::string robot_file = get_robot_str();
+		Geometry robot_pos;
+		robot_pos.x = -2;
+		robot_pos.y = 0;
+		robot_pos.tz = 0;
+		this->init_object(robot_file, robot_pos);
+		this->subscribeToEvart( mocap );
+	}
+
+
 	double TriangleObject::distance_to(TriangleObject &rhs){
 		//rotation z-axis (as visualized in rviz)
 		

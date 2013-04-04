@@ -1,4 +1,4 @@
-#include "ros_util.h"
+#include "rviz_visualmarker.h"
 
 namespace ros{
 	RVIZVisualMarker::RVIZVisualMarker(){

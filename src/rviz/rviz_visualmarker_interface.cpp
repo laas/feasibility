@@ -1,4 +1,4 @@
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 
 namespace ros{
 	uint TriangleObject::mesh_counter=0;
@@ -7,6 +7,17 @@ namespace ros{
 
 	//snippet from
 	//http://answers.ros.org/question/40223/placing-permanent-visual-marker-in-rviz/?answer=40230#post-id-40230
+	Color::Color(){
+		r=0;g=0;b=0;a=1;
+	}
+	Color::Color(double r, double g, double b, double a){
+		this->r = r;this->g=g;this->b=b;this->a=a;
+	}
+	Geometry::Geometry(){
+		x=0;y=0;z=0;
+		tx=0;ty=0;tz=0;tw=1;
+		sx=1;sy=1;sz=1;
+	}
 	void Geometry::print(){
 		printf("X %f|Y %f|Z %f\n",x,y,z);
 		printf("TX %f|TY %f|TZ %f|TW %f\n",tx,ty,tz,tw);
