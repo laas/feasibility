@@ -85,10 +85,6 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		int computeHash(ros::Geometry &g){
 
 		}
-		void loadHyperPlaneParameters(char *file){
-			//FILE *fp = fopen_s(file,'r');
-
-		}
 
 		double getDistanceToHyperPlane(ros::Geometry &g){
 			std::vector<double> params = hyperplane[ computeHash(g) ];
@@ -100,6 +96,22 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 
 		}
 		*/
+		void loadHyperPlaneParameters(const char *file){
+			//FILE *fp = fopen_s(file,'r');
+			ROS_INFO("loading params from %s", file);
+			CSVReader f(file);
+			std::vector< std::vector<double> > vv = f.getVV(7);
+			cout << vv.at(0) << endl;
+			cout << vv.at(1) << endl;
+			cout << vv.at(2) << endl;
+			for(uint k=0;k<vv.size();k++){
+				std::vector<double> params(4);
+				for(uint i=0;i<4;i++) params.push_back(vv.at(k).at(i));
+				std::vector<double> pos(4);
+				for(uint i=4;i<7;i++) pos.push_back(vv.at(k).at(i));
+				//hyperplane[hash] = params;
+			}
+		}
 
 	};//contactTransition
 	ContactTransition goal;
@@ -122,7 +134,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void start_planner(){
 		start.print();
 		goal.print();
-		//start.loadHyperPlaneParameters("scripts/hyperparams.csv");
+		start.loadHyperPlaneParameters("data/planeparams.dat");
 		//start.loadObjectPositions(environment);
 
 		astarsearch->SetStartAndGoalStates( start, goal );
@@ -143,6 +155,13 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		{
 			cout << "Search terminated. Did not find goal" << endl;
 		}
+	}
+	bool success(){
+		uint SearchState = astarsearch->SearchStep();
+		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
+			return true;
+		else
+			return false;
 	}
 	void publish(){
 		uint SearchState = astarsearch->SearchStep();

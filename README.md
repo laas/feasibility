@@ -11,10 +11,9 @@ points in configuration space</p>
 <p>The usual path to a fresh build:</p>
 
 <ul>
-<li>$mkdir build
-<li>$cd build
-<li>$cmake ..
-<li>$make
-
-<li>$echo '/home/${MYNAME}/git/fastReplanningData/data/' > robotDATA.dat
+<li>echo '/home/${MYNAME}/git/fastReplanningData/data/' > robotDATA.dat
+<li>mkdir build
+<li>cd build
+<li>cmake ..
+<li>make
 </ul>

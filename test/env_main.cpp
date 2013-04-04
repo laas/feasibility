@@ -15,8 +15,8 @@ int main( int argc, char** argv )
 	Environment* environment = &salle_bauzil;
 	environment->init(); //3 instructions because of the slicing problem
 
-	MotionPlannerPerrin planner(*environment, argc, argv);
-	//MotionPlannerHyperPlanar planner(*environment, argc, argv);
+	//MotionPlannerPerrin planner(*environment, argc, argv);
+	MotionPlannerHyperPlanar planner(*environment, argc, argv);
 
 	while (ros::ok())
 	{

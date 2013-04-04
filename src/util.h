@@ -2,6 +2,7 @@
 #include <cstdlib> //rand
 #include <sstream> //fstream
 #include <iostream> //cout
+#include <ostream> //cout
 #include <string> //std::string
 #include <vector>
 #include <errno.h> //errno
@@ -173,6 +174,24 @@ public:
 	}
 };
 
+template<typename T> 
+std::ostream &operator<<(std::ostream &s,std::vector< std::vector<T> > tt) { 
+	for(uint i=0;i<tt.size();i++){
+		s << tt;
+	}
+	return s;
+
+}
+template<typename T> 
+std::ostream &operator<<(std::ostream &s,std::vector<T> t) { 
+	s << "["; 
+	for(uint i=0;i<t.size();i++){
+		s << t[i] << (i==t.size()-1?"":",");
+	}
+	return s << "]";
+}
+
+
 struct CSVReader{
 private:
 	FILE *fp;
@@ -199,23 +218,24 @@ public:
 			return true;
 		}
 	}
-	void getVV(std::vector< std::vector<double> > &in){
+	std::vector< std::vector<double> > getVV(uint numbers_per_line){
+		std::vector< std::vector<double> > in;
 		char line[300];
 		while( fgets( line, 300, fp ) )
 		{
-		  	double x,y,t,c;
 			std::vector<double> vv;
 			char *tmp = line;
-			sscanf( tmp, "%lg %lg %lg %lg ", &x,&y,&t,&c);
-			vv.push_back(x);
-			vv.push_back(y);
-			vv.push_back(t);
-			vv.push_back(c);
-			vv.push_back(0);
+			char *old = line;
+			for(uint i=0;i<numbers_per_line;i++){
+				while(*tmp++ != ',');
+				double x = 0;
+				sscanf( old, "%lg", &x);
+				old = tmp;
+				vv.push_back(x);
+			}
 			in.push_back(vv);
 		}
-		//}
-
+		return in;
 	}
 	~CSVReader(){
 		fclose(fp);
