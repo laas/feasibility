@@ -100,9 +100,9 @@ namespace ros{
 		void init_marker();
 		Geometry* getGeometry();
 		~RVIZVisualMarker();
-		void addText( char *c );
+		void addText( std::string s );
 		void subscribeToEvart(std::string &topic);
-		void subscribeToEvart(char *c);
+		void subscribeToEvart(const char *c);
 		virtual double getTextZ(){
 			return g.z+g.sz/2+0.1;
 		}
@@ -172,7 +172,7 @@ namespace ros{
 
 	struct BlenderMeshTriangleObject: public TriangleObject{
 		std::string filename;
-		BlenderMeshTriangleObject(char *cfilename, char *trisname, double x, double y, double tz);
+		BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz);
 		uint32_t get_shape();
 		virtual double getTextZ();
 		virtual Color get_color();

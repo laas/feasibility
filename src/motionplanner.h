@@ -2,7 +2,7 @@
 #include <vector>
 #include <pqp/PQP.h>
 #include <fast-replanning/fast-replanning-interface.hh>
-#include "ros_util.h"
+#include "rviz/rviz_visualmarker.h"
 
 struct MotionPlanner{
 protected:

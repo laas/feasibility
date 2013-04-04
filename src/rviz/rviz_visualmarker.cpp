@@ -10,9 +10,9 @@ namespace ros{
 		}
 		changedPosition = false;
 	}
-	void RVIZVisualMarker::addText(char *cc){
+	void RVIZVisualMarker::addText(std::string s){
 		textHover = true;
-		text = string(cc);
+		text = s;
 	}
 	bool RVIZVisualMarker::isChanged(double threshold){
 		if( dist(g.x, g_old.x, g.y, g_old.y) > threshold ){
@@ -201,7 +201,7 @@ namespace ros{
 		ros::waitForShutdown();
 		ROS_INFO("thread %s finished", name_id.c_str());
 	}
-	void RVIZVisualMarker::subscribeToEvart(char *c){
+	void RVIZVisualMarker::subscribeToEvart(const char *c){
 		std::string s(c);
 		subscribeToEvart(s);
 	}
