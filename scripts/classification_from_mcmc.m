@@ -1,5 +1,5 @@
 clear all;
-system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc');
+%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc/');
 prefix = '../data/mcmc/';
 data = dir(fullfile('.',strcat(prefix,'*tmp')));
 Nfiles = size(data,1)
@@ -18,6 +18,7 @@ end
 for k=1:Nfiles
 	%XD = [A(:,1:2) zeros(size(A,1))]; %% data samples
 	fname = strcat(prefix,data(k).name);
+	position_state = sscanf(data(k).name, 'sample_%d_%d_%d',[3]);
 	A=load(fname);
 
 	XD = to_cylindrical([A(:,1:3)]);
@@ -72,7 +73,7 @@ for k=1:Nfiles
 	end
 
 	W=[L;K];
-	plane(k,:)=W;
+	plane(k,:)=[W' position_state'];
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%% OPTIMIZE
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,6 +174,7 @@ for k=1:Nfiles
 	end
 
 end
+plane
 csvwrite('planeparams.dat',plane);
 
 %plot2svg('samples.svg');
