@@ -21,8 +21,11 @@ struct ContactTransition
 	bool GetSuccessors( AStarSearch<ContactTransition> *astarsearch, ContactTransition *parent_node );
 	double GetCost( ContactTransition &successor );
 	bool IsSameState( ContactTransition &rhs );
+
 	void loadObjectPosition(Environment &env);
 	static void loadHyperPlaneParameters(const char *file);
+	double getDistanceToHyperPlane();
+	void nearestDiscreteGeometry(std::vector<int> &in, double x, double y, double t);
 
 };//contactTransition
 std::map< int, std::vector<double> > ContactTransition::hyperplane;

@@ -22,6 +22,7 @@ double randn(double m, double stddev);
 double randn_boxmuller(double m, double stddev);
 double normpdf(double x, double mu=0.0, double s=1.0);
 double dist(double x1, double x2, double y1, double y2);
+int round2(double d);
 int hashit(const char *str);
 
 template<typename T>
@@ -77,16 +78,5 @@ public:
 	~CSVReader();
 };
 
-//##########################################################################
-//Special functions / Experimental stuff / not yet stable
-//##########################################################################
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-	//generic array build by using recursive variadic templates
-	template<class T, typename ...A>
-	std::vector<T> ARRAY( A ...args);
-#endif
-
-
-//##########################################################################
 
 #include "util_template.cpp"

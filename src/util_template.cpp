@@ -1,3 +1,4 @@
+#include <algorithm>//lowerbound, sort
 #include <sstream> //fstream
 #include <iostream> //cout
 #include <string> //std::string
@@ -34,4 +35,15 @@ int hashit(std::vector<T> in){
 		vecahelper<T>(z, args...);
 		return z;
 	}
+	#define vecI ARRAY<int>
+	#define vecD ARRAY<double>
 #endif
+
+template<class T>
+T nearest(std::vector<T> &v, T t){
+	std::vector<int>::iterator low = std::lower_bound(v.begin(), v.end(), t);
+	if(low == v.end()){
+		return v.at(v.size()-1);
+	}
+	return v.at( low - v.begin() );
+}

@@ -124,7 +124,10 @@ std::string get_logging_str(char* prefix, std::string s){
 	printf("%s\n",logfile);
 	return logfile;
 }
-
+int round2(double d)
+{
+	return floor(d + 0.5);
+}
 
 //##########################################################################
 // logger / stable

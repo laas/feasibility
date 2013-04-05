@@ -69,9 +69,9 @@ set(SOURCE
 	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
 	src/util.cpp
+	src/sampler.h
 	src/contact_transition.h 
 	src/contact_transition.cpp 
-	src/sampler.h
 )
 add_definitions("-std=c++0x")
 include_directories(src)

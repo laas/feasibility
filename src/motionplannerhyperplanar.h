@@ -14,6 +14,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		this->environment = &env;
 		astarsearch = new AStarSearch<ContactTransition>(100000);
 		ContactTransition::loadHyperPlaneParameters("data/planeparams.dat");
+		
 	}
 	void setGoal( ros::Geometry &goal ){
 		//this->goal = new ContactTransition( goal );
@@ -27,6 +28,8 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void start_planner(){
 		start.print();
 		goal.print();
+		ROS_INFO("start planner maintenant");
+		//goal.getDistanceToHyperPlane();
 		//start.loadObjectPositions(environment);
 
 		astarsearch->SetStartAndGoalStates( start, goal );

@@ -1,3 +1,4 @@
+#include <algorithm>//lowerbound, sort
 #include "contact_transition.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
@@ -72,14 +73,49 @@ double ContactTransition::getPlanarDistance( ros::Geometry &g ){
 
 
 }
-
-double getDistanceToHyperPlane(ros::Geometry &g){
-	std::vector<double> params = hyperplane[ computeHash(g) ];
-
-
-
-}
 */
+void ContactTransition::nearestDiscreteGeometry(std::vector<int> &in, double x, double y, double t){
+
+
+	std::vector<int> tpos = vecI(-29,-14,0,14,29);
+	std::vector<int> xpos = vecI(-34, -29, -24, -19, -14, -9, -4, 0, 5, 10, 15, 20, 25, 30, 35);
+	std::vector<int> ypos = vecI(-36, -31, -26, -21, -16, -11, -6, -1);
+	cout << xpos << endl;
+	cout << ypos << endl;
+	cout << tpos << endl;
+
+	std::sort(xpos.begin(), xpos.end());
+	std::sort(ypos.begin(), ypos.end());
+	std::sort(tpos.begin(), tpos.end());
+
+	cout << x << " " << y << " " <<  t << endl;
+	int rx = round2(x);
+	int ry = round2(y);
+	int rt = round2(t);
+	cout << rx << " " << ry << " " << rt << endl;
+	int nx = nearest(xpos, rx);
+	int ny = nearest(ypos, ry);
+	int nt = nearest(tpos, rt);
+	cout << nx << " " << ny << " " << nt << endl;
+
+	in.push_back( nearest(xpos, rx) );
+	in.push_back( nearest(ypos, ry) );
+	in.push_back( nearest(tpos, rt) );
+}
+
+double ContactTransition::getDistanceToHyperPlane(){
+	std::vector<int> pos;
+	nearestDiscreteGeometry(pos, g.x, g.y, g.z);
+	uint hash = hashit<int>(pos);
+
+	if(hyperplane.find(hash)==hyperplane.end()){
+		ROS_INFO("could not find hyperplane hash for geometry %d %d %d (transformed from %f %f %f) (hash: %d)",pos.at(0), pos.at(1), pos.at(2), g.x,g.y,g.tz,hash);
+		throw "hash not found";
+		exit(-1);
+	}
+
+	std::vector<double> params = hyperplane[hash];
+}
 void ContactTransition::loadObjectPosition(Environment &env){
 
 }
@@ -97,19 +133,22 @@ void ContactTransition::loadHyperPlaneParameters(const char *file){
 	for(uint k=0;k<vv.size();k++){
 		std::vector<double> params(4);
 		for(uint i=0;i<4;i++) params.push_back(vv.at(k).at(i));
-		std::vector<double> pos(4);
+
+		std::vector<int> pos;
 		for(uint i=4;i<7;i++) pos.push_back(vv.at(k).at(i));
-		uint hash = hashit<double>(pos);
-		ROS_INFO("hash: %d", hash);
+
+		uint hash = hashit<int>(pos);
+		ROS_INFO("hash: %d (%d %d %d)", hash, pos.at(0), pos.at(1), pos.at(2));
 		if(hyperplane.find(hash)!=hyperplane.end()){
 			ROS_INFO("hash collision: %d", hash);
 			collision=true;
 		}
-		//hyperplane[hash] = params;
+		hyperplane[hash] = params;
 	}
 	if(collision){
 		ROS_INFO("WARNING: collision in hyperplane");
 		throw "collision in hyperplane error";
 		exit(-1);
 	}
+	ROS_INFO("successfully loaded hyperplane hash map without collisions and %d entries!", hyperplane.size());
 }
