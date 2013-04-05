@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdlib> //rand
+#include <math.h> //sqrt, rand
 #include <sstream> //fstream
 #include <iostream> //cout
 #include <ostream> //cout
@@ -69,11 +70,19 @@ inline double normpdf(double x, double mu=0.0, double s=1.0){
 inline double dist(double x1, double x2, double y1, double y2){
 	return sqrtf((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 }
-
 inline int hashit(const char *str){
     int h = 0;
     while (*str) h = h << 1 ^ *str++;
     return h;
+}
+
+template<typename T>
+inline int hashit(std::vector<T> in){
+	std::stringstream ss;
+	for(uint i=0;i<in.size();i++){
+		ss << in.at(i);
+	}
+	return hashit(ss.str().c_str());
 }
 
 inline std::string get_data_path(){

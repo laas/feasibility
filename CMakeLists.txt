@@ -59,6 +59,7 @@ set(SOURCE
 	src/environment.cpp
 	src/motionplanner.h
 	src/motionplannerperrin.h
+	src/motionplannerhyperplanar.h
 	src/rviz/rviz_visualmarker.h
 	src/rviz/rviz_visualmarker.cpp
 	src/rviz/rviz_visualmarker_interface.cpp
@@ -67,6 +68,8 @@ set(SOURCE
 	src/rviz/rviz_visualmarker_mesh.cpp
 	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
+	src/contact_transition.h 
+	src/contact_transition.cpp 
 	src/sampler.h
 )
 include_directories(src)
