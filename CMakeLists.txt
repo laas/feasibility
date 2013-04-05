@@ -68,10 +68,12 @@ set(SOURCE
 	src/rviz/rviz_visualmarker_mesh.cpp
 	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
+	src/util.cpp
 	src/contact_transition.h 
 	src/contact_transition.cpp 
 	src/sampler.h
 )
+add_definitions("-std=c++0x")
 include_directories(src)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lfcl -L/usr/local/bin")
 set(UTIL_LIB util)

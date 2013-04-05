@@ -2,7 +2,7 @@
 
 namespace ros{
 	BlenderMeshTriangleObject::BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz): TriangleObject(){
-		filename = string(cfilename);
+		filename = std::string(cfilename);
 
 		tris_file_name = get_tris_str(trisname);
 

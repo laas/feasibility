@@ -31,7 +31,7 @@ namespace ros{
 
 	}
 	std::string TriangleObject::name(){
-		return string(basename(tris_file_name.c_str()));
+		return std::string(basename(tris_file_name.c_str()));
 	}
 	uint32_t TriangleObject::get_shape(){
 		return visualization_msgs::Marker::TRIANGLE_LIST;

@@ -8,7 +8,7 @@ namespace ros{
 		this->g.tz = 0;
 		this->g.sz=0.1;
 		init_marker();
-		marker.text = string(c);
+		marker.text = std::string(c);
 		text = marker.text;
 	}
 	std::string Text::name(){
@@ -32,7 +32,7 @@ namespace ros{
 		init_marker();
 	}
 	std::string SphereMarker::name(){
-		return string("sphere");
+		return std::string("sphere");
 	}
 	uint32_t SphereMarker::get_shape(){
 		return visualization_msgs::Marker::CYLINDER;

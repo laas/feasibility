@@ -10,7 +10,7 @@ namespace ros{
 		init_marker();
 	}
 	std::string FootMarker::name(){
-		return string("foot");
+		return std::string("foot");
 	}
 	uint32_t FootMarker::get_shape(){
 		return visualization_msgs::Marker::CUBE;
@@ -29,7 +29,7 @@ namespace ros{
 		init_marker();
 	}
 	std::string LeftFootMarker::name(){
-		return string("foot_L");
+		return std::string("foot_L");
 	}
 	Color LeftFootMarker::get_color(){
 		return Color(0.9,0.1,0.0,0.8);
@@ -38,7 +38,7 @@ namespace ros{
 		init_marker();
 	}
 	std::string RightFootMarker::name(){
-		return string("foot_R");
+		return std::string("foot_R");
 	}
 	Color RightFootMarker::get_color(){
 		return Color(0.1,0.9,0.0,0.8);

@@ -22,7 +22,7 @@ namespace ros{
 		printf("X %f|Y %f|Z %f\n",x,y,z);
 		printf("TX %f|TY %f|TZ %f|TW %f\n",tx,ty,tz,tw);
 		printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
-		cout << endl;
+		std::cout << std::endl;
 	}
 	RVIZInterface::RVIZInterface(){
 		std::string topic_name = "visualization_marker";
