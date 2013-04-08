@@ -23,6 +23,8 @@ double randn_boxmuller(double m, double stddev);
 double normpdf(double x, double mu=0.0, double s=1.0);
 double dist(double x1, double x2, double y1, double y2);
 int round2(double d);
+double toRad(double d);
+double toDeg(double d);
 int hashit(const char *str);
 
 template<typename T>

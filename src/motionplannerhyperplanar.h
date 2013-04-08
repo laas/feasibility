@@ -5,16 +5,14 @@
 struct MotionPlannerHyperPlanar: public MotionPlanner{
 	Environment *environment;
 
-
 	ContactTransition goal;
 	ContactTransition start;
 	AStarSearch<ContactTransition> *astarsearch;
 
 	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
 		this->environment = &env;
-		astarsearch = new AStarSearch<ContactTransition>(100000);
+		astarsearch = new AStarSearch<ContactTransition>(10000);
 		ContactTransition::loadHyperPlaneParameters("data/planeparams.dat");
-		
 	}
 	void setGoal( ros::Geometry &goal ){
 		//this->goal = new ContactTransition( goal );
@@ -23,12 +21,29 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void setStart( ros::Geometry &start ){
 		//this->start = new ContactTransition( start );
 		this->start = start;
+		this->start.L_or_R = 'L';
 	}
 
 	void start_planner(){
 		start.print();
-		goal.print();
+		//goal.print();
+		//goal.showSuccessors(0,0,0,'L');
+		//goal.showSuccessors(0,0,0,'R');
+		//goal.showSuccessors(1,-2,M_PI/8,'R');
+		//goal.showSuccessors(1,-1,M_PI/4,'R');
+		//goal.showSuccessors(1,0,M_PI/2,'R');
+		//goal.showSuccessors(1,2,-M_PI/8,'R');
+		//goal.showSuccessors(1,1,-M_PI/4,'R');
+		//goal.showSuccessors(1,-2,M_PI/8,'L');
+		//goal.showSuccessors(1,-1,M_PI/4,'L');
+		//goal.showSuccessors(1,0,M_PI/2,'L');
+		//goal.showSuccessors(1,2,-M_PI/8,'L');
+		//goal.showSuccessors(1,1,-M_PI/4,'L');
+		//return;
 		ROS_INFO("start planner maintenant");
+		//ros::LeftFootMarker m(0,1,0);
+		//m.addText("PLANNER");
+		//m.publish();
 		//goal.getDistanceToHyperPlane();
 		//start.loadObjectPositions(environment);
 
@@ -65,17 +80,28 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 			ContactTransition *node = astarsearch->GetSolutionStart();
 			int steps = 0;
 
-			ros::LeftFootMarker m(node->g.x, node->g.y, node->g.tz);
+			ros::LeftFootMarker m(node->g.x, node->g.y, node->g.getYawRadian());
 			m.reset();
 			m.publish();
+			double oldX = node->g.x;
+			double oldY = node->g.y;
 			for( ;; )
 			{
 				ROS_INFO("step[%d] %f %f", steps, node->g.x, node->g.y);
 				node = astarsearch->GetSolutionNext();
 				if( !node ) break;
 
-				ros::LeftFootMarker m(node->g.x, node->g.y, node->g.tz);
-				m.publish();
+				if(node->L_or_R == 'L'){
+					ros::LeftFootMarker m(node->g.x, node->g.y, node->g.getYawRadian());
+					m.publish();
+					m.drawLine(oldX, oldY);
+					oldX = node->g.x;oldY = node->g.y;
+				}else{
+					ros::RightFootMarker m(node->g.x, node->g.y, node->g.getYawRadian());
+					m.publish();
+					m.drawLine(oldX, oldY);
+					oldX = node->g.x;oldY = node->g.y;
+				}
 				steps++;
 			};
 			cout << "Solution steps " << steps << endl;

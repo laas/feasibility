@@ -1,4 +1,5 @@
 #include <algorithm>//lowerbound, sort
+#include <map>
 #include "contact_transition.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
@@ -22,35 +23,142 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	return this->GoalDistanceEstimate(nodeGoal) < 0.2;
 }
-bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsearch, ContactTransition *parent_node ){
-	for (double valX = -0.35; valX < 0.351; valX+=0.05) {
-		for (double valY = -0.37; valY < -0.019; valY+=0.05) {
-			for (double valT = -0.52; valT < 0.521; valT += 0.26) {
-				double abs_x = this->g.x;
-				double abs_y = this->g.y;
-				double abs_t = this->g.tz;
+/*
+int ContactTransition::indexConversion(double x, double y, double t){
+	int i1 = (int)floor(x*100+0.5);
+	int i2 = (int)floor(y*100+0.5);
+	int i3 = (int)floor(t*100+0.5);
+	return (int)((floor((i1+35.0)/5.0))*8*5 + (floor((i2+37.0)/5.0))*5 + (floor((i3+52.0)/26.0)));
+}
+*/
 
-				double newX = abs_x + cos(abs_t)*valX-sin(abs_t)*valY;
-				double newY = abs_y + sin(abs_t)*valX+cos(abs_t)*valY;
-				double newT = abs_t + valT;
+void ContactTransition::showSuccessors( double x, double y, double t, char L_or_R){
+	std::map<int, std::vector<double> >::const_iterator it;
+	char foot = 'L';
+	if(L_or_R == 'L'){
+		foot='R';
+		ros::LeftFootMarker m(x,y,t);
+		m.publish();
+	}else{
+		foot='L';
+		ros::RightFootMarker m(x,y,t);
+		m.publish();
+	}
 
-				ros::Geometry ng;
-				ng.x = newX;
-				ng.y = newY;
-				ng.tz = newT;
-				ContactTransition next(ng);
-				//next.cost_so_far = this->getPlanarDistance(ng) + this->GoalDistanceEstimate( next );
-				next.cost_so_far = this->GoalDistanceEstimate( next );
-				astarsearch->AddSuccessor(next);
+	double abs_x = x;
+	double abs_y = y;
+	double abs_t = t;
+
+	uint counter=0;
+	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
+
+		double valX = it->second.at(4);
+		double valY = it->second.at(5);
+		double valT = it->second.at(6);
+
+		double newX = abs_x + cos(abs_t)*valX - sin(abs_t)*valY;
+		double newY = abs_y + sin(abs_t)*valX + cos(abs_t)*valY;
+		double newT = -valT + abs_t;
+
+		if(L_or_R == 'R'){
+			//reflection at x-axis, following rotation around z and
+			//translation to x,y
+			newX = abs_x + cos(abs_t)*valX + sin(abs_t)*valY;
+			newY = abs_y + sin(abs_t)*valX - cos(abs_t)*valY;
+			newT = -(valT - abs_t);
+		}
+
+		ros::Geometry ng;
+		ng.x = newX;
+		ng.y = newY;
+		ng.setYawRadian(newT);
+
+		ContactTransition next(ng);
+		next.L_or_R = foot;
+		//next.cost_so_far = this->getPlanarDistance(ng) + this->GoalDistanceEstimate( next );
+		next.cost_so_far = 0.0;
+		//compute both hyperplane approx for this --> intermediate step
+		//and next -->intermediate step
+		//if(first){
+
+//		if(++counter%10 == 0){
+		if(++counter%2 == 0){
+			if(foot=='L'){
+				ros::LeftFootMarker rp(ng.x, ng.y, ng.tz);
+				rp.publish();
+			}else{
+				ros::RightFootMarker rp(ng.x, ng.y, ng.tz);
+				rp.publish();
 			}
 		}
+		//}
+	}
+}
+ros::Geometry ffRelToAbsX(double sfX, double sfY, double sfT, double ffX, double ffY, double ffT){
+
+}
+bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsearch, ContactTransition *parent_node ){
+	std::map<int, std::vector<double> >::const_iterator it;
+	char foot;
+
+	if(L_or_R == 'L'){
+		foot='R';
+	}else{
+		foot='L';
+	}
+
+	double abs_x = this->g.x;
+	double abs_y = this->g.y;
+	double abs_t = this->g.getYawRadian();
+
+	//static uint ccc = 0;
+	//if(ccc++>4) return false;
+	uint counter=0;
+	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
+
+		double valX = it->second.at(4);
+		double valY = it->second.at(5);
+		double valT = it->second.at(6)*M_PI/180.0;
+
+		double newX = abs_x + cos(abs_t)*valX - sin(abs_t)*valY;
+		double newY = abs_y + sin(abs_t)*valX + cos(abs_t)*valY;
+		double newT = -valT + abs_t;
+
+		if(L_or_R == 'R'){
+			//reflection at x-axis, following rotation around z and
+			//translation to x,y
+			newX = abs_x + cos(abs_t)*valX + sin(abs_t)*valY;
+			newY = abs_y + sin(abs_t)*valX - cos(abs_t)*valY;
+			newT = -(valT - abs_t);
+		}
+
+		ros::Geometry ng;
+		ng.x = newX;
+		ng.y = newY;
+		ng.setYawRadian(newT);
+
+		ContactTransition next(ng);
+		next.L_or_R = foot;
+		//next.cost_so_far = this->getPlanarDistance(ng) + this->GoalDistanceEstimate( next );
+		next.cost_so_far = 0.0;
+		astarsearch->AddSuccessor(next);
+/*
+		if(++counter%2 == 0){
+			if(foot=='L'){
+				ros::LeftFootMarker rp(ng.x, ng.y, ng.tz);
+				rp.publish();
+			}else{
+				ros::RightFootMarker rp(ng.x, ng.y, ng.tz);
+				rp.publish();
+			}
+		}
+*/
 	}
 	return true;
 }
 
 double ContactTransition::GetCost( ContactTransition &successor ){
-	//return successor.cost_so_far;
-	return 0.0;
+	return successor.cost_so_far;
 }
 bool ContactTransition::IsSameState( ContactTransition &rhs ){
 	double xg = rhs.g.x;
@@ -134,16 +242,19 @@ void ContactTransition::loadHyperPlaneParameters(const char *file){
 		std::vector<double> params(4);
 		for(uint i=0;i<4;i++) params.push_back(vv.at(k).at(i));
 
-		std::vector<int> pos;
-		for(uint i=4;i<7;i++) pos.push_back(vv.at(k).at(i));
+		std::vector<double> pos;
 
-		uint hash = hashit<int>(pos);
-		ROS_INFO("hash: %d (%d %d %d)", hash, pos.at(0), pos.at(1), pos.at(2));
+		for(uint i=4;i<7;i++) pos.push_back(vv.at(k).at(i)/100.0);
+
+		uint hash = hashit<double>(pos);
+
+		ROS_INFO("hash: %d (%f %f %f)", hash, pos.at(0), pos.at(1), pos.at(2));
 		if(hyperplane.find(hash)!=hyperplane.end()){
 			ROS_INFO("hash collision: %d", hash);
 			collision=true;
 		}
-		hyperplane[hash] = params;
+		for(uint i=4;i<7;i++) vv.at(k).at(i)=pos.at(i-4);
+		hyperplane[hash] = vv.at(k);
 	}
 	if(collision){
 		ROS_INFO("WARNING: collision in hyperplane");

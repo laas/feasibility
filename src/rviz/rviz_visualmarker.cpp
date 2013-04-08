@@ -23,42 +23,44 @@ namespace ros{
 	}
 	void RVIZVisualMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
-		marker.header.stamp = ros::Time::now();
 		marker.lifetime = ros::Duration(ROS_DURATION);
 		rviz->publish(marker);
-
 		if(textHover){
-			visualization_msgs::Marker cmarker;// = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
-			//textMarker->publish();
-			char fname[50];
-			std::string name = this->name();
-			sprintf(fname, "%d_%s_text",this->id, name.c_str());
-
-			cmarker.ns = fname;
-			cmarker.id = this->id;
-			cmarker.type =  visualization_msgs::Marker::TEXT_VIEW_FACING;
-			cmarker.action = visualization_msgs::Marker::ADD;
-			cmarker.text = this->text;
-			cmarker.pose.position.x = g.x;
-			cmarker.pose.position.y = g.y;
-			cmarker.pose.position.z = this->getTextZ();
-			cmarker.pose.orientation.x = 0.0;
-			cmarker.pose.orientation.y = 0.0;
-			cmarker.pose.orientation.z = g.tz;
-			cmarker.pose.orientation.w = 1.0;
-
-			cmarker.scale.z = 0.15;
-
-			Color c = ros::TEXT_COLOR;
-			cmarker.color.r = c.r;
-			cmarker.color.g = c.g;
-			cmarker.color.b = c.b;
-			cmarker.color.a = c.a;
-			cmarker.header.frame_id = FRAME_NAME;
-			cmarker.header.stamp = ros::Time::now();
-			cmarker.lifetime = ros::Duration(ROS_DURATION);
+			visualization_msgs::Marker cmarker = createTextMarker();
 			rviz->publish(cmarker);
 		}
+	}
+	visualization_msgs::Marker RVIZVisualMarker::createTextMarker(){
+		visualization_msgs::Marker cmarker;// = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
+		//textMarker->publish();
+		char fname[50];
+		std::string name = this->name();
+		sprintf(fname, "%d_%s_text",this->id, name.c_str());
+
+		cmarker.ns = fname;
+		cmarker.id = this->id;
+		cmarker.type =  visualization_msgs::Marker::TEXT_VIEW_FACING;
+		cmarker.action = visualization_msgs::Marker::ADD;
+		cmarker.text = this->text;
+		cmarker.pose.position.x = g.x;
+		cmarker.pose.position.y = g.y;
+		cmarker.pose.position.z = this->getTextZ();
+		cmarker.pose.orientation.x = 0.0;
+		cmarker.pose.orientation.y = 0.0;
+		cmarker.pose.orientation.z = g.tz;
+		cmarker.pose.orientation.w = 1.0;
+
+		cmarker.scale.z = 0.15;
+
+		Color c = ros::TEXT_COLOR;
+		cmarker.color.r = c.r;
+		cmarker.color.g = c.g;
+		cmarker.color.b = c.b;
+		cmarker.color.a = c.a;
+		cmarker.header.frame_id = FRAME_NAME;
+		cmarker.lifetime = ros::Duration(ROS_DURATION);
+		return cmarker;
+
 	}
 	void RVIZVisualMarker::reset(){
 		this->rviz->reset();

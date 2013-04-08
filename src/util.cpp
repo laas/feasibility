@@ -64,6 +64,12 @@ unsigned int JSHash(const std::string& str){
 
 	return (hash & 0x7FFFFFFF);
 }
+double toRad(double d){
+	return d*M_PI/180.0;
+}
+double toDeg(double d){
+	return d*180.0/M_PI;
+}
 
 int hashit(const char *str){
 	return JSHash(string(str));

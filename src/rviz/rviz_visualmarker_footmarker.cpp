@@ -1,9 +1,9 @@
 #include "rviz_visualmarker.h"
 namespace ros{
-	FootMarker::FootMarker(double x, double y, double tz): RVIZVisualMarker(){
+	FootMarker::FootMarker(double x, double y, double yaw): RVIZVisualMarker(){
 		this->g.x = x;
 		this->g.y = y;
-		this->g.tz = tz;
+		this->g.setYawRadian(yaw);
 		this->g.sx=0.18;
 		this->g.sy=0.09;
 		this->g.sz=0.02;
@@ -20,9 +20,12 @@ namespace ros{
 	}
 	void FootMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
-		marker.header.stamp = ros::Time::now();
 		marker.lifetime = ros::Duration(ROS_DURATION);
 		rviz->footstep_publish(marker);
+		if(textHover){
+			visualization_msgs::Marker cmarker = createTextMarker();
+			rviz->publish(cmarker);
+		}
 	}
 
 	LeftFootMarker::LeftFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {

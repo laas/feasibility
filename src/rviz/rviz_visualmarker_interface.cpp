@@ -1,3 +1,4 @@
+#include <tf/tf.h>
 #include "rviz/rviz_visualmarker.h"
 
 namespace ros{
@@ -5,13 +6,31 @@ namespace ros{
 	RVIZInterface *RVIZVisualMarker::rviz = NULL;
 	uint RVIZVisualMarker::global_id = 0;
 
-	//snippet from
-	//http://answers.ros.org/question/40223/placing-permanent-visual-marker-in-rviz/?answer=40230#post-id-40230
 	Color::Color(){
 		r=0;g=0;b=0;a=1;
 	}
 	Color::Color(double r, double g, double b, double a){
 		this->r = r;this->g=g;this->b=b;this->a=a;
+	}
+	double Geometry::getYawRadian(){
+		tf::Quaternion q(this->tx, this->ty, this->tz, this->tw);
+		double roll, pitch, yaw;
+
+#if ROS_VERSION_MINIMUM(1,8,0)
+		tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
+#else
+		btMatrix3x3(q).getRPY(roll, pitch, yaw);
+#endif
+
+		return yaw;
+	}
+	void Geometry::setYawRadian(double yaw){
+		tf::Quaternion q;
+		q.setRPY(0,0,yaw);
+		this->tx = q.getX();
+		this->ty = q.getY();
+		this->tz = q.getZ();
+		this->tw = q.getW();
 	}
 	Geometry::Geometry(){
 		x=0;y=0;z=0;
@@ -26,9 +45,15 @@ namespace ros{
 	}
 	RVIZInterface::RVIZInterface(){
 		std::string topic_name = "visualization_marker";
-		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 1000);
+		ROS_INFO("started RVIZ interface");
+		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 5000);
 	}
 	void RVIZInterface::publish(visualization_msgs::Marker &m){
+		//time 0 means, that the marker will be displayed, regardless of
+		//the internal time
+		//ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
+		m.header.stamp = ros::Time();//ros::Time::now();
+		//waitForSubscribers(ros::Duration(5));
 		publisher.publish(m);
 	}
 
@@ -39,15 +64,12 @@ namespace ros{
 	}
 	bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 	{
-	    if(publisher.getNumSubscribers() > 0)
-		return true;
+	    if(publisher.getNumSubscribers() > 0) return true;
 	    ros::Time start = ros::Time::now();
 	    ros::Rate waitTime(0.1);
 	    while(ros::Time::now() - start < timeout) {
-		    ROS_INFO("wait for subscribers...");
 		waitTime.sleep();
-		if(publisher.getNumSubscribers() > 0)
-		    break;
+		if(publisher.getNumSubscribers() > 0) break;
 	    }
 	    return publisher.getNumSubscribers() > 0;
 	}

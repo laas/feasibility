@@ -40,6 +40,8 @@ namespace ros{
 		double tx,ty,tz,tw; //quaternions
 		double sx,sy,sz; //scale
 		void print();
+		void setYawRadian(double yaw); //yaw in radians, of course 
+		double getYawRadian(); //yaw in radians, of course 
 	};
 
 	struct Color{
@@ -96,6 +98,7 @@ namespace ros{
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
 		virtual Color get_color() = 0;
+		visualization_msgs::Marker createTextMarker();
 		void drawLine(double x_in, double y_in);
 		void init_marker();
 		Geometry* getGeometry();
@@ -144,7 +147,7 @@ namespace ros{
 		double distance_to(TriangleObject &rhs);
 	};
 	struct FootMarker: public RVIZVisualMarker{
-		FootMarker(double x, double y, double tz);
+		FootMarker(double x, double y, double yaw);
 		virtual std::string name();
 		uint32_t get_shape();
 		virtual Color get_color();
