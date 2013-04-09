@@ -78,15 +78,6 @@ void ContactTransition::showSuccessors( double x, double y, double t, char L_or_
 		ng.y = newY;
 		ng.setYawRadian(newT);
 
-		ContactTransition next(ng);
-		next.L_or_R = foot;
-		//next.cost_so_far = this->getPlanarDistance(ng) + this->GoalDistanceEstimate( next );
-		next.cost_so_far = 0.0;
-		//compute both hyperplane approx for this --> intermediate step
-		//and next -->intermediate step
-		//if(first){
-
-//		if(++counter%10 == 0){
 		if(rand()>0.0){
 			if(foot=='L'){
 				ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
@@ -182,7 +173,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		ContactTransition next(ng);
 		next.L_or_R = foot;
 		//next.cost_so_far = this->getPlanarDistance(ng) + this->GoalDistanceEstimate( next );
-		next.cost_so_far = computeHyperPlaneDistance(relStepPos, obj);
+		next.cost_so_far = this->cost_so_far + ScomputeHyperPlaneDistance(relStepPos, obj);
 		astarsearch->AddSuccessor(next);
 		/*
 		if(rand()>0.98){
