@@ -79,7 +79,7 @@ struct MotionPlannerPerrin: public MotionPlanner{
 
 				double newX = abs_x + cos(abs_t)*x-sin(abs_t)*y;
 				double newY = abs_y + sin(abs_t)*x+cos(abs_t)*y;
-				double newT = abs_t + t;
+				double newT = t - abs_t;
 
 				abs_x=newX;
 				abs_y=newY;

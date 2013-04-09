@@ -11,11 +11,15 @@ struct ContactTransition
 	ros::Geometry g;
 	char L_or_R;
 	static std::map< int, std::vector<double> > hyperplane;
+	static std::vector<ros::RVIZVisualMarker*> objects;
 	static bool loaded;
 	double cost_so_far;
 
 	ContactTransition();
 	void print();
+
+	/// package of functions, neccessary for A* star algorithm --> see
+	//stlastar.h
 	ContactTransition( ros::Geometry &g);
 	double GoalDistanceEstimate( ContactTransition &nodeGoal );
 	bool IsGoal( ContactTransition &nodeGoal );
@@ -24,10 +28,13 @@ struct ContactTransition
 	bool IsSameState( ContactTransition &rhs );
 	void showSuccessors( double x, double y, double t, char L_or_R);
 
+	/// everything related to hyperplane implementation
 	void loadObjectPosition(Environment &env);
+	std::vector< std::vector<double> > prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot);
 	static void loadHyperPlaneParameters(const char *file);
-	double getDistanceToHyperPlane();
+	double computeHyperPlaneDistance(std::vector<double> &g, std::vector< std::vector<double> > &obj);
 	void nearestDiscreteGeometry(std::vector<int> &in, double x, double y, double t);
 
 };//contactTransition
 std::map< int, std::vector<double> > ContactTransition::hyperplane;
+std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;

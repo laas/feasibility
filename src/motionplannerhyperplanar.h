@@ -3,7 +3,7 @@
 #include "contact_transition.h"
 
 struct MotionPlannerHyperPlanar: public MotionPlanner{
-	Environment *environment;
+	static Environment *environment;
 
 	ContactTransition goal;
 	ContactTransition start;
@@ -11,7 +11,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 
 	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
 		this->environment = &env;
-		astarsearch = new AStarSearch<ContactTransition>(10000);
+		astarsearch = new AStarSearch<ContactTransition>(2000);
 		ContactTransition::loadHyperPlaneParameters("data/planeparams.dat");
 	}
 	void setGoal( ros::Geometry &goal ){
@@ -27,18 +27,16 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void start_planner(){
 		start.print();
 		//goal.print();
-		//goal.showSuccessors(0,0,0,'L');
-		//goal.showSuccessors(0,0,0,'R');
-		//goal.showSuccessors(1,-2,M_PI/8,'R');
-		//goal.showSuccessors(1,-1,M_PI/4,'R');
-		//goal.showSuccessors(1,0,M_PI/2,'R');
-		//goal.showSuccessors(1,2,-M_PI/8,'R');
-		//goal.showSuccessors(1,1,-M_PI/4,'R');
-		//goal.showSuccessors(1,-2,M_PI/8,'L');
-		//goal.showSuccessors(1,-1,M_PI/4,'L');
-		//goal.showSuccessors(1,0,M_PI/2,'L');
-		//goal.showSuccessors(1,2,-M_PI/8,'L');
-		//goal.showSuccessors(1,1,-M_PI/4,'L');
+		//goal.showSuccessors(1,-2,0,'L');
+		//goal.showSuccessors(1,-1,M_PI/2,'L');
+		//goal.showSuccessors(1,0,M_PI,'L');
+		//goal.showSuccessors(1,1,3*M_PI/2,'L');
+		//goal.showSuccessors(1,2,2*M_PI,'L');
+		//goal.showSuccessors(1,-2,0,'R');
+		//goal.showSuccessors(1,-1,M_PI/2,'R');
+		//goal.showSuccessors(1,0,M_PI,'R');
+		//goal.showSuccessors(0.5,0,M_PI/6,'R');
+		//goal.showSuccessors(1,2,2*M_PI,'R');
 		//return;
 		ROS_INFO("start planner maintenant");
 		//ros::LeftFootMarker m(0,1,0);
@@ -115,6 +113,8 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		astarsearch->EnsureMemoryFreed();
 	}
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
-		ROS_INFO("adding objects to planner NOT YET IMPLEMENTED!");
+		//ROS_INFO("adding objects to planner NOT YET IMPLEMENTED!");
+		ContactTransition::objects = environment->getObjects();
 	}
 };
+Environment *MotionPlannerHyperPlanar::environment;
