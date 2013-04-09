@@ -34,12 +34,21 @@ namespace ros{
 	static const char *FRAME_NAME = "/mocap_world";
 	static const double ROS_DURATION = 0;
 
-	struct Geometry{
+	class Geometry{
+		double rx,ry,rz,rw; //quaternions
+	public:
 		Geometry();
 		double x,y,z;
-		double tx,ty,tz,tw; //quaternions
 		double sx,sy,sz; //scale
 		void print();
+		double getQuaternionX(); //quaternions can only be explicity accessed
+		double getQuaternionY(); 
+		double getQuaternionZ(); 
+		double getQuaternionW(); 
+		void setQuaternionX(double); //quaternions can only be explicity accessed
+		void setQuaternionY(double); 
+		void setQuaternionZ(double); 
+		void setQuaternionW(double); 
 		void setYawRadian(double yaw); //yaw in radians, of course 
 		double getYawRadian(); //yaw in radians, of course 
 	};
@@ -91,6 +100,7 @@ namespace ros{
 	public:
 		Geometry g;
 		Geometry g_old;
+		void print();
 		RVIZVisualMarker();
 		bool isChanged(double threshold=0.01);
 		virtual void publish();

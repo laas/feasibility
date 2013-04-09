@@ -62,6 +62,7 @@ set(SOURCE
 	src/motionplannerhyperplanar.h
 	src/rviz/rviz_visualmarker.h
 	src/rviz/rviz_visualmarker.cpp
+	src/rviz/rviz_geometry.cpp
 	src/rviz/rviz_visualmarker_interface.cpp
 	src/rviz/rviz_visualmarker_triangleobject.cpp
 	src/rviz/rviz_visualmarker_footmarker.cpp

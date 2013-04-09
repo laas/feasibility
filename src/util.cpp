@@ -75,7 +75,6 @@ int hashit(const char *str){
 	return JSHash(string(str));
 }
 
-
 std::string get_data_path(){
 	FILE *fp;
 	fp = fopen_s("robotDATA.dat", "r");

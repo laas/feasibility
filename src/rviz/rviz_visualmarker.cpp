@@ -14,6 +14,9 @@ namespace ros{
 		textHover = true;
 		text = s;
 	}
+	void RVIZVisualMarker::print(){
+		g.print();
+	}
 	bool RVIZVisualMarker::isChanged(double threshold){
 		if( dist(g.x, g_old.x, g.y, g_old.y) > threshold ){
 			g_old = g;
@@ -47,7 +50,7 @@ namespace ros{
 		cmarker.pose.position.z = this->getTextZ();
 		cmarker.pose.orientation.x = 0.0;
 		cmarker.pose.orientation.y = 0.0;
-		cmarker.pose.orientation.z = g.tz;
+		cmarker.pose.orientation.z = g.getQuaternionZ();
 		cmarker.pose.orientation.w = 1.0;
 
 		cmarker.scale.z = 0.15;
@@ -89,10 +92,10 @@ namespace ros{
 		marker.pose.position.x = g.x;
 		marker.pose.position.y = g.y;
 		marker.pose.position.z = g.z;
-		marker.pose.orientation.x = g.tx;
-		marker.pose.orientation.y = g.ty;
-		marker.pose.orientation.z = g.tz;
-		marker.pose.orientation.w = g.tw;
+		marker.pose.orientation.x = g.getQuaternionX();
+		marker.pose.orientation.y = g.getQuaternionY();
+		marker.pose.orientation.z = g.getQuaternionZ();
+		marker.pose.orientation.w = g.getQuaternionW();
 
 		marker.scale.x = g.sx;
 		marker.scale.y = g.sy;
@@ -113,10 +116,10 @@ namespace ros{
 		marker.pose.position.x = g.x;
 		marker.pose.position.y = g.y;
 		marker.pose.position.z = g.z;
-		marker.pose.orientation.x = g.tx;
-		marker.pose.orientation.y = g.ty;
-		marker.pose.orientation.z = g.tz;
-		marker.pose.orientation.w = g.tw;
+		marker.pose.orientation.x = g.getQuaternionX();
+		marker.pose.orientation.y = g.getQuaternionY();
+		marker.pose.orientation.z = g.getQuaternionZ();
+		marker.pose.orientation.w = g.getQuaternionW();
 
 		marker.scale.x = g.sx;
 		marker.scale.y = g.sy;
@@ -183,10 +186,10 @@ namespace ros{
 
 		tf::Quaternion q;
 		q.setRPY(0, 0, yaw);
-		g.tx = q.getX();
-		g.ty = q.getY();
-		g.tz = q.getZ();
-		g.tw = q.getW();
+		g.setQuaternionX(q.getX());
+		g.setQuaternionY(q.getY());
+		g.setQuaternionZ(q.getZ());
+		g.setQuaternionW(q.getW());
 
 		update_marker();
 		boost::this_thread::interruption_point();

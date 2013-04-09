@@ -10,10 +10,7 @@ namespace ros{
 		init_object(f, in);
 	}
 	void TriangleObject::init_object( std::string f, Geometry &in ){
-		this->g.x = in.x;
-		this->g.y = in.y;
-		this->g.z = in.z;
-		this->g.tz = in.tz;
+		this->g = in;
 
 		double scale = 0.7;
 		this->g.sx = scale;
@@ -57,7 +54,7 @@ namespace ros{
 		chair_pos.x = 0.49;
 		chair_pos.y = -0.1;
 		chair_pos.z = 0.0;
-		chair_pos.tz = 0.0;
+		chair_pos.setYawRadian(0);
 		this->init_object(chair_file, chair_pos);
 		this->subscribeToEvart( mocap );
 	}
@@ -67,7 +64,7 @@ namespace ros{
 		Geometry robot_pos;
 		robot_pos.x = -2;
 		robot_pos.y = 0;
-		robot_pos.tz = 0;
+		robot_pos.setYawRadian(0);
 		this->init_object(robot_file, robot_pos);
 		this->subscribeToEvart( mocap );
 	}
@@ -76,8 +73,8 @@ namespace ros{
 	double TriangleObject::distance_to(TriangleObject &rhs){
 		//rotation z-axis (as visualized in rviz)
 		
-		double t = g.tz;
-		double tr = rhs.g.tz;
+		double t = g.getYawRadian();
+		double tr = rhs.g.getYawRadian();
 		fcl::Matrix3f r1 (cos(t),-sin(t),0,
 				  sin(t),cos(t) ,0,
 				  0     ,0      ,1);

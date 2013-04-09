@@ -5,7 +5,7 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.z = z;
-		this->g.tz = 0;
+		this->g.setYawRadian(0);
 		this->g.sz=0.1;
 		init_marker();
 		marker.text = std::string(c);
@@ -24,7 +24,7 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.z = z;
-		this->g.tz = 0;
+		this->g.setYawRadian(0);
 		this->g.sx=r;
 		this->g.sy=r;
 		this->g.sz=0.05;
