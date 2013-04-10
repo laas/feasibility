@@ -25,6 +25,12 @@ FILE *fopen_s(const char *path, const char *mode){
 void std_seed(){
 	srand(0);
 }
+double norml2(double x1, double x2, double y1, double y2){
+	return sqrtf((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+}
+double norml1(double x1, double x2, double y1, double y2){
+	return abs(x1-x2) + abs(y1-y2);
+}
 double rand(double lowerLimit, double upperLimit){
 	double x= ((double)rand() / (double)RAND_MAX); //[0,1]
 	double xs = x*(upperLimit-lowerLimit); //[0, upperLimit+lowerLimit]

@@ -25,6 +25,8 @@ double dist(double x1, double x2, double y1, double y2);
 int round2(double d);
 double toRad(double d);
 double toDeg(double d);
+double norml2(double x1, double x2, double y1, double y2);
+double norml1(double x1, double x2, double y1, double y2);
 int hashit(const char *str);
 
 template<typename T>
