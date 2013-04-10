@@ -9,6 +9,9 @@ struct Environment;
 struct ContactTransition
 {
 	ros::Geometry g;
+	double rel_x_parent;
+	double rel_y_parent;
+	double rel_t_parent;
 	char L_or_R;
 	static std::map< int, std::vector<double> > hyperplane;
 	static std::vector<ros::RVIZVisualMarker*> objects;
@@ -33,7 +36,6 @@ struct ContactTransition
 	std::vector< std::vector<double> > prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot);
 	static void loadHyperPlaneParameters(const char *file);
 	double computeHyperPlaneDistance(std::vector<double> &g, std::vector< std::vector<double> > &obj);
-	void nearestDiscreteGeometry(std::vector<int> &in, double x, double y, double t);
 
 };//contactTransition
 std::map< int, std::vector<double> > ContactTransition::hyperplane;

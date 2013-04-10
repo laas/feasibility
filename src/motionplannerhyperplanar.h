@@ -11,7 +11,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 
 	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
 		this->environment = &env;
-		astarsearch = new AStarSearch<ContactTransition>(2000);
+		astarsearch = new AStarSearch<ContactTransition>(10000);
 		ContactTransition::loadHyperPlaneParameters("data/planeparams.dat");
 	}
 	void setGoal( ros::Geometry &goal ){
@@ -21,6 +21,9 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	void setStart( ros::Geometry &start ){
 		//this->start = new ContactTransition( start );
 		this->start = start;
+		this->start.rel_x_parent = 0;
+		this->start.rel_y_parent = 0;
+		this->start.rel_t_parent = 0;
 		this->start.L_or_R = 'L';
 	}
 
@@ -113,7 +116,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		astarsearch->EnsureMemoryFreed();
 	}
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
-		//ROS_INFO("adding objects to planner NOT YET IMPLEMENTED!");
+		ROS_INFO("adding objects to planner");
 		ContactTransition::objects = environment->getObjects();
 	}
 };
