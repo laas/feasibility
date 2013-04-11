@@ -5,6 +5,8 @@
 #include "rviz/rviz_visualmarker.h"
 #include "environment.h"
 
+
+#define DEBUG(x) x
 ContactTransition::ContactTransition(){
 }
 void ContactTransition::print(){
@@ -20,16 +22,15 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double yg = nodeGoal.g.y;
 	double x = this->g.x;
 	double y = this->g.y;
-	double dist = norml1(x,xg,y,yg);
-
-
-	double obs_dist = 0.0;
-
-
-	return dist + obs_dist;
+	double obs_dist = norml2(x, objects.at(0)->g.x, y, objects.at(0)->g.y);
+	if(obs_dist<0.3){
+		return 20*exp(-obs_dist);
+	}
+	double w = 0.5;
+	return w*norml2(x,xg,y,yg) + (1-w)*exp(-obs_dist);
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
-	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.4;
+	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.3;
 }
 
 void ContactTransition::showSuccessors( double x, double y, double t, char L_or_R){
@@ -60,7 +61,7 @@ void ContactTransition::showSuccessors( double x, double y, double t, char L_or_
 
 		double newX = abs_x + cos(abs_t)*valX - sin(abs_t)*valY;
 		double newY = abs_y + sin(abs_t)*valX + cos(abs_t)*valY;
-		double newT = valT - abs_t;
+		double newT = valT + abs_t;
 
 		if(L_or_R == 'R'){
 			//reflection at x-axis [1 0,0 -1], following rotation around z and
@@ -117,8 +118,10 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 	std::vector< std::vector<double> > obj = this->prepareObjectPosition(abs_x, abs_y, abs_t, L_or_R);
 
+	uint counter=0;
 	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
 
+		if(counter++%7==0) continue;
 		//relative position of next pos of FF
 		double valX = it->second.at(4);
 		double valY = it->second.at(5);
@@ -130,7 +133,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		//absolute position of next pos of FF
 		double ff_nextX = abs_x + cos(abs_t)*valX - sin(abs_t)*valY;
 		double ff_nextY = abs_y + sin(abs_t)*valX + cos(abs_t)*valY;
-		double ff_nextT = valT - abs_t;
+		double ff_nextT = valT + abs_t;
 
 		if(L_or_R == 'R'){
 			//reflection at x-axis [1 0,0 -1], following rotation around z and
@@ -157,19 +160,30 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		//next.cost_so_far = -1;//parent->cost_so_far + 1; //each step has cost 1
 		//ROS_INFO("footstep %f %f %f costs %f", ng.x, ng.y, ng.getYawRadian(), next.cost_so_far);
 
-		next.cost_so_far = -norml1(ff_nextX, objects.at(0)->g.x, ff_nextY, objects.at(0)->g.y);//this->computeHyperPlaneDistance(relStepPos, obj);
-		astarsearch->AddSuccessor(next);
+		double dist = norml2(ff_nextX, objects.at(0)->g.x, ff_nextY, objects.at(0)->g.y);//this->computeHyperPlaneDistance(relStepPos, obj);
+		//double tostart = norml2(ff_nextX, start);//this->computeHyperPlaneDistance(relStepPos, obj);
+		//double hyper = this->computeHyperPlaneDistance(ff_next, obj) - 1.0;
+		next.cost_so_far = 0.0;//exp(hyper);//(hyper>0.0?hyper:0.0);
+		//ROS_INFO("footstep %f %f %f dist %f hyper %f", ng.x, ng.y, ng.getYawRadian(), dist, hyper);
 
+		DEBUG(
+			if(next.cost_so_far > 0)
+			ROS_INFO("[footstep coll] %f %f %f costs %f", ng.x, ng.y, ng.getYawRadian(), next.cost_so_far);
+		);
+
+		astarsearch->AddSuccessor(next);
 		//plot if neccessary
-		if(rand(0,1)>0.9){
-			if(foot=='L'){
-				ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
-				rp.publish();
-			}else{
-				ros::RightFootMarker rp(ng.x, ng.y, ng.getYawRadian());
-				rp.publish();
+		DEBUG(
+			if(rand(0,1)>0.9){
+				if(foot=='L'){
+					ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
+					rp.publish();
+				}else{
+					ros::RightFootMarker rp(ng.x, ng.y, ng.getYawRadian());
+					rp.publish();
+				}
 			}
-		}
+		);
 	}
 	firstFF=false;
 	return true;
@@ -193,11 +207,14 @@ std::vector< std::vector<double> > ContactTransition::prepareObjectPosition(doub
 		double ry = sin(sf_yaw)*tx + cos(sf_yaw)*ty;
 		double ryaw = yaw - sf_yaw;
 
+		//swept vlumes are always tested on the right side
+/*
 		if(foot == 'R'){
 			rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
 			ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
 			ryaw = -(yaw - sf_yaw);
 		}
+*/
 		while(ryaw>M_PI) ryaw-=2*M_PI;
 		while(ryaw<-M_PI) ryaw+=2*M_PI;
 
@@ -206,7 +223,7 @@ std::vector< std::vector<double> > ContactTransition::prepareObjectPosition(doub
 		cyl.at(0)=sqrtf(rx*rx + ry*ry); cyl.at(1)=atan2(rx,ry); cyl.at(2)=yaw;
 
 		v.push_back(cyl);
-		ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw);
+		DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
 
 	}
 	return v;
@@ -243,11 +260,7 @@ double ContactTransition::computeHyperPlaneDistance(std::vector<double> &g, std:
 		double ot = (*oit).at(2);
 
 		double dist = (a*ox+b*oy+c*ot+d) / sqrtf(a*a+b*b+c*c);
-		if( dist > 0){
-			cost += exp(-dist);
-		}else{
-			cost += 1000;//exp(-dist);
-		}
+		cost+=dist;
 		//ROS_INFO("dist %f cost %f", dist, cost);
 
 	}

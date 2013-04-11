@@ -31,7 +31,7 @@ struct EnvironmentSalleBauzil: public Environment{
 	}
 	void setObjects(){
 		//ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.8, 0.5, "chairLabo.tris", "/evart/chair2/PO");
-		ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",0.8,0.5,0);
+		ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
 		chair->addText("/evart/chair2/PO");
 		//ros::BlenderMesh *mesh = new ros::BlenderMesh("file://home/aorthey/git/feasibility/data/kellkore.stl",0,0,0);
 		//mesh->addText("<Fresh Blender Export>");

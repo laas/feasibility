@@ -18,7 +18,7 @@ int main( int argc, char** argv )
 	//MotionPlannerPerrin planner(*environment, argc, argv);
 	MotionPlannerHyperPlanar planner(*environment, argc, argv);
 	r.sleep();
-	if (ros::ok())
+	while (ros::ok())
 	{
 //		r.sleep();
 		planner.plan();

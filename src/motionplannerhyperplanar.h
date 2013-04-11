@@ -28,7 +28,6 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	}
 
 	void start_planner(){
-		start.print();
 		//goal.print();
 		//goal.showSuccessors(1,-2,0,'L');
 		//goal.showSuccessors(1,-1,M_PI/2,'L');
@@ -40,8 +39,29 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		//goal.showSuccessors(1,0,M_PI,'R');
 		//goal.showSuccessors(0.5,0,M_PI/6,'R');
 		//goal.showSuccessors(1,2,2*M_PI,'R');
+	//goal.showSuccessors(0.982171, 0.502283, 1.012291, 'L');
 		//return;
-		ROS_INFO("start planner maintenant");
+
+		//std::vector<double> g(3);
+		//g.at(0)=0.0;
+		//g.at(1)=-0.16;
+		//g.at(2)=0.0;
+
+
+
+		//std::vector<double> obj(3);
+		//obj.at(0)=0;
+		//obj.at(1)=0;
+		//obj.at(2)=M_PI;
+		//
+		//for(double v=0.0;v<5;v+=0.1){
+		//	obj.at(0)=v;
+		//	std::vector<std::vector<double> > kob;
+		//	kob.push_back(obj);
+		//	double d = goal.computeHyperPlaneDistance(g, kob);
+		//	ROS_INFO("hyperplane dist for obj x = %f >> %f", v, d);
+		//}
+		//return;
 		//ros::LeftFootMarker m(0,1,0);
 		//m.addText("PLANNER");
 		//m.publish();
@@ -88,7 +108,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 			double oldY = node->g.y;
 			for( ;; )
 			{
-				ROS_INFO("step[%d] %f %f", steps, node->g.x, node->g.y);
+				ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, node->g.getYawRadian());
 				node = astarsearch->GetSolutionNext();
 				if( !node ) break;
 

@@ -10,7 +10,7 @@ namespace ros{
 		this->g.y = y;
 
 		tf::Quaternion qin;
-		qin.setRPY(M_PI,0,M_PI/2);
+		qin.setRPY(M_PI/2,0,-M_PI/2);
 		this->g.setQuaternionX(qin.getX());
 		this->g.setQuaternionY(qin.getY());
 		this->g.setQuaternionZ(qin.getZ());
