@@ -7,7 +7,8 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  Release        : w/o debug symbols, w/ optimization
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-set(ROS_BUILD_TYPE Debug)
+#set(ROS_BUILD_TYPE Debug)
+set(ROS_BUILD_TYPE Release)
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -70,6 +71,8 @@ set(SOURCE
 	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
 	src/util.cpp
+	src/util_timer.h 
+	src/util_timer.cpp
 	src/sampler.h
 	src/contact_transition.h 
 	src/contact_transition.cpp 

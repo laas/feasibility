@@ -1,6 +1,15 @@
 #include <ros/console.h>
 #include "util_timer.h"
 
+void Timer::reset(){
+	m_start_time = 0.0;
+	m_stop_time = 0.0;
+	
+	StopperMap::iterator it;
+	for(it=stopper.begin(); it!=stopper.end(); ++it){
+		(*it).second.first = 0.0;
+	}
+}
 void Timer::begin(const char* name){
 	if(stopper.find(std::string(name)) == stopper.end()){
 		ROS_INFO("Stopper %s not found, printing all...", name);
