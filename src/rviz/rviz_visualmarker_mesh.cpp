@@ -32,7 +32,7 @@ namespace ros{
 		return visualization_msgs::Marker::MESH_RESOURCE;
 	}
 	double BlenderMeshTriangleObject::getTextZ(){
-		return 0.75;
+		return 0.8;
 	}
 	Color BlenderMeshTriangleObject::get_color(){
 		return ros::TEXT_COLOR;

@@ -1,6 +1,7 @@
 #include "motionplanner.h"
 #include "../extern/astar/stlastar.h"
 #include "contact_transition.h"
+#include "util_timer.h"
 
 struct MotionPlannerHyperPlanar: public MotionPlanner{
 	static Environment *environment;
@@ -12,7 +13,16 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 	MotionPlannerHyperPlanar(Environment &env, int &argc, char** &argv): MotionPlanner(env){
 		this->environment = &env;
 		astarsearch = new AStarSearch<ContactTransition>(10000);
+		ContactTransition::timer = new Timer();
+		ContactTransition::timer->register_stopper("prepare", "prepare objects");
+		ContactTransition::timer->register_stopper("hyperplanar", "compute hyperplanar");
+		ContactTransition::timer->register_stopper("ff", "compute ff transformation");
+		ContactTransition::timer->register_stopper("loader", "load hyperplane params");
+		ContactTransition::timer->register_stopper("a*", "a* algorithm");
+
+		ContactTransition::timer->begin("loader");
 		ContactTransition::loadHyperPlaneParameters("data/planeparams.dat");
+		ContactTransition::timer->end("loader");
 	}
 	void setGoal( ros::Geometry &goal ){
 		//this->goal = new ContactTransition( goal );
@@ -23,8 +33,8 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		this->start = start;
 		this->start.rel_x_parent = 0;
 		this->start.rel_y_parent = 0;
-		this->start.rel_t_parent = 0;
-		this->start.L_or_R = 'L';
+		this->start.rel_yaw_parent = 0;
+		this->start.L_or_R = 'L'; //start foot
 	}
 
 	void start_planner(){
@@ -71,6 +81,7 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		astarsearch->SetStartAndGoalStates( start, goal );
 		unsigned int SearchSteps = 0;
 		uint SearchState;
+		ContactTransition::timer->begin("a*");
 		do
 		{
 			SearchState = astarsearch->SearchStep();
@@ -86,6 +97,9 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		{
 			cout << "Search terminated. Did not find goal" << endl;
 		}
+		ContactTransition::timer->end("a*");
+		ContactTransition::timer->print_summary();
+		ContactTransition::timer->reset();
 	}
 	bool success(){
 		uint SearchState = astarsearch->SearchStep();
@@ -94,7 +108,11 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		else
 			return false;
 	}
+	
+
+	//plot footsteps into rviz
 	void publish(){
+
 		uint SearchState = astarsearch->SearchStep();
 		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
 		{
@@ -136,7 +154,6 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		astarsearch->EnsureMemoryFreed();
 	}
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
-		ROS_INFO("adding objects to planner");
 		ContactTransition::objects = environment->getObjects();
 	}
 };
