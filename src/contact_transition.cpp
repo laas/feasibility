@@ -6,7 +6,7 @@
 #include "environment.h"
 
 
-#define DEBUG(x) x
+#define DEBUG(x) 
 ContactTransition::ContactTransition(){
 }
 void ContactTransition::print(){
@@ -22,12 +22,11 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double yg = nodeGoal.g.y;
 	double x = this->g.x;
 	double y = this->g.y;
-	double obs_dist = norml2(x, objects.at(0)->g.x, y, objects.at(0)->g.y);
-	if(obs_dist<0.3){
-		return 20*exp(-obs_dist);
-	}
-	double w = 0.5;
-	return w*norml2(x,xg,y,yg) + (1-w)*exp(-obs_dist);
+	double rx = this->rel_x_parent;
+	double ry = this->rel_y_parent;
+	//negative reward for stepping back:
+	//double stepback = max( 10*(norml2(x,xg,y,yg) - norml2(rx,xg,ry,yg)), 0.0);
+	return norml2(x,xg,y,yg);
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.3;
@@ -121,7 +120,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	uint counter=0;
 	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
 
-		if(counter++%7==0) continue;
+		if(counter++ % 7 ==0) continue;
 		//relative position of next pos of FF
 		double valX = it->second.at(4);
 		double valY = it->second.at(5);
@@ -157,24 +156,15 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		next.rel_y_parent = it->second.at(5);
 		next.rel_t_parent = it->second.at(6);
 
-		//next.cost_so_far = -1;//parent->cost_so_far + 1; //each step has cost 1
-		//ROS_INFO("footstep %f %f %f costs %f", ng.x, ng.y, ng.getYawRadian(), next.cost_so_far);
+		double hyper = this->computeHyperPlaneDistance(ff_next, obj) - 1.0;
+		next.cost_so_far = (hyper>0.0?hyper:0.0);
 
-		double dist = norml2(ff_nextX, objects.at(0)->g.x, ff_nextY, objects.at(0)->g.y);//this->computeHyperPlaneDistance(relStepPos, obj);
-		//double tostart = norml2(ff_nextX, start);//this->computeHyperPlaneDistance(relStepPos, obj);
-		//double hyper = this->computeHyperPlaneDistance(ff_next, obj) - 1.0;
-		next.cost_so_far = 0.0;//exp(hyper);//(hyper>0.0?hyper:0.0);
-		//ROS_INFO("footstep %f %f %f dist %f hyper %f", ng.x, ng.y, ng.getYawRadian(), dist, hyper);
-
-		DEBUG(
-			if(next.cost_so_far > 0)
-			ROS_INFO("[footstep coll] %f %f %f costs %f", ng.x, ng.y, ng.getYawRadian(), next.cost_so_far);
-		);
-
-		astarsearch->AddSuccessor(next);
+		if(!(hyper>0.0)){
+			astarsearch->AddSuccessor(next);
+		}
 		//plot if neccessary
 		DEBUG(
-			if(rand(0,1)>0.9){
+			if(rand(0,1)>0.95){
 				if(foot=='L'){
 					ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
 					rp.publish();
@@ -223,7 +213,7 @@ std::vector< std::vector<double> > ContactTransition::prepareObjectPosition(doub
 		cyl.at(0)=sqrtf(rx*rx + ry*ry); cyl.at(1)=atan2(rx,ry); cyl.at(2)=yaw;
 
 		v.push_back(cyl);
-		DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
+		//DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
 
 	}
 	return v;
