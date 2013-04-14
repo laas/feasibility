@@ -4,7 +4,6 @@
 #include "contact_transition.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
-#include "environment.h"
 
 #define DEBUG(x)
 
@@ -45,8 +44,8 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 		ff_abs_y = sf_abs_y + sin(sf_abs_yaw)*ff_rel_x - cos(sf_abs_yaw)*ff_rel_y;
 		ff_abs_yaw = -(ff_rel_yaw - sf_abs_yaw);
 	}
-	//while(ff_abs_yaw>M_PI) ff_abs_yaw-=2*M_PI;
-	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
+	while(ff_abs_yaw>M_PI) ff_abs_yaw-=2*M_PI;
+	while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
 
 	ros::Geometry ff_abs;
 	ff_abs.x = ff_abs_x;
@@ -130,6 +129,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	double sf_abs_yaw = parent->g.getYawRadian();
 
 	DEBUG(timer->begin("prepare"));
+	//project all objects into the reference frame of the SF
 	std::vector< std::vector<double> > obj = this->prepareObjectPosition(sf_abs_x, sf_abs_y, sf_abs_yaw, parent->L_or_R);
 	DEBUG(timer->end("prepare"));
 
@@ -141,25 +141,20 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	std::vector<double> ff_rel(3);
 	ff_rel.at(0)=ff_rel_x; ff_rel.at(1)=ff_rel_y; ff_rel.at(2)=ff_rel_yaw;
 
-	//project all objects into the reference frame of the SF
-
-
 	//start_plane_distance = this->computeHyperPlaneDistance(ff_rel, obj);
 
 	uint counter=0;
 	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
 
-		if(counter++ % 2 ==0) continue;
-		//relative position of the next proposed pos of FF
+		if(counter++ % 2 ==0) continue; //consider only every second step -- simple speed up hack
 
-		//std::vector<double> next_ff_rel(3);
-		//next_ff_rel.at(0)=it->second.at(5); next_ff_rel.at(1)=it->second.at(6); next_ff_rel.at(2)=it->second.at(7);
 		DEBUG( timer->begin("hyperplanar") );
 		double hyper = this->computeHyperPlaneDistance( it->second, obj);
 		DEBUG( timer->end("hyperplanar") );
 		//double hyper =  max(start_plane_distance , end_plane_distance); //nearest point to hyperplane or beyond
 
 		if(!(hyper>0)){ //negative values mean to be outside of hyperplane approximation of the object
+			//relative position of the next proposed pos of FF
 			double next_ff_rel_x = it->second.at(5);
 			double next_ff_rel_y = it->second.at(6);
 			double next_ff_rel_yaw = toRad(it->second.at(7)*100.0);
@@ -235,11 +230,11 @@ std::vector< std::vector<double> > ContactTransition::prepareObjectPosition(doub
 
 double ContactTransition::computeHyperPlaneDistance( const std::vector<double> &p, std::vector< std::vector<double> > &obj){
 
-	double a = p.at(0);
-	double b = p.at(1);
-	double c = p.at(2);
-	double d = p.at(3);
-	double Z = p.at(4);
+	//double a = p.at(0);
+	//double b = p.at(1);
+	//double c = p.at(2);
+	//double d = p.at(3);
+	//double Z = p.at(4);
 	
 	//double Z = sqrtf(params.at(0)*params.at(a*a+b*b+c*c);
 
@@ -252,7 +247,7 @@ double ContactTransition::computeHyperPlaneDistance( const std::vector<double> &
 		double ox = (*oit).at(0);
 		double oy = (*oit).at(1);
 		double ot = (*oit).at(2);
-		double dist = (p.at(0)*ox+p.at(1)*oy+p.at(2)*ot+p.at(3)) / Z;//sqrtf(a*a+b*b+c*c);
+		double dist = (p.at(0)*ox+p.at(1)*oy+p.at(2)*ot+p.at(3));//sqrtf(a*a+b*b+c*c);
 		cost_per_object.push_back( dist - 1.0);
 		//cost_per_object.push_back( ((p.at(0)*(*oit).at(0)+p.at(1)*(*oit).at(1)+p.at(2)*(*oit).at(2)+p.at(3))/p.at(4)) - 1.0 );
 		//we learned the objects with a probability metric of +1 >
@@ -273,9 +268,6 @@ bool ContactTransition::IsSameState( ContactTransition &rhs ){
 	return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg) + (yaw-yawg)*(yaw-yawg))<0.01;
 }
 
-void ContactTransition::loadObjectPosition(Environment &env){
-
-}
 void ContactTransition::loadHyperPlaneParameters(const char *file){
 
 	//FILE *fp = fopen_s(file,'r');
@@ -297,6 +289,9 @@ void ContactTransition::loadHyperPlaneParameters(const char *file){
 		double norm= 0.0;
 		for(uint i=0;i<3;i++){ //a*a+b*b+c*c
 			norm += vv.at(k).at(i)*vv.at(k).at(i);
+		}
+		for(uint i=0;i<4;i++){
+			params.at(i)/=sqrtf(norm);
 		}
 		params.at(4)= sqrtf(norm);
 

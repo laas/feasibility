@@ -13,6 +13,7 @@
 #include <string>
 #include <boost/thread.hpp>
 
+#ifdef FCL_COLLISION_CHECKING
 #include <fcl/shape/geometric_shapes.h>
 #include <fcl/broadphase/broadphase_bruteforce.h>
 #include <fcl/math/vec_3f.h>
@@ -20,8 +21,12 @@
 #include <fcl/collision_data.h>
 #include <fcl/collision.h>
 #include <fcl/distance.h>
+#endif
 
+#ifdef PQP_COLLISION_CHECKING
 #include <pqp/PQP.h>
+#endif
+
 #include "util.h"
 
 struct FCLInterface;
@@ -138,11 +143,15 @@ namespace ros{
 	};
 
 	struct TriangleObject: public RVIZVisualMarker{
+#ifdef FCL_COLLISION_CHECKING
 		typedef fcl::AABB BoundingVolume;
-		std::string tris_file_name;
 		fcl::BVHModel< BoundingVolume > bvh;
-		PQP_Model *pqp_model;
-		PQP_Model *pqp_margin;
+#endif
+		std::string tris_file_name;
+#ifdef PQP_COLLISION_CHECKING
+			PQP_Model *pqp_model;
+			PQP_Model *pqp_margin;
+#endif
 		static uint mesh_counter;
 	public:
 		explicit TriangleObject();
@@ -151,8 +160,12 @@ namespace ros{
 		virtual std::string name();
 		uint32_t get_shape();
 		virtual Color get_color();
+#ifdef FCL_COLLISION_CHECKING
 		void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
+#endif
+#ifdef PQP_COLLISION_CHECKING
 		void read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
+#endif
 		void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
 		double distance_to(TriangleObject &rhs);
 	};

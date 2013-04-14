@@ -1,3 +1,4 @@
+#include <fast-replanning/fast-replanning-interface.hh>
 #include "motionplanner.h"
 
 //Wrapper around fastReplanning library

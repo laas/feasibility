@@ -9,6 +9,7 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE Debug)
 set(ROS_BUILD_TYPE Release)
+set(ROS_COMPILE_FLAGS "-O3 -Wextra")
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -24,15 +25,38 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 include(CheckFunctionExists)
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
 
-pkg_check_modules(FPlanner REQUIRED fast-replanning)
+pkg_check_modules(FPlanner fast-replanning)
 include_directories(${FPlanner_INCLUDE_DIRS})
 link_directories(${FPlanner_LIBRARY_DIRS})
+if(${FPlanner_FOUND})
+	message(STATUS "------------------- ")
+	message(STATUS ${FPlanner_LIBRARY_DIRS})
+	message(STATUS ${FPlanner_LIBRARIES})
+	message(STATUS ${FPlanner_INCLUDE_DIRS})
+	message(STATUS "------------------- ")
+else()
+	message(STATUS "Compilation without fast-planner libary")
+endif()
 
 ## pkg_check_modules(<NAME> REQUIRED <pkglib>)
 ## be sure that <NAME> != <pkglib>
-pkg_check_modules(FCLLIB REQUIRED fcl)
+
+##########################################################
+##########################################################
+pkg_check_modules(FCLLIB fcl)
 include_directories(${FCLLIB_INCLUDE_DIRS})
 link_directories(${FCLLIB_LIBRARY_DIRS})
+if(${FCLLIB_FOUND})
+	add_definitions("-DFCL_COLLISION_CHECKING")
+	message(STATUS "------------------- ")
+	message(STATUS ${FCLLIB_LIBRARY_DIRS})
+	message(STATUS ${FCLLIB_LIBRARIES})
+	message(STATUS ${FCLLIB_INCLUDE_DIRS})
+else()
+	message(STATUS "Compilation without FCL libary")
+endif()
+##########################################################
+##########################################################
 
 #ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
 #COMMAND rosrun ${PROJECT_NAME} Main 
@@ -40,16 +64,6 @@ link_directories(${FCLLIB_LIBRARY_DIRS})
 #)
 
 set(MAIN_EXE FootStepPlanner)
-message(STATUS "DEBUG OUTPUT ---- ")
-message(STATUS "")
-message(STATUS ${FPlanner_LIBRARY_DIRS})
-message(STATUS ${FPlanner_LIBRARIES})
-message(STATUS ${FPlanner_INCLUDE_DIRS})
-message(STATUS "------------------- ")
-message(STATUS ${FCLLIB_LIBRARY_DIRS})
-message(STATUS ${FCLLIB_LIBRARIES})
-message(STATUS ${FCLLIB_INCLUDE_DIRS})
-message(STATUS "------------------- ")
 
 #ADD_CUSTOM_TARGET( run
 #COMMAND ./../bin/${MAIN}
@@ -58,8 +72,8 @@ message(STATUS "------------------- ")
 set(SOURCE
 	src/environment.h
 	src/environment.cpp
+	src/environment_sallebauzil.cpp
 	src/motionplanner.h
-	src/motionplannerperrin.h
 	src/motionplannerhyperplanar.h
 	src/rviz/rviz_visualmarker.h
 	src/rviz/rviz_visualmarker.cpp
@@ -77,6 +91,9 @@ set(SOURCE
 	src/contact_transition.h 
 	src/contact_transition.cpp 
 )
+if(${FPlanner_FOUND})
+	set(SOURCE ${SOURCE} src/motionplannerperrin.h)
+endif()
 add_definitions("-std=c++0x")
 include_directories(src)
 #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lfcl -L/usr/local/bin")
@@ -102,7 +119,7 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 rosbuild_add_executable(ENVTester test/env_main.cpp )
-target_link_libraries(ENVTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 #rosbuild_add_executable(VisSteps src/vis_steps.cpp )
 #target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
@@ -110,8 +127,10 @@ target_link_libraries(ENVTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRA
 ###### UNIT TESTING #####################
 #################################################################################
 #
+if(${FPlanner_FOUND})
 rosbuild_add_executable(UnitTestFastPlannerLibrary test/unit_testing_exec_replanning.cpp )
 target_link_libraries(UnitTestFastPlannerLibrary ${UTIL_LIB} ${FPlanner_LIBRARIES} ${FPlanner_LIBRARIES})
+endif()
 #
 
 ###### DEPRECATED #####################

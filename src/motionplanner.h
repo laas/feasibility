@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
+#ifdef PQP_COLLISION_CHECKING
 #include <pqp/PQP.h>
-#include <fast-replanning/fast-replanning-interface.hh>
+#endif
 #include "rviz/rviz_visualmarker.h"
 
 struct MotionPlanner{

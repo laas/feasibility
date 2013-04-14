@@ -1,6 +1,8 @@
+#ifdef FCL_COLLISION_CHECKING
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
+#endif
 #include "rviz/rviz_visualmarker.h"
 
 namespace ros{
@@ -18,12 +20,16 @@ namespace ros{
 		this->g.sz = scale;
 		this->tris_file_name=f;
 
+#ifdef PQP_COLLISION_CHECKING
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
 		this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+#endif
 
-		this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
+#ifdef FCL_COLLISION_CHECKING
 		this->read_tris_to_BVH(this->bvh, tris_file_name.c_str() );
+#endif
+		this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
 		init_marker();
 
 	}
@@ -73,6 +79,7 @@ namespace ros{
 	double TriangleObject::distance_to(TriangleObject &rhs){
 		//rotation z-axis (as visualized in rviz)
 		
+#ifdef FCL_COLLISION_CHECKING
 		double t = g.getYawRadian();
 		double tr = rhs.g.getYawRadian();
 		fcl::Matrix3f r1 (cos(t),-sin(t),0,
@@ -96,7 +103,11 @@ namespace ros{
 		//result.clear();
 
 		return d;
+#else
+		ABORT("This executable is not compiled with the FCL collision library");
+#endif
 	}
+#ifdef PQP_COLLISION_CHECKING
 	void TriangleObject::read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){
 		int ntris;
 
@@ -136,6 +147,8 @@ namespace ros{
 		ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);
 
 	}
+#endif
+#ifdef FCL_COLLISION_CHECKING
 	void TriangleObject::read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
 		
 		int ntris;
@@ -169,6 +182,7 @@ namespace ros{
 		bvh.endModel();
 		ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh.num_tris, bvh.num_vertices);
 	}
+#endif
 
 	void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname){
 		

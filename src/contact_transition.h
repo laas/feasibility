@@ -4,9 +4,6 @@
 #include "rviz/rviz_visualmarker.h"
 #include "util_timer.h"
 
-struct ContactTransition;
-struct Environment;
-
 struct ContactTransition
 {
 	ros::Geometry g;
@@ -34,7 +31,6 @@ struct ContactTransition
 	void showSuccessors( double x, double y, double t, char L_or_R);
 
 	/// everything related to hyperplane implementation
-	void loadObjectPosition(Environment &env);
 	std::vector< std::vector<double> > prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot);
 	static void loadHyperPlaneParameters(const char *file);
 

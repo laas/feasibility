@@ -20,9 +20,11 @@ namespace ros{
 		this->g.sy = 0.33;
 		this->g.sz = 0.33;
 
+#ifdef PQP_COLLISION_CHECKING
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
 		this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+#endif
 
 		init_marker();
 		marker.mesh_resource = filename;
