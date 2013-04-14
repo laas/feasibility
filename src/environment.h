@@ -14,10 +14,14 @@ protected:
 	virtual void setGoalObject() = 0;
 	virtual void setStartObject() = 0;
 	virtual void setObjects() = 0;
+
 	void publish();
-public:
+
+	static Environment *singleton;
 	Environment();
 	~Environment();
+public:
+	static Environment* getSalleBauzil();
 	void init();
 	void clean();
 	bool isChanged();
@@ -27,30 +31,14 @@ public:
 };
 
 struct EnvironmentSalleBauzil: public Environment{
-	EnvironmentSalleBauzil(): Environment(){
+private:
+	EnvironmentSalleBauzil(): Environment(){ }
+public:
+	static Environment *getInstance(){
+		return new EnvironmentSalleBauzil();
 	}
-	void setObjects(){
-		//ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.8, 0.5, "chairLabo.tris", "/evart/chair2/PO");
-		ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
-		chair->addText("/evart/chair2/PO");
-		chair->subscribeToEvart("/evart/chair2/PO");
-		//ros::BlenderMesh *mesh = new ros::BlenderMesh("file://home/aorthey/git/feasibility/data/kellkore.stl",0,0,0);
-		//mesh->addText("<Fresh Blender Export>");
-		objects.push_back(chair);
-	}
-	void setGoalObject(){
-		goal = new ros::SphereMarker(2.5, 1.5, 0.2, 0.0);
-		goal->addText("goal");
-		goal->subscribeToEvart("/evart/helmet2/PO");
-	}
-	void setStartObject(){
-		//start = new ros::BlenderMesh("package://romeo_description/meshes/Torso.dae",0,0,0);
-		//start->addText("start");
-		//start->subscribeToEvart("/evart/robot/PO");
-		start = new ros::SphereMarker(0.0, 0.0, 0.2, 0.0);
-		start->addText("start");
-		start->subscribeToEvart("/evart/robot/PO");
-	}
-
+	void setObjects();
+	void setGoalObject();
+	void setStartObject();
 };
 

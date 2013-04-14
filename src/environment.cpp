@@ -1,5 +1,16 @@
+#include <rviz/rviz_visualmarker.h>
 #include "environment.h"
+#include "util.h"
 
+Environment* Environment::getSalleBauzil(){
+	if(singleton==NULL){
+		singleton = EnvironmentSalleBauzil::getInstance();
+	}else{
+		ABORT("One instance of environment already exists!");
+	}
+	singleton->init();
+	return singleton;
+}
 void Environment::publish(){
 	ros::Rate r(10); //Hz
 	while(1){
@@ -16,7 +27,7 @@ void Environment::publish(){
 
 		if(change && !changedEnv){
 			changedEnv = true;
-			ROS_INFO("environment changed!");
+			ROS_INFO("Environment changed!");
 		}
 
 		boost::this_thread::interruption_point();
@@ -26,7 +37,7 @@ void Environment::publish(){
 
 void Environment::startThread(){
 	assert(!m_thread);
-	ROS_INFO("starting environment thread");
+	ROS_INFO("starting Environment thread");
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::publish, this) );
 }
 
@@ -82,3 +93,4 @@ ros::Geometry Environment::getStart(){
 	assert(start);
 	return start->g;
 }
+
