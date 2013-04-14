@@ -8,9 +8,11 @@ void EnvironmentSalleBauzil::setObjects(){
 	chair->subscribeToEvart("/evart/chair2/PO");
 
 	objects.push_back(chair);
+	chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,1.5,M_PI);
+	objects.push_back(chair);
 }
 void EnvironmentSalleBauzil::setGoalObject(){
-	goal = new ros::SphereMarker(2.5, 1.0, 0.2, 0.0);
+	goal = new ros::SphereMarker(2.5, 2.5, 0.2, 0.0);
 	goal->addText("goal");
 	goal->subscribeToEvart("/evart/helmet2/PO");
 }

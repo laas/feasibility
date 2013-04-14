@@ -57,6 +57,13 @@ else()
 endif()
 ##########################################################
 ##########################################################
+pkg_check_modules(EIGEN eigen3)
+include_directories(${EIGEN_INCLUDE_DIRS})
+link_directories(${EIGEN_LIBRARY_DIRS})
+if(${EIGEN_FOUND})
+else()
+	message(STATUS "Compilation without EIGEN libary")
+endif()
 
 #ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
 #COMMAND rosrun ${PROJECT_NAME} Main 

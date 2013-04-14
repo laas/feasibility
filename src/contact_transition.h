@@ -1,8 +1,12 @@
-#include <map>
+//#include <map>
+#include <unordered_map>
 #include <vector>
 #include "../extern/astar/stlastar.h"
 #include "rviz/rviz_visualmarker.h"
 #include "util_timer.h"
+
+//unordered_map query time O(1) -- map query time O(log(n))
+typedef std::unordered_map< int, std::vector<double> > HashMap; 
 
 struct ContactTransition
 {
@@ -12,7 +16,8 @@ struct ContactTransition
 	double rel_yaw_parent;
 	char L_or_R;
 	static Timer* timer;
-	static std::map< int, std::vector<double> > hyperplane;
+
+	static HashMap hyperplane;
 	static std::vector<ros::RVIZVisualMarker*> objects;
 	static bool loaded;
 	double cost_so_far;
@@ -34,7 +39,7 @@ struct ContactTransition
 	std::vector< std::vector<double> > prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot);
 	static void loadHyperPlaneParameters(const char *file);
 
-	double computeHyperPlaneDistance( const std::vector<double> &p, std::vector< std::vector<double> > &obj);
+	double computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
 
 	ros::Geometry computeAbsFFfromRelFF(
 		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
@@ -42,6 +47,6 @@ struct ContactTransition
 		char sf_foot);
 
 };//contactTransition
-std::map< int, std::vector<double> > ContactTransition::hyperplane;
+HashMap ContactTransition::hyperplane;
 std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;
 Timer* ContactTransition::timer;
