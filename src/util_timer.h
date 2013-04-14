@@ -1,11 +1,16 @@
 #pragma once
 #include <ros/console.h>
 #include <string> //std::string
+struct Stopper{
+	double start;
+	double end;
+	double sum;
+	std::string description;
+};
 class Timer{
-	typedef std::map< std::string, std::pair<double, std::string> > StopperMap;
-	StopperMap stopper;
-	double m_start_time;
-	double m_stop_time;
+	typedef std::map< std::string, Stopper > StopperMap;
+	StopperMap stoppermap;
+	void checkExist(const char *name);
 public:
 	Timer(){};
 	void begin(const char* name);

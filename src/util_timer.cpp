@@ -2,42 +2,48 @@
 #include "util_timer.h"
 
 void Timer::reset(){
-	m_start_time = 0.0;
-	m_stop_time = 0.0;
-	
 	StopperMap::iterator it;
-	for(it=stopper.begin(); it!=stopper.end(); ++it){
-		(*it).second.first = 0.0;
+	Stopper s;
+	s.start= 0.0;
+	s.end= 0.0;
+	s.sum= 0.0;
+	for(it=stoppermap.begin(); it!=stoppermap.end(); ++it){
+		s.description = (*it).second.description;
+		(*it).second = s;
+	}
+}
+void Timer::checkExist(const char *name){
+	if(stoppermap.find(std::string(name)) == stoppermap.end()){
+		ROS_INFO("Stopper %s not found, printing all...", name);
+		print_summary();
+		throw "stopper not found, please register first";
 	}
 }
 void Timer::begin(const char* name){
-	if(stopper.find(std::string(name)) == stopper.end()){
-		ROS_INFO("Stopper %s not found, printing all...", name);
-		print_summary();
-		throw "stopper not found, please register first";
-	}
-	m_start_time = ros::Time::now().toSec();
+	checkExist(name);
+	stoppermap[std::string(name)].start = ros::Time::now().toSec();
 }
 void Timer::end(const char* name){
-	if(stopper.find(std::string(name)) == stopper.end()){
-		ROS_INFO("Stopper %s not found, printing all...", name);
-		print_summary();
-		throw "stopper not found, please register first";
-	}
-
-	m_stop_time = ros::Time::now().toSec();
-	stopper[std::string(name)].first += m_stop_time - m_start_time;
+	checkExist(name);
+	std::string s = std::string(name);
+	stoppermap[s].end = ros::Time::now().toSec();
+	stoppermap[s].sum += stoppermap[s].end - stoppermap[s].start;
 }
 void Timer::print_summary(){
-	std::map<std::string, std::pair<double, std::string> >::const_iterator it;
+	StopperMap::const_iterator it;
 	ROS_INFO("----------------------------------------");
 	ROS_INFO("Time stopper summary -----");
 	ROS_INFO("----------------------------------------");
-	for(it=stopper.begin(); it!=stopper.end(); ++it){
-		ROS_INFO("Stopper \"%s\" >> %f s", (*it).second.second.c_str(), (*it).second.first);
+	for(it=stoppermap.begin(); it!=stoppermap.end(); ++it){
+		ROS_INFO("Stopper \"%s\" >> %f s", (*it).second.description.c_str(), (*it).second.sum);
 	}
 	ROS_INFO("----------------------------------------");
 }
 void Timer::register_stopper(const char* name, const char* description){
-	stopper.insert( std::make_pair( std::string(name), std::make_pair( 0.0 , std::string(description))));
+	Stopper s;
+	s.start= 0.0;
+	s.end= 0.0;
+	s.sum= 0.0;
+	s.description = std::string(description);
+	stoppermap.insert( std::make_pair( std::string(name), s ) );
 }
