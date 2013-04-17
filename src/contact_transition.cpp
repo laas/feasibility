@@ -5,6 +5,7 @@
 #include "contact_transition.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
+#include <Eigen/Geometry>
 #include <Eigen/Core>
 
 #define DEBUG(x)
@@ -131,6 +132,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	double sf_abs_y = parent->g.y;
 	double sf_abs_yaw = parent->g.getYawRadian();
 
+
 	TIMER_DEBUG(timer->begin("prepare"));
 	//project all objects into the reference frame of the SF
 	std::vector< std::vector<double> > obj = this->prepareObjectPosition(sf_abs_x, sf_abs_y, sf_abs_yaw, parent->L_or_R);
@@ -141,6 +143,9 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	double ff_rel_y = parent->rel_y_parent;
 	double ff_rel_yaw = parent->rel_yaw_parent;
 
+	//Eigen::VectorXd sf_abs; sf_abs << sf_abs_x, sf_abs_y, sf_abs_yaw;
+	//Eigen::VectorXd ff_rel; ff_rel << ff_rel_x, ff_rel_y, ff_rel_yaw;
+
 	std::vector<double> ff_rel(3);
 	ff_rel.at(0)=ff_rel_x; ff_rel.at(1)=ff_rel_y; ff_rel.at(2)=ff_rel_yaw;
 
@@ -148,14 +153,15 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 	uint counter=0;
 	TIMER_DEBUG( timer->begin("hyperplanar") );
+
 	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
-
 		//if(counter++ % 2 ==0) continue; //consider only every second step -- simple speed up hack
+		if(rand(0,1)>0.2) continue;
 
-		double hyper = this->computeHyperPlaneDistance( it->second, obj);
+
 		//double hyper =  max(start_plane_distance , end_plane_distance); //nearest point to hyperplane or beyond
 
-		if(!(hyper>0)){ //negative values mean to be outside of hyperplane approximation of the object
+		if(!isInCollision( it->second, obj)){ //negative values mean to be outside of hyperplane approximation of the object
 			//relative position of the next proposed pos of FF
 			TIMER_DEBUG( timer->begin("ff") );
 
@@ -175,7 +181,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 			astarsearch->AddSuccessor(next);
 
 			DEBUG(
-				if(rand(0,1)>0.9){
+				if(rand(0,1)>0.0){
 					if(foot=='L'){
 						ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
 						rp.publish();
@@ -188,11 +194,14 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 			TIMER_DEBUG( timer->end("ff") );
 			continue;
 		}
+
 	TIMER_DEBUG( timer->end("hyperplanar") );
 	}//foreach hyperplane
 	return true;
 }
 // support foot (SF)
+//get object position in the coordinate system of the SF -- and prune objects
+//which are too far away
 std::vector< std::vector<double> > ContactTransition::prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot){
 	std::vector< std::vector<double> > v;
 	std::vector< std::vector<double> >::const_iterator vit;
@@ -219,17 +228,32 @@ std::vector< std::vector<double> > ContactTransition::prepareObjectPosition(doub
 		std::vector<double> cyl(3);
 		cyl.at(0)=sqrtf(rx*rx + ry*ry); cyl.at(1)=atan2(rx,ry); cyl.at(2)=yaw;
 
-		v.push_back(cyl);
+		//prune objects, which are far away
+		if(cyl.at(0)<0.5){
+			v.push_back(cyl);
+		}
 		DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
 
 	}
 	return v;
 }
 
+bool ContactTransition::isInCollision(  const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
+	double hyper = this->computeHyperPlaneDistance( p, obj);
+	if(hyper<0){
+		//no collision
+		return false;
+	}else{
+		return true;
+	}
+}
 //input: obj in cylinder coordinates (r,phi, yaw)| relative footstep of free
 //foot (FF), in X,Y,T, whereby T is degree divided by 100
 
 double ContactTransition::computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
+	if(obj.size()==0){
+		return -999;
+	}
 
 	double a = p.at(0);
 	double b = p.at(1);
@@ -267,15 +291,17 @@ bool ContactTransition::IsSameState( ContactTransition &rhs ){
 	return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg) + (yaw-yawg)*(yaw-yawg))<0.01;
 }
 
+// OUTPUT: [HyperplaneParams NormalizedConstant RelativeFootPosition]
+// ---> [a b c d Z x y theta], whereby a,b,c,d are the hyperplane params,
+// Z is sqrt(a*a+b*b+c*c) and x,y,theta is the position of the free foot,
+// relative to the support foot
+
 void ContactTransition::loadHyperPlaneParameters(const char *file){
 
 	//FILE *fp = fopen_s(file,'r');
 	ROS_INFO("loading parameter from %s", file);
 	CSVReader f(file);
 	std::vector< std::vector<double> > vv = f.getVV(7);
-	cout << vv.at(0) << endl;
-	cout << vv.at(1) << endl;
-	cout << vv.at(2) << endl;
 
 	bool collision=false;
 	for(uint k=0;k<vv.size();k++){
