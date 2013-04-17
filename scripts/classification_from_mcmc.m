@@ -1,17 +1,20 @@
 clear all;
-%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc/');
+system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc/');
 prefix = '../data/mcmc/';
+%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc_bar/sample* ../data/mcmc_bar/');
+%prefix = '../data/mcmc_bar/';
 data = dir(fullfile('.',strcat(prefix,'*tmp')));
 Nfiles = size(data,1)
+Nfiles = 1;
 
-plot = 0;
+plot = 1;
 if plot
 	NplotsX = 1;
 	NplotsY = 1;
 	clf;
 	figure(1);
 	set(gcf,'color','w');
-	fontsize = 15;
+	fontsize = 18;
 	title({'Feasible vs. Non-feasible object positions',''}, 'FontSize', fontsize);
 	Nfiles=NplotsX*NplotsY;
 end
@@ -43,30 +46,10 @@ for k=1:Nfiles
 	%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%% compute PCA
 	%%%%%%%%%%%%%%%%%%%%%%%
-
-	%XN=[XD(N_in,:);XD(N_out,:)];
-	%[COEFF,SCORE] = princomp(XN);
-	%COEFF
-	%subplot(Nplots, Nplots, k);
-	%size(N_in)
-	%size(XN)
-	%size(SCORE)
-	%Na=size(N_in,1);
-	%Nb=size(N_out,1)+Na;
-
-	%plot(SCORE(1:Na,1), SCORE(1:Na,2), '*r');
-	%hold on;
-	%plot(SCORE(Na+1:Nb,1), SCORE(Na+1:Nb,2), '*g');
-
-
-	% for each unique group in 'g', set the ZData property appropriately
-
 	% Function to compute K + L*v + v'*Q*v for multiple vectors
 	% v=[x;y]. Accepts x and y as scalars or column vectors.
 	f = @(x,y,z,W) W(4) + [x y z]*W(1:3)  + sum([x y z] .* ([x y z]*Q), 2);
 	d = @(x,y,z,W) (W(4) + [x y z]*W(1:3))/sum(W(1:3));
-
-
 
 	while size(find(d(XD(N_in,1), XD(N_in,2), XD(N_in,3),[L;K])>0),1) > 0 && K<20
 		K = K+0.01;
@@ -120,54 +103,61 @@ for k=1:Nfiles
 		zv=linspace(-4,4,NGRID);
 		[xx,yy,zz] = meshgrid(xv,yv,zv);
 
-		%v = d(xx(:),yy(:),zz(:),W);
-		%v = reshape(v,size(xx));
-		%hold on;
-		%%isosurface(xx,yy,zz,v,0,'Color','black');
-		%p = patch(isosurface(xx,yy,zz,v,0)); %%at data value 0
-		%%isonormals(xx,yy,zz,v,p)
-		%orange=[1,0.6,0];
-		%set(p,'FaceColor',orange,'EdgeColor','none');
-		%alpha(0.8);
-		%isosurface(xx,yy,v,0,'Color','green');
 		v = d(xx(:),yy(:),zz(:),[L;K]);
 		v = reshape(v,size(xx));
 		hold on;
-		p = patch(isosurface(xx,yy,zz,v,0)); %%at data value 0
-		set(p,'FaceColor','black','EdgeColor','none');
-		hold on;
-		%nbins=30;
-		%din = d(XD(N_in,1), XD(N_in,2), XD(N_in,3),W);
-		%dout = d(XD(N_out,1), XD(N_out,2), XD(N_out,3),W);
-	%	figure(2);
-	%	set(gcf,'color','w');
-	%	[nelem,xcen]=hist(dout,nbins);
-	%	bar(xcen, nelem);
-	%	[nelem,xcen]=hist(din,nbins);
-	%	hold on;
-	%	bar(xcen, nelem);
-	%	h = findobj(gca,'Type','patch');
-	%	set(h(1),'FaceColor','g','EdgeColor','k');
-	%	set(h(2),'FaceColor','r','EdgeColor','k');
 
-		%set(h2,'Color','m','LineWidth',2)
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 		%%%%%% PLOTTING
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		plot3(XD(N_in,1),XD(N_in,2),XD(N_in,3),'*r');
+		cylindrical = 1;
+		PLOT_DATA = XD;
+		feasible = plot3(PLOT_DATA(N_in,1),PLOT_DATA(N_in,2),PLOT_DATA(N_in,3));
 		hold on;
-		plot3(XD(N_out,1),XD(N_out,2),XD(N_out,3),'*g');
+		nfeasible = plot3(PLOT_DATA(N_out,1),PLOT_DATA(N_out,2),PLOT_DATA(N_out,3));
 		hold on;
-		xlabel('r', 'FontSize', fontsize, 'position', [2,-2.3*pi,0]);
-		ylabel('t', 'FontSize', fontsize, 'position', [-1,-0.6*pi,0]);
-		zlabel('z', 'FontSize', fontsize,'rot',180,'position',[-1,1.3*pi,2]);
-		set(gca,'YTick',-pi:pi/2:pi)
-		set(gca,'YTickLabel',{'-pi','-pi/2','0','pi/2','pi'})
+		%xlabel('r', 'FontSize', fontsize, 'position', [2,-2.3*pi,0]);
 
-		axis tight
-		campos([1,-6,10]);
-		camtarget([2,0,2]);
+		set(feasible,'Marker','o','MarkerEdgeColor','r','MarkerFaceColor','r','LineStyle','none');
+		set(nfeasible,'Marker','o','MarkerEdgeColor','g','MarkerFaceColor','g','LineStyle','none');
+
+		set(gca,'FontSize',fontsize)
+		lgnd = legend('non-feasible', 'feasible',...
+				'Location','NorthEast');
+		a=get(lgnd,'children');
+		set(a([1:3:end]),'MarkerSize',20);
+
+		%set(lgnd,'FontAngle','italic','FontSize',23,'TextColor',[.3,.2,.1])
+		minZ = min(XD(:,3));
+		%xlabel('r', 'Interpreter','latex','FontSize', fontsize, 'position', [0,0,minZ]);
+		%ylabel('$$\theta $$', 'Interpreter','latex','FontSize', fontsize, 'position', [-1,0,minZ]);
+		%zlabel('z', 'Interpreter','latex','FontSize', fontsize,'rot',180,'position',[-1,minY]);
+		labelFontSize=35;
+
+		if cylindrical
+			xlabel('r','FontSize',labelFontSize);
+			ylabel('\phi','FontSize',labelFontSize);
+			zlabel('z','FontSize',labelFontSize,'rot',180);
+			set(gca,'YTick',-pi:pi/2:pi)
+			set(gca,'YTickLabel',{'-pi','-pi/2','0','pi/2','pi'})
+
+		else
+			xlabel('x','FontSize',labelFontSize);
+			ylabel('y','FontSize',labelFontSize);
+			zlabel('\theta','FontSize',labelFontSize,'rot',180);
+			set(gca,'ZTick',-pi:pi/2:pi)
+			set(gca,'ZTickLabel',{'-pi','-pi/2','0','pi/2','pi'})
+
+		end
+
+		axis tight;
+		p = patch(isosurface(xx,yy,zz,v,0)); %%at data value 0
+		set(p,'FaceColor','black','EdgeColor','none');
+		hold on;
+
+		%campos([1,-6,10]);
+		%camtarget([2,0,2]);
 		grid on;
 
 		hold on;
