@@ -23,13 +23,13 @@ namespace ros{
 #ifdef PQP_COLLISION_CHECKING
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
-		this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
 #endif
 
 #ifdef FCL_COLLISION_CHECKING
-		this->read_tris_to_BVH(this->bvh, tris_file_name.c_str() );
+		this->tris2BVH(this->bvh, tris_file_name.c_str() );
 #endif
-		this->read_tris_to_marker( this->marker, tris_file_name.c_str() );
+		this->tris2marker( this->marker, tris_file_name.c_str() );
 		init_marker();
 
 	}
@@ -108,7 +108,7 @@ namespace ros{
 #endif
 	}
 #ifdef PQP_COLLISION_CHECKING
-	void TriangleObject::read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){
+	void TriangleObject::tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){
 		int ntris;
 
 		FILE *fp = fopen_s(fname,"r");
@@ -149,7 +149,7 @@ namespace ros{
 	}
 #endif
 #ifdef FCL_COLLISION_CHECKING
-	void TriangleObject::read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
+	void TriangleObject::tris2BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
 		
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
@@ -184,7 +184,7 @@ namespace ros{
 	}
 #endif
 
-	void TriangleObject::read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname){
+	void TriangleObject::tris2marker(visualization_msgs::Marker &marker, const char *fname){
 		
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");

@@ -86,6 +86,9 @@ struct MotionPlannerHyperPlanar: public MotionPlanner{
 		{
 			SearchState = astarsearch->SearchStep();
 			SearchSteps++;
+			if(SearchSteps > 1000){
+				break;
+			}
 		}
 		while( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SEARCHING );
 

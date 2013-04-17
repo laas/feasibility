@@ -40,5 +40,24 @@ namespace ros{
 	Color SphereMarker::get_color(){
 		return ros::MAGENTA;
 	}
+	CubeMarker::CubeMarker(double x, double y, double r, double yaw): RVIZVisualMarker() {
+		this->g.x = x;
+		this->g.y = y;
+		this->g.setYawRadian(yaw);
+		this->g.sx=r;
+		this->g.sy=r;
+		this->g.sz=r;
+		this->g.z = this->g.z + this->g.sz/2; //bottom of cube should be at desired z, not center
+		init_marker();
+	}
+	std::string CubeMarker::name(){
+		return std::string("cuberizer");
+	}
+	uint32_t CubeMarker::get_shape(){
+		return visualization_msgs::Marker::CUBE;
+	}
+	Color CubeMarker::get_color(){
+		return ros::MAGENTA;
+	}
 
 }
