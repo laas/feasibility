@@ -5,6 +5,7 @@
 
 //see also UTIL::cout for special outputs
 
+#define ROS_PRINT(msg) ROS_INFO(CUR_LOCATION << " >> " << msg)
 #define PRINT(msg) std::cout << CUR_LOCATION << " >> " << msg << std::endl
 #define ABORT(msg) PRINT(msg); throw msg;
 #define HALT(msg) PRINT(msg); exit(1);

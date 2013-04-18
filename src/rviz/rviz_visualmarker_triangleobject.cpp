@@ -11,6 +11,11 @@ namespace ros{
 	TriangleObject::TriangleObject(std::string f, Geometry &in): RVIZVisualMarker() {
 		init_object(f, in);
 	}
+	void TriangleObject::reloadBVH(){
+		this->bvh = NULL;
+		this->bvh = new fcl::BVHModel< BoundingVolume >();
+		this->tris2BVH(this->bvh, tris_file_name.c_str() );
+	}
 	void TriangleObject::init_object( std::string f, Geometry &in ){
 		this->g = in;
 
@@ -25,9 +30,10 @@ namespace ros{
 		this->pqp_margin = new PQP_Model;
 		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
 #endif
-#ifdef FCL_COLLISION_CHECKING
+		this->bvh = new fcl::BVHModel< BoundingVolume >();
+//#ifdef FCL_COLLISION_CHECKING
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
-#endif
+//#endif
 		this->tris2marker( this->marker, tris_file_name.c_str() );
 		init_marker();
 
@@ -105,7 +111,7 @@ namespace ros{
 
 		fcl::DistanceRequest request;
 		fcl::DistanceResult result;
-		double d = fcl::distance (&this->bvh, Tlhs, &rhs.bvh, Trhs, request, result);
+		double d = fcl::distance (this->bvh, Tlhs, rhs.bvh, Trhs, request, result);
 		//double md = result.penetration_depth;
 		ROS_INFO("distance: %f", d);
 		//result.clear();
@@ -157,7 +163,7 @@ namespace ros{
 	}
 #endif
 #ifdef FCL_COLLISION_CHECKING
-	void TriangleObject::tris2BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname ){
+	void TriangleObject::tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname ){
 		
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
@@ -184,11 +190,11 @@ namespace ros{
 		}
 		fclose(fp);
 
-		bvh.bv_splitter.reset (new fcl::BVSplitter<BoundingVolume>(fcl::SPLIT_METHOD_MEAN));
-		bvh.beginModel();
-		bvh.addSubModel(vertices, triangles);
-		bvh.endModel();
-		ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh.num_tris, bvh.num_vertices);
+		bvh->bv_splitter.reset (new fcl::BVSplitter<BoundingVolume>(fcl::SPLIT_METHOD_MEAN));
+		bvh->beginModel();
+		bvh->addSubModel(vertices, triangles);
+		bvh->endModel();
+		ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
 	}
 #endif
 

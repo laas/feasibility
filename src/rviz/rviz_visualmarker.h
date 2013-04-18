@@ -156,7 +156,7 @@ namespace ros{
 	struct TriangleObject: public RVIZVisualMarker{
 #ifdef FCL_COLLISION_CHECKING
 		typedef fcl::AABB BoundingVolume;
-		fcl::BVHModel< BoundingVolume > bvh;
+		fcl::BVHModel< BoundingVolume > *bvh;
 #endif
 		std::string tris_file_name;
 #ifdef PQP_COLLISION_CHECKING
@@ -172,13 +172,15 @@ namespace ros{
 		uint32_t get_shape();
 		virtual Color get_color();
 #ifdef FCL_COLLISION_CHECKING
-		void tris2BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
+		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
 #endif
 #ifdef PQP_COLLISION_CHECKING
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 #endif
 		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
 		double distance_to(TriangleObject &rhs);
+
+		void reloadBVH();
 	};
 	struct FootMarker: public RVIZVisualMarker{
 		FootMarker(double x, double y, double yaw);

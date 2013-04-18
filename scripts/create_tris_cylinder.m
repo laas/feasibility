@@ -20,7 +20,7 @@ z=str2double(arg_list{2});
 N=20;%number of corners
 M_PI=3.14159265;
 
-file='/home/orthez/git/fastReplanningData/data/part.tris';
+file='/home/aorthey/git/fastReplanningData/data/part.tris';
 FD = fopen(file,'w');
 
 %% ground plate

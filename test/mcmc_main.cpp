@@ -41,6 +41,8 @@ int main( int argc, char** argv )
 		char command[100];
 		sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1,1);
 		system(command);
+
+
 		TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "part.tris" );
 		TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
 
