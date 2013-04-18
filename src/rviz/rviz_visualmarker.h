@@ -105,6 +105,7 @@ namespace ros{
 	public:
 		Geometry g;
 		Geometry g_old;
+		void setXYT(double x, double y, double yaw_rad);
 		void print();
 		RVIZVisualMarker();
 		bool isChanged(double threshold=0.01);

@@ -17,6 +17,11 @@ namespace ros{
 	void RVIZVisualMarker::print(){
 		g.print();
 	}
+	void RVIZVisualMarker::setXYT(double x, double y, double yaw_rad){
+		g.x = x;
+		g.y = y;
+		g.setYawRadian(yaw_rad);
+	}
 	bool RVIZVisualMarker::isChanged(double threshold){
 		if( dist(g.x, g_old.x, g.y, g_old.y) > threshold ){
 			g_old = g;

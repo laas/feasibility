@@ -6,7 +6,7 @@
 class SampleGenerator{
 	int accepted_samples;
 	int rejected_samples;
-	const static double mu = 1.0;
+	const static double mu = 0.0;
 	const static double theta = 0.17;
 
 
@@ -23,14 +23,14 @@ public:
 		double stddev = 1.2;
 		return randn(x, stddev);
 	}
-	void accept_sample(double x, double y, double t, TriangleObject &obj_a, TriangleObject &obj_b){
-		obj_b.update_position(x,y,t);
+	void accept_sample(double x, double y, double t, ros::TriangleObject &obj_a, ros::TriangleObject &obj_b){
+		obj_b.setXYT(x,y,t);
 		accepted_samples++;
 		//a.rviz_publish();
 	}
 
-	double dp(double x, double y, double t, TriangleObject &obj_a, TriangleObject &obj_b){
-		obj_b.update_position(x,y,t);
+	double dp(double x, double y, double t, ros::TriangleObject &obj_a, ros::TriangleObject &obj_b){
+		obj_b.setXYT(x,y,t);
 		//return unnormalized distribution
 		double d=obj_b.distance_to(obj_a);
 
@@ -39,8 +39,8 @@ public:
 
 		return p;
 	}
-	double p(double x, double y, double t, TriangleObject &obj_a, TriangleObject &obj_b){
-		obj_b.update_position(x,y,t);
+	double p(double x, double y, double t, ros::TriangleObject &obj_a, ros::TriangleObject &obj_b){
+		obj_b.setXYT(x,y,t);
 		//return unnormalized distribution
 		double d=obj_b.distance_to(obj_a);
 
@@ -50,7 +50,7 @@ public:
 		return p;
 	}
 
-	void mcmc( TriangleObject &obj_a, TriangleObject &obj_b, uint Nsamples){
+	void mcmc( ros::TriangleObject &obj_a, ros::TriangleObject &obj_b, uint Nsamples){
 		int lInt = 1.0;
 		int hInt = 1.4;
 

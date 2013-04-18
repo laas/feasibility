@@ -33,10 +33,12 @@ template<typename T>
 int hashit(std::vector<T> in);
 
 std::string get_data_path();
+std::string get_tris_str(const char *relative_path);
 std::string get_tris_str(std::string relative_path);
+std::string get_robot_str(const char *sv_file);
 std::string get_robot_str();
 std::string get_chair_str();
-std::string get_logging_str(char* prefix, std::string s);
+std::string get_logging_str(const char* prefix, std::string s);
 
 //##########################################################################
 // logger / stable

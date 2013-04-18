@@ -94,6 +94,9 @@ std::string get_data_path(){
 	return path;
 }
 
+std::string get_tris_str(const char *relative_path){
+	return get_tris_str(string(relative_path));
+}
 std::string get_tris_str(std::string relative_path){
 	std::string prefix = get_data_path(); //robotDATA.dat path
 	char tris_file[200];
@@ -101,13 +104,16 @@ std::string get_tris_str(std::string relative_path){
 	std::string tris = string(tris_file);
 	return tris;
 }
+std::string get_robot_str(const char *sv_file){
+	return get_tris_str(sv_file);
+}
 std::string get_robot_str(){
-	return get_tris_str("fullBodyApprox/fullbody_-14_-21_-29.tris");
+	return get_robot_str("fullBodyApprox/fullbody_-14_-21_-29.tris");
 }
 std::string get_chair_str(){
 	return get_tris_str("chairLabo.tris");
 }
-std::string get_logging_str(char* prefix, std::string s){
+std::string get_logging_str(const char* prefix, std::string s){
 	char logfile[200];
 
 
