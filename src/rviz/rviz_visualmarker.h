@@ -99,8 +99,12 @@ namespace ros{
 		ros::Subscriber m_subscriber;
 		bool changedPosition;
 	private:
+		//Threading for updates from ROS topics
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf);
-		void Callback_init();
+		void thread_evart();
+		void thread_start();
+		void thread_stop();
+
 		void update_marker();
 	public:
 		Geometry g;
@@ -128,6 +132,12 @@ namespace ros{
 	};
 
 
+	struct CubeMarker: public RVIZVisualMarker{
+		CubeMarker(double x, double y, double w=0.08, double yaw=0);
+		virtual std::string name();
+		uint32_t get_shape();
+		virtual Color get_color();
+	};
 	struct SphereMarker: public RVIZVisualMarker{
 		SphereMarker(double x, double y, double r=0.08, double z=0);
 		virtual std::string name();
@@ -162,12 +172,12 @@ namespace ros{
 		uint32_t get_shape();
 		virtual Color get_color();
 #ifdef FCL_COLLISION_CHECKING
-		void read_tris_to_BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
+		void tris2BVH(fcl::BVHModel< BoundingVolume > &m, const char *fname );
 #endif
 #ifdef PQP_COLLISION_CHECKING
-		void read_tris_to_PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
+		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 #endif
-		void read_tris_to_marker(visualization_msgs::Marker &marker, const char *fname);
+		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
 		double distance_to(TriangleObject &rhs);
 	};
 	struct FootMarker: public RVIZVisualMarker{
@@ -189,6 +199,7 @@ namespace ros{
 	};
 	struct TriangleObjectFloor: public TriangleObject{
 		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap);
+		TriangleObjectFloor(double x, double y, std::string fname);
 	};
 	struct TriangleObjectChair: public TriangleObject{
 		TriangleObjectChair(std::string mocap);

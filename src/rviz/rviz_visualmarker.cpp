@@ -1,6 +1,10 @@
 #include "rviz_visualmarker.h"
 
+#define DEBUG(x)
 namespace ros{
+	RVIZVisualMarker::~RVIZVisualMarker(){
+		thread_stop();
+	}
 	RVIZVisualMarker::RVIZVisualMarker(){
 		id=global_id;
 		textHover = false;
@@ -76,14 +80,6 @@ namespace ros{
 	}
 	Geometry* RVIZVisualMarker::getGeometry(){
 		return &g;
-	}
-	RVIZVisualMarker::~RVIZVisualMarker(){
-		if(m_thread!=NULL){
-			m_thread->interrupt();
-			std::string id = boost::lexical_cast<std::string>(m_thread->get_id());
-			ROS_INFO("waiting for thread %s to terminate", id.c_str());
-			m_thread->join();
-		}
 	}
 	void RVIZVisualMarker::init_marker(){
 		char fname[50];
@@ -200,25 +196,38 @@ namespace ros{
 		boost::this_thread::interruption_point();
 	}
 
-	void RVIZVisualMarker::Callback_init(){
+	void RVIZVisualMarker::thread_evart(){
 		assert(!m_subscriber);
+		ros::Rate r(10); //Hz
 		m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 		std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
-		ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str());
-		ros::spin();
-		//ros::AsyncSpinner spinner(2);
-		//spinner.start();
-		ros::waitForShutdown();
-		ROS_INFO("thread %s finished", name_id.c_str());
+		DEBUG(ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str()));
+
+		while(1){
+			boost::this_thread::interruption_point();
+			ros::spinOnce();
+		}
+
+		DEBUG(ROS_INFO("thread %s finished", name_id.c_str()));
+	}
+	void RVIZVisualMarker::thread_stop(){
+		if(this->m_thread!=NULL){
+			this->m_thread->interrupt();
+			std::string id = boost::lexical_cast<std::string>(this->m_thread->get_id());
+			DEBUG(ROS_INFO("RVIZVisualMarker:: waiting for thread %s to terminate", id.c_str()));
+			this->m_thread->join();
+		}
+	}
+	void RVIZVisualMarker::thread_start(){
+		//assert(!m_thread);
+		m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&RVIZVisualMarker::thread_evart, this) );
 	}
 	void RVIZVisualMarker::subscribeToEvart(const char *c){
 		std::string s(c);
 		subscribeToEvart(s);
 	}
 	void RVIZVisualMarker::subscribeToEvart(std::string &topic){
-		//m_thread = boost::thread(Callback_init());
 		geometry_subscribe_topic = topic;
-		assert(!m_thread);
-		m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&RVIZVisualMarker::Callback_init, this) );
+		thread_start();
 	}
 }

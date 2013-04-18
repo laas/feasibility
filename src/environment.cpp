@@ -2,6 +2,7 @@
 #include "environment.h"
 #include "util.h"
 
+#define DEBUG(x) x
 Environment* Environment::getSalleBauzil(){
 	if(singleton==NULL){
 		singleton = EnvironmentSalleBauzil::getInstance();
@@ -11,7 +12,31 @@ Environment* Environment::getSalleBauzil(){
 	singleton->init();
 	return singleton;
 }
-void Environment::publish(){
+void Environment::cleanObjects(){
+	std::vector<ros::RVIZVisualMarker*>::iterator obj;
+	for(obj = objects.begin();obj!=objects.end();obj++){
+		delete (*obj);
+	}
+	objects.clear();
+	delete goal;
+	delete start;
+}
+void Environment::reloadObjects(){
+	DEBUG( ROS_INFO("Thread stopping"));
+	thread_stop();
+
+	cleanObjects();
+
+	setGoalObject();
+	setStartObject();
+	setObjects();
+	CHECK(goal!=NULL, "goal state was not initialized in your Environment!");
+	CHECK(start!=NULL, "start state was not initialized in your Environment!");
+	CHECK(objects.size()>0, "objects were not initialized in your Environment!");
+
+	thread_start();
+}
+void Environment::thread_publish(){
 	ros::Rate r(10); //Hz
 	while(1){
 		bool change = false;
@@ -35,10 +60,21 @@ void Environment::publish(){
 	}
 }
 
-void Environment::startThread(){
-	assert(!m_thread);
+void Environment::thread_start(){
+	//assert(!m_thread);
 	ROS_INFO("starting Environment thread");
-	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::publish, this) );
+	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::thread_publish, this) );
+}
+void Environment::thread_stop(){
+	assert(m_thread);
+	DEBUG(ROS_INFO("thread stop"));
+	if(this->m_thread!=NULL){
+		this->m_thread->interrupt();
+		std::string id = boost::lexical_cast<std::string>(this->m_thread->get_id());
+		ROS_INFO("waiting for thread %s to terminate", id.c_str());
+		this->m_thread->join();
+		this->m_thread.reset();
+	}
 }
 
 bool Environment::isChanged(){
@@ -63,17 +99,12 @@ void Environment::init(){
 	CHECK(goal!=NULL, "goal state was not initialized in your Environment!");
 	CHECK(start!=NULL, "start state was not initialized in your Environment!");
 	CHECK(objects.size()>0, "objects were not initialized in your Environment!");
-	startThread();
+	thread_start();
 }
 
 Environment::~Environment(){
 	clean();
-	if(this->m_thread!=NULL){
-		this->m_thread->interrupt();
-		std::string id = boost::lexical_cast<std::string>(this->m_thread->get_id());
-		ROS_INFO("waiting for thread %s to terminate", id.c_str());
-		this->m_thread->join();
-	}
+	thread_stop();
 }
 void Environment::clean(){
 	std::vector<ros::RVIZVisualMarker*>::iterator obj;

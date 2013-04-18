@@ -7,9 +7,9 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  Release        : w/o debug symbols, w/ optimization
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-#set(ROS_BUILD_TYPE Debug)
-set(ROS_BUILD_TYPE Release)
-set(ROS_COMPILE_FLAGS "-O3 -Wextra")
+#set(ROS_BUILD_TYPE Release)
+#set(ROS_COMPILE_FLAGS "-O3 -Wextra")
+set(ROS_BUILD_TYPE Debug)
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -119,8 +119,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-#rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
-#target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
+target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})

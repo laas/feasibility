@@ -38,6 +38,7 @@ struct ContactTransition
 	/// everything related to hyperplane implementation
 	std::vector< std::vector<double> > prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot);
 	static void loadHyperPlaneParameters(const char *file);
+	bool isInCollision(  const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
 
 	double computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
 

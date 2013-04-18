@@ -32,26 +32,23 @@ int main( int argc, char** argv )
 		uint Nsamples = 10000;
 		std_seed();
 		std::string chair_file = get_chair_str();
-		std::string robot_file = get_robot_str(argv[1]);
-
-		Geometry chair_pos;
-		chair_pos.x = 0.8;
-		chair_pos.y = 0.05;
-		chair_pos.setYawRadian(0.5);
+		std::string robot_file = get_tris_str(argv[1]);
 
 		Geometry robot_pos;
 		robot_pos.x = 0;
 		robot_pos.y = 0;
-		robot_pos.setYawRadian(0);
 
-		TriangleObject object(get_tris_str("bar.tris"), chair_pos);
-		TriangleObject robot(robot_file.c_str(), robot_pos);
-		//object.publish();
-		//robot.publish();
-		//r.sleep();
+		char command[100];
+		sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1,1);
+		system(command);
+		TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "part.tris" );
+		TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
 
-		Logger log(get_logging_str("data/mcmc_bar/", robot_file));
+		Logger log(get_logging_str("data/mcmc_cyl/", robot_file));
 		SampleGenerator sampler(log);
-		sampler.mcmc( robot, object, Nsamples);
+		sampler.mcmc( robot, cylinder, Nsamples);
+
+		delete cylinder;
+		delete robot;
 	}
 }
