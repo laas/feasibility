@@ -99,8 +99,12 @@ namespace ros{
 		ros::Subscriber m_subscriber;
 		bool changedPosition;
 	private:
+		//Threading for updates from ROS topics
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf);
-		void Callback_init();
+		void thread_evart();
+		void thread_start();
+		void thread_stop();
+
 		void update_marker();
 	public:
 		Geometry g;
@@ -194,6 +198,7 @@ namespace ros{
 	};
 	struct TriangleObjectFloor: public TriangleObject{
 		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap);
+		TriangleObjectFloor(double x, double y, std::string fname);
 	};
 	struct TriangleObjectChair: public TriangleObject{
 		TriangleObjectChair(std::string mocap);

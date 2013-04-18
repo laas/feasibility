@@ -12,7 +12,7 @@
 
 #include "rviz/rviz_visualmarker.h"
 #include "util.h"
-//#include "sampler.h"
+#include "sampler.h"
 
 using namespace ros;
 int main( int argc, char** argv )
@@ -29,38 +29,26 @@ int main( int argc, char** argv )
 	ROS_INFO("%s", argv[1]);
 	if (ros::ok())
 	{
-		uint Nsamples = 6;
+		uint Nsamples = 10000;
 		std_seed();
 		std::string chair_file = get_chair_str();
-		std::string robot_file = get_robot_str(argv[1]);
-
-		//Logger log(get_logging_str("data/hmc/", robot_file));
-		Geometry chair_pos;
-		chair_pos.x = 0.8;
-		chair_pos.y = 0.05;
-		chair_pos.tz = 0.5;
+		std::string robot_file = get_tris_str(argv[1]);
 
 		Geometry robot_pos;
 		robot_pos.x = 0;
 		robot_pos.y = 0;
-		robot_pos.tz = 0;
 
-		TriangleObject chair(chair_file.c_str(), chair_pos);
-		TriangleObject robot(robot_file.c_str(), robot_pos);
-		chair.publish();
-		robot.publish();
-		r.sleep();
+		char command[100];
+		sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1,1);
+		system(command);
+		TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "part.tris" );
+		TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
 
-		for(uint i=0;i<10;i++){
-			LeftFootMarker lfm(0+i/10.0,0,0);
-			//RightFootMarker rfm(0+i/10.0,1,0);
-			//SphereMarker ss(-1+i/10,0.5,0.2);
-			lfm.publish();
-			//ss.publish();
-		}
+		Logger log(get_logging_str("data/mcmc_cyl/", robot_file));
+		SampleGenerator sampler(log);
+		sampler.mcmc( robot, cylinder, Nsamples);
 
-
-		//SampleGenerator sampler(log);
-		//sampler.mcmc( robot, chair, Nsamples);
+		delete cylinder;
+		delete robot;
 	}
 }

@@ -25,7 +25,6 @@ namespace ros{
 		this->pqp_margin = new PQP_Model;
 		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
 #endif
-
 #ifdef FCL_COLLISION_CHECKING
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
 #endif
@@ -43,6 +42,15 @@ namespace ros{
 		return ros::WHITE;
 	}
 
+	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname): TriangleObject(){
+		std::string object_file = get_tris_str(fname);
+
+		Geometry object_pos;
+		object_pos.x = x;
+		object_pos.y = y;
+
+		this->init_object(object_file, object_pos);
+	}
 	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname, std::string mocap): TriangleObject(){
 		std::string object_file = get_tris_str(fname);
 

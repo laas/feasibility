@@ -119,8 +119,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-#rosbuild_add_executable(MCMCSampler src/mcmc_main.cpp )
-#target_link_libraries(MCMCSampler ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
+target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})

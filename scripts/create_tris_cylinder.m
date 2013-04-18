@@ -1,12 +1,24 @@
-
 x=0;
 y=0;
 r=2;
 z=1;
-M_PI=3.14159265;
 
+arg_list = argv();
+
+
+%for i = 1:nargin
+%	    printf("%s\n", arg_list{i});
+%end
+%printf("\n");
+if nargin != 2
+	printf("usage: cylinder <r> <z>");
+	exit
+end
+r=str2double(arg_list{1});
+z=str2double(arg_list{2});
 
 N=20;%number of corners
+M_PI=3.14159265;
 
 file='/home/orthez/git/fastReplanningData/data/part.tris';
 FD = fopen(file,'w');
@@ -115,5 +127,5 @@ end
 
 fclose(FD);
 command= 'cat %s';
-str = sprintf(command, file)
+str = sprintf(command, file);
 %s = system(str)
