@@ -12,7 +12,7 @@
 
 #include "rviz/rviz_visualmarker.h"
 #include "util.h"
-#include "sampler.h"
+#include "sampler/sampler.h"
 
 using namespace ros;
 int main( int argc, char** argv )
