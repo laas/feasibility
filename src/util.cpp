@@ -178,10 +178,18 @@ void Logger::operator()(std::string fmt, ...){
 		}
 	}
 	va_end(list);
+	//fputc('\n', fp);
+	fclose(fp);
+}
+void Logger::operator()(std::vector<double> &v){
+	fp = fopen(this->name.c_str(),"a");
+	std::vector<double>::iterator it;
+	for(it=v.begin();it!=v.end();it++){
+		fprintf(fp, "%f", *it);
+	}
 	fputc('\n', fp);
 	fclose(fp);
 }
-
 
 CSVReader::CSVReader(std::string name, char delimiter){
 	this->name = name;

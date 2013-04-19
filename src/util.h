@@ -51,6 +51,7 @@ private:
 public:
 	Logger(std::string name = "log_output.tmp");
 	void operator()(std::string fmt, ...);
+	void operator()(std::vector<double> &v);
 };
 //##########################################################################
 // COUT/STREAM FUNCTIONS

@@ -31,26 +31,14 @@ int main( int argc, char** argv )
 	{
 		uint Nsamples = 10000;
 		std_seed();
-		std::string chair_file = get_chair_str();
+
 		std::string robot_file = get_tris_str(argv[1]);
+		Logger log(get_logging_str("data/test/", robot_file));
 
-		Geometry robot_pos;
-		robot_pos.x = 0;
-		robot_pos.y = 0;
+		SamplingInterface sampler(log);
 
-		char command[100];
-		sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1,1);
-		system(command);
+		sampler.init( new SamplingCTOCylinder(argv[1]) );
+		sampler.mcmc(Nsamples);
 
-
-		TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "part.tris" );
-		TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
-
-		Logger log(get_logging_str("data/mcmc_cyl/", robot_file));
-		SampleGenerator sampler(log);
-		sampler.mcmc( robot, cylinder, Nsamples);
-
-		delete cylinder;
-		delete robot;
 	}
 }

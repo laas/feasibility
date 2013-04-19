@@ -1,13 +1,24 @@
 clear all;
-system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc/');
-prefix = '../data/mcmc/';
+%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc/');
+%prefix = '../data/mcmc/';
 %system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc_bar/sample* ../data/mcmc_bar/');
 %prefix = '../data/mcmc_bar/';
+%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc_cyl/sample* ../data/mcmc_cyl/');
+%prefix = '../data/mcmc_cyl/';
+prefix = '../data/test/';
+
+
+
 data = dir(fullfile('.',strcat(prefix,'*tmp')));
+
 Nfiles = size(data,1)
-Nfiles = 1;
+%Nfiles = 1;
 
 plot = 1;
+plot_plane = 0;
+cylindrical = 1;
+
+LABEL_POS= 5;
 if plot
 	NplotsX = 1;
 	NplotsY = 1;
@@ -24,11 +35,16 @@ for k=1:Nfiles
 	position_state = sscanf(data(k).name, 'sample_%d_%d_%d',[3]);
 	A=load(fname);
 
-	XD = to_cylindrical([A(:,1:3)]);
-	YD = [A(:,4)>1]; %% labels '1' = feasible, '0' = nonfeasible
+	if cylindrical
+		XD = to_cylindrical([A(:,1:3)]);
+	else
+		XD = [A(:,1:3)];
+	end
+	size(XD)
+	YD = [A(:,LABEL_POS)>1]; %% labels '1' = feasible, '0' = nonfeasible
 
-	N_in = find(A(:,4)<=1);
-	N_out = find(A(:,4)>1);
+	N_in = find(A(:,LABEL_POS)<=1);
+	N_out = find(A(:,LABEL_POS)>1);
 
 	NGRID=25;
 	Lb=-2;
@@ -37,11 +53,13 @@ for k=1:Nfiles
 	X = X(:); Y = Y(:); Z=Z(:);
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	Q = 0;
-	[C,err,P,logp,coeff] = classify([X Y Z],XD,YD,'linear');
-	%[C,err,P,logp,coeff] = classify([X Y Z],XD,YD,'diagquadratic');
+	%[C,err,P,logp,coeff] = classify([X Y Z],XD,YD,'linear')
+	[C,err,P,logp,coeff] = classify([X Y Z],XD,YD,'diagquadratic');
 	%Q = coeff(1,2).quadratic;
-	K = coeff(1,2).const;
-	L = coeff(1,2).linear;
+	%K = coeff(1,2).const;
+	%L = coeff(1,2).linear;
+	L=[0;0;0];
+	K=0;
 
 	%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%% compute PCA
@@ -111,7 +129,6 @@ for k=1:Nfiles
 		%%%%%% PLOTTING
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		cylindrical = 1;
 		PLOT_DATA = XD;
 		feasible = plot3(PLOT_DATA(N_in,1),PLOT_DATA(N_in,2),PLOT_DATA(N_in,3));
 		hold on;
@@ -145,16 +162,19 @@ for k=1:Nfiles
 		else
 			xlabel('x','FontSize',labelFontSize);
 			ylabel('y','FontSize',labelFontSize);
-			zlabel('\theta','FontSize',labelFontSize,'rot',180);
-			set(gca,'ZTick',-pi:pi/2:pi)
-			set(gca,'ZTickLabel',{'-pi','-pi/2','0','pi/2','pi'})
+			zlabel('r','FontSize',labelFontSize,'rot',180);
+			%set(gca,'ZTick',-pi:pi/2:pi)
+			%set(gca,'ZTickLabel',{'-pi','-pi/2','0','pi/2','pi'})
 
 		end
 
 		axis tight;
-		p = patch(isosurface(xx,yy,zz,v,0)); %%at data value 0
-		set(p,'FaceColor','black','EdgeColor','none');
-		hold on;
+
+		if plot_plane
+			p = patch(isosurface(xx,yy,zz,v,0)); %%at data value 0
+			set(p,'FaceColor','black','EdgeColor','none');
+			hold on;
+		end
 
 		%campos([1,-6,10]);
 		%camtarget([2,0,2]);

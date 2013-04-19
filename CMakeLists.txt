@@ -96,6 +96,9 @@ set(SOURCE
 	src/util_timer.cpp
 	src/sampler.h
 	src/sampler.cpp
+	src/sampler_abstract_problem.h
+	src/sampler_cylinder.cpp
+	src/sampler_proposal.cpp
 	src/contact_transition.h 
 	src/contact_transition.cpp 
 )
