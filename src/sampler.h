@@ -1,28 +1,33 @@
 #pragma once
+#include <Eigen/Core>
 #include "rviz/rviz_visualmarker.h"
 #include "util.h"
+#include "sampler_abstract_problem.h"
 
 //doing mcmc or hmc for your convenience
-class SampleGenerator{
-	int accepted_samples;
-	int rejected_samples;
-	const static double mu = 1.0;
-	const static double theta = 0.17;
+struct SamplingInterface{
+	AbstractSamplingProblem *S;
+	uint accepted_samples;
+	uint rejected_samples;
+	uint samples;
+	Eigen::VectorXd x_cand;
+	Eigen::VectorXd x_old;
+	double p_cand; //probability of current sample candidate
+	double p_old; //probability of last sample
+	Logger logger;
 
-	Logger log;
+	SamplingInterface(Logger &l);
+	void init( AbstractSamplingProblem *p );
+	//void init( ros::TriangleObject *obj_a, ros::TriangleObject *obj_b);
 
-public:
-	SampleGenerator(Logger &l);
-	double draw_gaussian_proposal_dist_positive(double x);
-	double draw_gaussian_proposal_dist(double x);
-	void accept_sample(double x, double y, double t, ros::TriangleObject &obj_a, ros::TriangleObject &obj_b);
-	void accept_sample_cyl(double x, double y, double r, double z, ros::TriangleObject *obj_a, ros::TriangleObject *obj_b);
-	void object_update_pos(ros::TriangleObject &obj, double x, double y);
-	double update_cyl_pos(ros::TriangleObject *obj_b, double x, double y, double r, double z);
-	double dp(double x, double y, double t, ros::TriangleObject &obj_a, ros::TriangleObject &obj_b);
-	double p(double x, double y, double t, ros::TriangleObject &obj_a, ros::TriangleObject &obj_b);
-	double p_cyl(double x, double y, double r, double z, ros::TriangleObject *obj_a, ros::TriangleObject *obj_b);
-	void mcmc( ros::TriangleObject *obj_a, ros::TriangleObject *obj_b, uint Nsamples);
+	void log( Eigen::VectorXd &v, double d);
+	void mcmc_step();
+	void mcmc_multi_step( uint Nsamples );
+	void accept( Eigen::VectorXd &x);
+	void print();
 
+	void mcmc(uint Nsamples);
+	void hmc(uint Nsamples);
 
 };
+
