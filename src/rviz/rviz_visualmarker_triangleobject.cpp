@@ -110,16 +110,29 @@ namespace ros{
 		fcl::Transform3f Trhs(r2, d2);
 
 		fcl::DistanceRequest request;
+		request.enable_nearest_points = true;
 		fcl::DistanceResult result;
 		double d = fcl::distance (this->bvh, Tlhs, rhs.bvh, Trhs, request, result);
+
+		fcl::Vec3f np[2] = result.nearest_points;
 		//double md = result.penetration_depth;
 		ROS_INFO("distance: %f", d);
+		ROS_INFO("norml2: %f", fcl::details::dot_prod3(np[0].data, np[1].data));
+		fcl::Vec3f n = (np[0]-np[1]);
+		ROS_INFO("n: %f %f %f", n[0],n[1],n[2]);
+		double norml1 = fabs(n[0])+fabs(n[1])+fabs(n[2]);
+		ROS_INFO("norml1: %f", norml1);
+		//double dd = computeDerivativeFromNearestPoints( np[0], np[1] );
+		ROS_INFO("nearest points: %f %f %f -- %f %f %f", np[0][0], np[0][1], np[0][2], np[1][0], np[1][1], np[1][2]);
+		//ROS_INFO("d_distance / d_x: %f", dd);
 		//result.clear();
 
 		return d;
 #else
 		ABORT("This executable is not compiled with the FCL collision library");
 #endif
+	}
+	double computeDerivativeFromNearestPoints( fcl::Vec3f &a, fcl::Vec3f &b){
 	}
 #ifdef PQP_COLLISION_CHECKING
 	void TriangleObject::tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){

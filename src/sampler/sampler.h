@@ -5,7 +5,7 @@
 #include "sampler_abstract_problem.h"
 
 //doing mcmc or hmc for your convenience
-struct SamplingInterface{
+class SamplingInterface{
 	AbstractSamplingProblem *S;
 	uint accepted_samples;
 	uint rejected_samples;
@@ -16,16 +16,14 @@ struct SamplingInterface{
 	double p_old; //probability of last sample
 	Logger logger;
 
-	SamplingInterface(Logger &l);
-	void init( AbstractSamplingProblem *p );
-	//void init( ros::TriangleObject *obj_a, ros::TriangleObject *obj_b);
-
 	void log( Eigen::VectorXd &v, double d);
 	void mcmc_step();
 	void mcmc_multi_step( uint Nsamples );
 	void accept( Eigen::VectorXd &x);
 	void print();
-
+public:
+	SamplingInterface(Logger &l);
+	void init( AbstractSamplingProblem *p );
 	void mcmc(uint Nsamples);
 	void hmc(uint Nsamples);
 

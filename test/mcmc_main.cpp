@@ -36,7 +36,6 @@ int main( int argc, char** argv )
 		Logger log(get_logging_str("data/test/", robot_file));
 
 		SamplingInterface sampler(log);
-
 		sampler.init( new SamplingCTOCylinder(argv[1]) );
 		sampler.mcmc(Nsamples);
 
