@@ -94,11 +94,11 @@ set(SOURCE
 	src/util.cpp
 	src/util_timer.h 
 	src/util_timer.cpp
-	src/sampler.h
-	src/sampler.cpp
-	src/sampler_abstract_problem.h
-	src/sampler_cylinder.cpp
-	src/sampler_proposal.cpp
+	src/sampler/sampler.h
+	src/sampler/sampler.cpp
+	src/sampler/sampler_abstract_problem.h
+	src/sampler/sampler_cylinder.cpp
+	src/sampler/sampler_proposal.cpp
 	src/contact_transition.h 
 	src/contact_transition.cpp 
 )
