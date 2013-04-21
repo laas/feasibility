@@ -11,7 +11,11 @@ prefix = '../data/test/';
 
 data = dir(fullfile('.',strcat(prefix,'*tmp')));
 
+
+
+
 Nfiles = size(data,1)
+
 %Nfiles = 1;
 
 plot = 1;
