@@ -1,10 +1,11 @@
 #include "sampler.h"
 
 #include <Eigen/Core>
-#define DEBUG(x) x
+#define DEBUG(x)
 SamplingInterface::SamplingInterface(Logger &l){
 	accepted_samples=0;
 	rejected_samples=0;
+	samples=0;
 	this->logger= l;
 }
 
@@ -28,6 +29,7 @@ void SamplingInterface::mcmc_step(){
 	assert(S!=NULL);
 	Eigen::VectorXd x_cand = (*S->q)(x_old);
 
+	DEBUG(ROS_INFO("mcmc step %d: %f %f", samples, x_cand(0), x_cand(1));)
 	p_cand = (*S->p)( (*S->E)(x_cand) );
 	double E_old = (*S->E)(x_old);
 	p_old = (*S->p)( E_old );
@@ -58,6 +60,7 @@ void SamplingInterface::mcmc_multi_step( uint Nsamples ){
 }
 
 void SamplingInterface::accept( Eigen::VectorXd &x){
+	DEBUG(ROS_INFO("accepted sample %f %f", x(0), x(1));)
 	accepted_samples++;
 	S->E->update(x);
 }

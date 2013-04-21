@@ -4,7 +4,7 @@
 Eigen::VectorXd Proposal::operator()( Eigen::VectorXd &x ){
 	Eigen::VectorXd q(x.size());
 	for(uint i=0;i<x.size();i++){
-		q(i) = rand(x(i), q_stddev(i));
+		q(i) = randn(x(i), q_stddev(i));
 
 		//lets assume that limits are rarely visited, such that
 		//the stationary distribution will not be affected by

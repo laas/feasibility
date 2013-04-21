@@ -5,16 +5,17 @@
 using namespace ros;
 struct ProposalCylinder: public Proposal{
 	ProposalCylinder(){
+		// X,Y,R,H
 		Eigen::VectorXd m(4);
-		m << 1.2,1.2,0.1,0.1;
+		m << 0.8,0.8,0.0,0.0; //0.0 means keep fixed
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
-		ql << -2, -2, 0, 0;
+		ql << -5, -5, 1, 1;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
-		qh << 2, 2, 3, 2;
+		qh << 5, 5, 2, 1.5;
 		q_constraints_high = qh;
 	}
 };
@@ -65,7 +66,7 @@ ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 	robot_pos.y = 0;
 
 	char command[100];
-	sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1,1);
+	sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1.0,1.0);
 	system(command);
 
 	TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
@@ -77,7 +78,9 @@ ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 
 ProbabilityDistribution* SamplingCTOCylinder::getProbabilityDistribution(){
 	p = new ProbabilityDistributionCylinder();
+	return p;
 }
 Proposal* SamplingCTOCylinder::getProposal(){
 	q = new ProposalCylinder();
+	return q;
 }

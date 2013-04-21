@@ -32,6 +32,7 @@ double norml1(double x1, double x2, double y1, double y2){
 	return abs(x1-x2) + abs(y1-y2);
 }
 double rand(double lowerLimit, double upperLimit){
+	CHECK(upperLimit>=lowerLimit, "rand was called with wrong parameters!");
 	double x= ((double)rand() / (double)RAND_MAX); //[0,1]
 	double xs = x*(upperLimit-lowerLimit); //[0, upperLimit+lowerLimit]
 	double xp = xs + lowerLimit; //[lowerLimit, upperLimit]
@@ -117,7 +118,7 @@ std::string get_logging_str(const char* prefix, std::string s){
 	char logfile[200];
 
 
-	std::string::reverse_iterator rit=s.rbegin();
+	//std::string::reverse_iterator rit=s.rbegin();
 	std::string::iterator it=s.begin();
 
 	std::string x1,x2,x3;
