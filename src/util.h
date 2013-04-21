@@ -1,5 +1,6 @@
 #pragma once
 #include <ostream>
+#include <vector>
 
 #define CUR_LOCATION "@" << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << ">>"
 

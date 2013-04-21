@@ -161,7 +161,7 @@ namespace ros{
 
 		FILE *fp = fopen_s(fname,"r");
 		int res=fscanf(fp, "%d", &ntris);
-		CHECK(res==1, "fscanf failed");
+		CHECK(res==1, fname);
 		m->BeginModel();
 		m_margin->BeginModel();
 
@@ -202,7 +202,7 @@ namespace ros{
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
 		int res=fscanf(fp, "%d", &ntris);
-		CHECK(res==1, "fscanf failed");
+		CHECK(res==1, fname);
 
 		std::vector<fcl::Vec3f> vertices;
 		std::vector<fcl::Triangle> triangles;
@@ -238,7 +238,7 @@ namespace ros{
 		FILE *fp = fopen_s(fname,"r");
 
 		int res=fscanf(fp, "%d", &ntris);
-		CHECK(res==1, "fscanf failed");
+		CHECK(res==1, fname);
 
 
 		Color cc = get_color();
