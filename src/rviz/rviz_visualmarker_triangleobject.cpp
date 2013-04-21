@@ -110,20 +110,41 @@ namespace ros{
 		fcl::Transform3f Trhs(r2, d2);
 
 		fcl::DistanceRequest request;
-		request.enable_nearest_points = true;
+		//request.enable_nearest_points = true;
 		fcl::DistanceResult result;
 		double d = fcl::distance (this->bvh, Tlhs, rhs.bvh, Trhs, request, result);
 
-		fcl::Vec3f np[2] = result.nearest_points;
+		//fcl::Vec3f np[2] = result.nearest_points;
 		//double md = result.penetration_depth;
 		ROS_INFO("distance: %f", d);
+
+
+		/*
 		ROS_INFO("norml2: %f", fcl::details::dot_prod3(np[0].data, np[1].data));
+		ROS_INFO("norml22: %f", sqrtf(fcl::details::dot_prod3(np[0].data, np[1].data)));
 		fcl::Vec3f n = (np[0]-np[1]);
-		ROS_INFO("n: %f %f %f", n[0],n[1],n[2]);
-		double norml1 = fabs(n[0])+fabs(n[1])+fabs(n[2]);
+		//ROS_INFO("n: %f %f %f", n[0],n[1],n[2]);
+		double norml1 = sqrtf(fabs(n[0])+fabs(n[1])+fabs(n[2]));
 		ROS_INFO("norml1: %f", norml1);
+
+
+		double rx = np[0][0];
+		double ry = np[0][1];
+		double rz = np[0][2];
+		double ox = np[1][0];
+		double oy = np[1][1];
+		double oz = np[1][2];
+
+		double dn = d-1.0;
+
+		double dx = (rx-ox)/dn;
+		double dy = (ry-oy)/dn;
+		double dz = (rz-oz)/dn;
+
 		//double dd = computeDerivativeFromNearestPoints( np[0], np[1] );
 		ROS_INFO("nearest points: %f %f %f -- %f %f %f", np[0][0], np[0][1], np[0][2], np[1][0], np[1][1], np[1][2]);
+		ROS_INFO("derivative: %f %f %f", dx, dy, dz);
+		*/
 		//ROS_INFO("d_distance / d_x: %f", dd);
 		//result.clear();
 

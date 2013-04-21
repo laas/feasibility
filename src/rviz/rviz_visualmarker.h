@@ -155,8 +155,8 @@ namespace ros{
 
 	struct TriangleObject: public RVIZVisualMarker{
 #ifdef FCL_COLLISION_CHECKING
-		//typedef fcl::AABB BoundingVolume;
-		typedef fcl::OBBRSS BoundingVolume;
+		typedef fcl::AABB BoundingVolume;
+		//typedef fcl::OBBRSS BoundingVolume;
 		fcl::BVHModel< BoundingVolume > *bvh;
 #endif
 		std::string tris_file_name;
