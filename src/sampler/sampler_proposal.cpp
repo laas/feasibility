@@ -15,9 +15,19 @@ Eigen::VectorXd Proposal::operator()( Eigen::VectorXd &x ){
 	return q;
 }
 Eigen::VectorXd Proposal::init(){
+	return init_middle();
+}
+Eigen::VectorXd Proposal::init_rand(){
 	Eigen::VectorXd x(q_stddev.size());
 	for(uint i=0;i<q_stddev.size();i++){
 		x(i) = rand( q_constraints_low(i), q_constraints_high(i) );
+	}
+	return x;
+}
+Eigen::VectorXd Proposal::init_middle(){
+	Eigen::VectorXd x(q_stddev.size());
+	for(uint i=0;i<q_stddev.size();i++){
+		x(i) = q_constraints_low(i) + (q_constraints_high(i) -  q_constraints_low(i) )/2.0;
 	}
 	return x;
 }

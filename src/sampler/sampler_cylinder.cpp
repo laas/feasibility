@@ -4,25 +4,25 @@
 
 using namespace ros;
 struct ProposalCylinder: public Proposal{
-	ProposalCylinder(){
+	ProposalCylinder(double h){
 		// X,Y,R,H
 		Eigen::VectorXd m(4);
-		m << 0.8,0.8,0.0,0.0; //0.0 means keep fixed
+		m << 0.8,0.8,0.05,0.0; //0.0 means keep fixed
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
-		ql << -5, -5, 1, 1;
+		ql << -8, -8, 0.01, h;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
-		qh << 5, 5, 2, 1.5;
+		qh << 8, 8, 0.5, h;
 		q_constraints_high = qh;
 	}
 };
 
 struct ProbabilityDistributionCylinder: public ProbabilityDistribution{
 	double operator()(double d){
-		return normpdf(d, 1.0, 0.17);
+		return normpdf(d, 0.0, 0.17);
 	}
 };
 struct ObjectiveFunctionCylinder: public ObjectiveFunction{
@@ -51,11 +51,11 @@ struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 	}
 };
 
-SamplingCTOCylinder::SamplingCTOCylinder(char *argv){
+SamplingCTOCylinder::SamplingCTOCylinder(char *argv, double h){
 	robot = argv;
 	getProbabilityDistribution();
 	getObjectiveFunction();
-	getProposal();
+	getProposal(h);
 }
 ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 	std::string chair_file = get_chair_str();
@@ -81,6 +81,9 @@ ProbabilityDistribution* SamplingCTOCylinder::getProbabilityDistribution(){
 	return p;
 }
 Proposal* SamplingCTOCylinder::getProposal(){
-	q = new ProposalCylinder();
+	return getProposal(0.10);
+}
+Proposal* SamplingCTOCylinder::getProposal(double h){
+	q = new ProposalCylinder(h);
 	return q;
 }

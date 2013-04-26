@@ -1,6 +1,6 @@
 x=0;
 y=0;
-r=2;
+r=0;
 z=1;
 
 arg_list = argv();
@@ -17,7 +17,7 @@ end
 r=str2double(arg_list{1});
 z=str2double(arg_list{2});
 
-N=20;%number of corners
+N=15;%number of corners
 M_PI=3.14159265;
 
 file='~/git/fastReplanningData/data/part.tris';
@@ -110,20 +110,6 @@ for t=linspace(0,2*M_PI,N)
 	fprintf(FD,'\n');
 	fprintf(FD,'\n');
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 fclose(FD);
 command= 'cat %s';

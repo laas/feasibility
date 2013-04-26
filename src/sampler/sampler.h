@@ -20,10 +20,12 @@ class SamplingInterface{
 	void mcmc_step();
 	void mcmc_multi_step( uint Nsamples );
 	void accept( Eigen::VectorXd &x);
+	void loop(Eigen::VectorXd &x, Eigen::VectorXd &ql, Eigen::VectorXd &qh, Eigen::VectorXd &stepsize, uint d);
 	void print();
 public:
 	SamplingInterface(Logger &l);
 	void init( AbstractSamplingProblem *p );
+	void uniform(uint Nsamples);
 	void mcmc(uint Nsamples);
 	void hmc(uint Nsamples);
 

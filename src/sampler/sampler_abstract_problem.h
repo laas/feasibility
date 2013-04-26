@@ -7,6 +7,8 @@ struct Proposal{
 	Eigen::VectorXd q_constraints_high;
 	Eigen::VectorXd operator()( Eigen::VectorXd &x );
 	Eigen::VectorXd init();
+	Eigen::VectorXd init_middle();
+	Eigen::VectorXd init_rand();
 };
 struct ProbabilityDistribution{
 	virtual double operator()(double d) = 0;
@@ -26,8 +28,9 @@ struct AbstractSamplingProblem{
 };
 struct SamplingCTOCylinder: public AbstractSamplingProblem{
 	char *robot;
-	SamplingCTOCylinder(char *argv); 
+	SamplingCTOCylinder(char *argv, double h); 
 	ObjectiveFunction* getObjectiveFunction();
 	ProbabilityDistribution* getProbabilityDistribution();
+	Proposal* getProposal(double h);
 	Proposal* getProposal();
 };

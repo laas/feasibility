@@ -19,7 +19,7 @@ namespace ros{
 	void TriangleObject::init_object( std::string f, Geometry &in ){
 		this->g = in;
 
-		double scale = 0.7;
+		double scale = 1.0;
 		this->g.sx = scale;
 		this->g.sy = scale;
 		this->g.sz = scale;
@@ -116,7 +116,7 @@ namespace ros{
 
 		//fcl::Vec3f np[2] = result.nearest_points;
 		//double md = result.penetration_depth;
-		ROS_INFO("distance: %f", d);
+		//ROS_INFO("distance: %f", d);
 
 
 		/*
@@ -228,7 +228,7 @@ namespace ros{
 		bvh->beginModel();
 		bvh->addSubModel(vertices, triangles);
 		bvh->endModel();
-		ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
+		//ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
 	}
 #endif
 

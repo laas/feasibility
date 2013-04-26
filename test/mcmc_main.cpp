@@ -17,27 +17,28 @@
 using namespace ros;
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "mcmc_sampler");
+	ros::init(argc, argv, "mcmc_samplerH");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
-	if(argc!=2){
-		printf("usage: mcmc_sampler <SweptVolumeFileName>\n");
+	if(argc!=3){
+		printf("usage: mcmc_sampler <SweptVolumeFileName> <Height>\n");
 		return -1;
 	}
 	printf("%s\n", argv[1]);
 	ROS_INFO("%s", argv[1]);
 	if (ros::ok())
 	{
-		uint Nsamples = 10000;
+		uint Nsamples = 1200;
 		std_seed();
 
 		std::string robot_file = get_tris_str(argv[1]);
-		Logger log(get_logging_str("data/test/", robot_file));
+		Logger log(get_logging_str("data/test/020", robot_file));
 
 		SamplingInterface sampler(log);
-		sampler.init( new SamplingCTOCylinder(argv[1]) );
+		sampler.init( new SamplingCTOCylinder(argv[1], atof(argv[2])) );
 		sampler.mcmc(Nsamples);
+		//sampler.uniform(Nsamples);
 
 	}
 }

@@ -1,28 +1,20 @@
 clear all;
-%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc/sample* ../data/mcmc/');
-%prefix = '../data/mcmc/';
-%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc_bar/sample* ../data/mcmc_bar/');
-%prefix = '../data/mcmc_bar/';
-%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/mcmc_cyl/sample* ../data/mcmc_cyl/');
+%system('scp aorthey@trac.laas.fr:/home/aorthey/git/feasibility/data/mcmc_cyl/sample* ../data/mcmc_cyl/');
 %prefix = '../data/mcmc_cyl/';
-prefix = '../data/test/';
-
+%system('scp aorthey@fujisan.laas.fr:/home/aorthey/git/feasibility/data/cylXYRH/sample* ../data/cylXYRH/');
+prefix = '../data/cylXYRH/';
+%prefix = '../data/test/';
 
 
 data = dir(fullfile('.',strcat(prefix,'*tmp')));
 
-
-
-
 Nfiles = size(data,1)
-
-%Nfiles = 1;
 
 plot = 1;
 plot_plane = 0;
-cylindrical = 1;
-
+cylindrical = 0;
 LABEL_POS= 5;
+
 if plot
 	NplotsX = 1;
 	NplotsY = 1;
@@ -30,10 +22,10 @@ if plot
 	figure(1);
 	set(gcf,'color','w');
 	fontsize = 18;
-	title({'Feasible vs. Non-feasible object positions',''}, 'FontSize', fontsize);
+	%title({'Feasible vs. Non-feasible object positions',''}, 'FontSize', fontsize);
 	Nfiles=NplotsX*NplotsY;
 end
-for k=1:Nfiles
+for k=1:85
 	%XD = [A(:,1:2) zeros(size(A,1))]; %% data samples
 	fname = strcat(prefix,data(k).name);
 	position_state = sscanf(data(k).name, 'sample_%d_%d_%d',[3]);
@@ -44,7 +36,6 @@ for k=1:Nfiles
 	else
 		XD = [A(:,1:3)];
 	end
-	size(XD)
 	YD = [A(:,LABEL_POS)>1]; %% labels '1' = feasible, '0' = nonfeasible
 
 	N_in = find(A(:,LABEL_POS)<=1);
@@ -119,7 +110,7 @@ for k=1:Nfiles
 
 
 	if plot
-		subplot(NplotsX, NplotsY, k);
+		%subplot(NplotsX, NplotsY, k);
 		xv=linspace(0,5,NGRID);
 		yv=linspace(-3.14,3.14,NGRID);
 		zv=linspace(-4,4,NGRID);
@@ -133,10 +124,21 @@ for k=1:Nfiles
 		%%%%%% PLOTTING
 		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		PLOT_DATA = XD;
-		feasible = plot3(PLOT_DATA(N_in,1),PLOT_DATA(N_in,2),PLOT_DATA(N_in,3));
+		%PLOT_DATA = XD;
+		%PLOT_DATA = XD(find(XD(:,3)<=0.3),:)
+		MIN_RAD = 20;
+		INDATA = A(find(A(:,5)<=1),:);
+		OUTDATA = A(find(A(:,5)>1),:);
+		PD_F = INDATA(find(INDATA(:,3)<MIN_RAD),:);
+		PD_FN = OUTDATA(find(OUTDATA(:,3)<MIN_RAD),:);
+		%PD_FN = A(find(A(N_out,3)<=0.1),:);
+		%feasible = plot3(PLOT_DATA(N_in,1),PLOT_DATA(N_in,2),PLOT_DATA(N_in,3));
+		%hold on;
+		%nfeasible = plot3(PLOT_DATA(N_out,1),PLOT_DATA(N_out,2),PLOT_DATA(N_out,3));
+		%hold on;
+		feasible = plot3(PD_F(:,1), PD_F(:,2), PD_F(:,3));
 		hold on;
-		nfeasible = plot3(PLOT_DATA(N_out,1),PLOT_DATA(N_out,2),PLOT_DATA(N_out,3));
+		nfeasible = plot3(PD_FN(:,1), PD_FN(:,2), PD_FN(:,3));
 		hold on;
 		%xlabel('r', 'FontSize', fontsize, 'position', [2,-2.3*pi,0]);
 
@@ -166,10 +168,11 @@ for k=1:Nfiles
 		else
 			xlabel('x','FontSize',labelFontSize);
 			ylabel('y','FontSize',labelFontSize);
-			zlabel('r','FontSize',labelFontSize,'rot',180);
+			zlabel('r','FontSize',labelFontSize,'rot',1);
 			%set(gca,'ZTick',-pi:pi/2:pi)
 			%set(gca,'ZTickLabel',{'-pi','-pi/2','0','pi/2','pi'})
-
+			 print -painters -dpdf -r600 test.pdf
+36i
 		end
 
 		axis tight;
@@ -185,10 +188,11 @@ for k=1:Nfiles
 		grid on;
 
 		hold on;
+		pause;
 	end
 
 end
-plane
-csvwrite('planeparams.dat',plane);
+%plane
+%csvwrite('planeparams.dat',plane);
 
 %plot2svg('samples.svg');
