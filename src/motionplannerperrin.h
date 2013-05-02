@@ -56,6 +56,15 @@ struct MotionPlannerPerrin: public MotionPlanner{
 	}
 
 	void publish(){
+		std::vector<double> q = planner->getArticulatedValues();
+		ROS_INFO("Articulated values: %d", q.size());
+		if(q.size()>0){
+			for(uint i=0;i<q.size();i++){
+				ROS_INFO("%f", q.at(i));
+			}
+		}
+
+		//obtain footsteps from planner
 		std::vector<fastreplanning::footStepInterface> fsi;
 		planner->getInterfaceSteps(fsi);
 		if(fsi.size()>0){

@@ -7,22 +7,22 @@ struct ProposalCylinder: public Proposal{
 	ProposalCylinder(double h){
 		// X,Y,R,H
 		Eigen::VectorXd m(4);
-		m << 0.8,0.8,0.05,0.0; //0.0 means keep fixed
+		m << 0.8,0.8,0.1,0.0; //0.0 means keep fixed
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
-		ql << -8, -8, 0.01, h;
+		ql << -2, -2, 0.01, h;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
-		qh << 8, 8, 0.5, h;
+		qh << 2, 2, 5, h;
 		q_constraints_high = qh;
 	}
 };
 
 struct ProbabilityDistributionCylinder: public ProbabilityDistribution{
 	double operator()(double d){
-		return normpdf(d, 0.0, 0.17);
+		return normpdf(d, 0.4, 0.17);
 	}
 };
 struct ObjectiveFunctionCylinder: public ObjectiveFunction{

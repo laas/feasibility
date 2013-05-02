@@ -23,7 +23,7 @@ namespace ros{
 #ifdef PQP_COLLISION_CHECKING
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
-		this->read_tris_to_PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
 #endif
 
 		init_marker();

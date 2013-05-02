@@ -25,10 +25,19 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 include(CheckFunctionExists)
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
 
+#add_definitions("-DPQP_COLLISION_CHECKING")
+#include_directories("/opt")
+#link_directories("/opt/openrobots")
+#set(MISC
+#	PQP
+#	fast-replanning
+#)
+
 pkg_check_modules(FPlanner fast-replanning)
 include_directories(${FPlanner_INCLUDE_DIRS})
 link_directories(${FPlanner_LIBRARY_DIRS})
 if(${FPlanner_FOUND})
+	add_definitions("-DPQP_COLLISION_CHECKING")
 	message(STATUS "------------------- ")
 	message(STATUS ${FPlanner_LIBRARY_DIRS})
 	message(STATUS ${FPlanner_LIBRARIES})
@@ -81,6 +90,7 @@ set(SOURCE
 	src/environment.cpp
 	src/environment_sallebauzil.cpp
 	src/motionplanner.h
+	src/motionplannerperrin.h
 	src/motionplannerhyperplanar.h
 	src/rviz/rviz_visualmarker.h
 	src/rviz/rviz_visualmarker.cpp
@@ -114,7 +124,6 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARY_DIRS})
 
 
-
 ################################################################################
 ###### MAIN PROJECTS #####################
 ################################################################################
@@ -123,14 +132,14 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
-target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
+#target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 rosbuild_add_executable(ENVTester test/env_main.cpp )
-target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
 
 #rosbuild_add_executable(VisSteps src/vis_steps.cpp )
 #target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
@@ -138,10 +147,10 @@ target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ###### UNIT TESTING #####################
 #################################################################################
 #
-if(${FPlanner_FOUND})
-rosbuild_add_executable(UnitTestFastPlannerLibrary test/unit_testing_exec_replanning.cpp )
-target_link_libraries(UnitTestFastPlannerLibrary ${UTIL_LIB} ${FPlanner_LIBRARIES} ${FPlanner_LIBRARIES})
-endif()
+#if(${FPlanner_FOUND})
+#rosbuild_add_executable(UnitTestFastPlannerLibrary test/unit_testing_exec_replanning.cpp )
+#target_link_libraries(UnitTestFastPlannerLibrary ${UTIL_LIB} ${FPlanner_LIBRARIES} ${FPlanner_LIBRARIES})
+#endif()
 #
 
 ###### DEPRECATED #####################

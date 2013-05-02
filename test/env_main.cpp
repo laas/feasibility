@@ -3,6 +3,7 @@
 #include "environment.h"
 
 #include "motionplannerhyperplanar.h"
+#include "motionplannerperrin.h"
 
 using namespace ros;
 int main( int argc, char** argv )
@@ -13,8 +14,8 @@ int main( int argc, char** argv )
 
 
 	Environment* environment = Environment::getSalleBauzil();
-	//MotionPlannerPerrin planner(*environment, argc, argv);
-	MotionPlannerHyperPlanar planner(*environment, argc, argv);
+	MotionPlannerPerrin planner(*environment, argc, argv);
+	//MotionPlannerHyperPlanar planner(*environment, argc, argv);
 	while (ros::ok())
 	{
 
@@ -22,9 +23,9 @@ int main( int argc, char** argv )
 		planner.plan();
 		planner.publish();
 
-		char command[100];
-		sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", rand(0,1), rand(0.5,2));
-		system(command);
+		//char command[100];
+		//sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", rand(0,1), rand(0.5,2));
+		//system(command);
 
 		environment->reloadObjects();
 		r.sleep();

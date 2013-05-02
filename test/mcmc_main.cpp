@@ -29,18 +29,20 @@ int main( int argc, char** argv )
 	ROS_INFO("%s", argv[1]);
 	if (ros::ok())
 	{
-		uint Nsamples = 1200;
-		std_seed();
+		//for(double k=0.05;k<1.0;k+=0.05){
+			uint Nsamples = 1200;
+			std_seed();
 
-		std::string robot_file = get_tris_str(argv[1]);
-		char tmp[50];
-		sprintf(tmp, "%s%s", "data/test/height", argv[2]);
-		Logger log(get_logging_str(tmp, robot_file));
+			std::string robot_file = get_tris_str(argv[1]);
+			char tmp[50];
+			sprintf(tmp, "%s", "data/test/d04_rd_h01");
+			Logger log(get_logging_str(tmp, robot_file));
 
-		SamplingInterface sampler(log);
-		sampler.init( new SamplingCTOCylinder(argv[1], atof(argv[2])) );
-		sampler.mcmc(Nsamples);
-		//sampler.uniform(Nsamples);
+			SamplingInterface sampler(log);
+			sampler.init( new SamplingCTOCylinder(argv[1], 0.1) );
+			sampler.mcmc(Nsamples);
+			//sampler.uniform(Nsamples);
+		//}
 
 	}
 }
