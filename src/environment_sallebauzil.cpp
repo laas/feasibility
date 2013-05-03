@@ -6,10 +6,12 @@ void EnvironmentSalleBauzil::setObjects(){
 	ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
 	chair->addText("/evart/chair2/PO");
 	chair->subscribeToEvart("/evart/chair2/PO");
+	objects.push_back(chair);
 
+	//EXPERIMENTAL:
+	
 	//objects.push_back(chair);
 	//chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,1.5,M_PI);
-	objects.push_back(chair);
 
 	//ros::TriangleObjectFloor *tmp = new ros::TriangleObjectFloor(0.8, 0.5, "bar.tris", "/evart/chair2/PO");
 	//tmp->g.setYawRadian(M_PI/6);

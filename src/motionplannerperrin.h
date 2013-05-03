@@ -14,25 +14,14 @@ struct MotionPlannerPerrin: public MotionPlanner{
 	}
 
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
-		//ros::RVIZVisualMarker *m = *it;
 		ros::Geometry *g = m->getGeometry();
-
 		ros::TriangleObject *t = static_cast<ros::TriangleObject*>( m );
-		
-		//ROS_INFO("%f %f %f %f", g->x, g->y, g->z, g->tz);
-		//ROS_INFO("%f %f %f %f", g->x, g->y, g->z, g->tz);
-
-		//the z-value has to be 0.05 --- otherwise the planner does not find a solution
-		//planner->addAGenericPQPModel2(t->pqp_model, t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
+		//the z-value has to be >0.05 --- otherwise the planner does not find a solution
 		planner->addAGenericPQPModel(t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
-		//ROS_INFO("added PQP model with %d to planner\n", t->pqp_model->num_tris);
 	}
 
 	void start_planner(){
 		planner->mainLoop();
-		//std::vector<double> curgoal;
-		//planner->getCurrentSetGoal(curgoal);
-		//ROS_INFO("curgoal[%d]: %f %f", curgoal.size(), curgoal.at(0), curgoal.at(1));
 	}
 
 	void setStart( ros::Geometry &pos ){
