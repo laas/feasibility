@@ -21,3 +21,6 @@ points in configuration space</p>
 <li>cmake ..
 <li>make
 </ul>
+
+<p> See also https://wiki.laas.fr/robots/MoCap and
+https://wiki.laas.fr/robots/FastReplanner</p>
