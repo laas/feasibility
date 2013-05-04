@@ -17,32 +17,40 @@
 using namespace ros;
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "mcmc_samplerH");
-	ros::NodeHandle n;
-	ros::Rate r(1);
 
-	if(argc!=3){
-		printf("usage: mcmc_sampler <SweptVolumeFileName> <Height>\n");
+	if(argc!=5){
+		printf("usage: mcmc_sampler <SweptVolumeFileName> <Height> <DistanceToBoundary> <Nsamples>\n");
 		return -1;
 	}
-	printf("%s\n", argv[1]);
+	double h=atof(argv[2]);
+	double m=atof(argv[3]);
+	std::string robot_file = get_tris_str(argv[1]);
+
+
+	char pname[100];
+	sprintf(pname, "mcmc_sampler_h_%.2f_m_%.2f_%s", h, m, robot_file.c_str());
+
+	ros::init(argc, argv, pname);
+	ros::NodeHandle n;
+	ros::Rate r(1);
 	ROS_INFO("%s", argv[1]);
+	char command[100];
+	char folder[80];
 	if (ros::ok())
 	{
-		//for(double k=0.05;k<1.0;k+=0.05){
-			uint Nsamples = 1200;
-			std_seed();
+		uint Nsamples = atoi(argv[4]);
+		std_seed();
 
-			std::string robot_file = get_tris_str(argv[1]);
-			char tmp[50];
-			sprintf(tmp, "%s", "data/test/d04_rd_h01");
-			Logger log(get_logging_str(tmp, robot_file));
+		sprintf(folder, "data/cylinder/h_%.2f_m_%.2f/", h, m);
+		sprintf(command, "mkdir -p %s", folder);
+		system(command);
 
-			SamplingInterface sampler(log);
-			sampler.init( new SamplingCTOCylinder(argv[1], 0.1) );
-			sampler.mcmc(Nsamples);
-			//sampler.uniform(Nsamples);
-		//}
+		Logger log(get_logging_str(folder, robot_file));
+
+		SamplingInterface sampler(log);
+		sampler.init( new SamplingCTOCylinder(argv[1], h, m));
+		sampler.mcmc(Nsamples);
+		//sampler.uniform(Nsamples);
 
 	}
 }

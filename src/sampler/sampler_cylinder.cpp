@@ -21,9 +21,14 @@ struct ProposalCylinder: public Proposal{
 };
 
 struct ProbabilityDistributionCylinder: public ProbabilityDistribution{
-	double operator()(double d){
-		return normpdf(d, 0.4, 0.17);
+	ProbabilityDistributionCylinder(double m): ProbabilityDistribution(){
+		this->mean = m;
 	}
+	double operator()(double d){
+		return normpdf(d, mean, 0.17);
+	}
+private:
+	double mean;
 };
 struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 	ros::TriangleObject *a;
@@ -43,7 +48,7 @@ struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 		double r = x(2);
 		double h = x(3);
 		char command[100];
-		sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", r, h);
+		sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", r, h);
 		ROS_INFO("%s",command);
 		system(command);
 		b->reloadBVH();
@@ -51,9 +56,9 @@ struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 	}
 };
 
-SamplingCTOCylinder::SamplingCTOCylinder(char *argv, double h){
+SamplingCTOCylinder::SamplingCTOCylinder(char *argv, double h, double m){
 	robot = argv;
-	getProbabilityDistribution();
+	getProbabilityDistribution(m);
 	getObjectiveFunction();
 	getProposal(h);
 }
@@ -66,18 +71,21 @@ ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 	robot_pos.y = 0;
 
 	char command[100];
-	sprintf(command, "octave -q scripts/create_tris_cylinder.m %f %f", 1.0,1.0);
+	sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", 1.0,1.0);
 	system(command);
 
 	TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
-	TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "part.tris" );
+	TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "partXYRH.tris" );
 
 	E = new ObjectiveFunctionCylinder(robot, cylinder);
 	return E;
 }
-
 ProbabilityDistribution* SamplingCTOCylinder::getProbabilityDistribution(){
-	p = new ProbabilityDistributionCylinder();
+	return getProbabilityDistribution(0.6);
+}
+
+ProbabilityDistribution* SamplingCTOCylinder::getProbabilityDistribution(double m){
+	p = new ProbabilityDistributionCylinder(m);
 	return p;
 }
 Proposal* SamplingCTOCylinder::getProposal(){

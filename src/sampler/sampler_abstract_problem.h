@@ -29,8 +29,10 @@ struct AbstractSamplingProblem{
 struct SamplingCTOCylinder: public AbstractSamplingProblem{
 	char *robot;
 	SamplingCTOCylinder(char *argv, double h); 
+	SamplingCTOCylinder(char *argv, double h, double m);
 	ObjectiveFunction* getObjectiveFunction();
 	ProbabilityDistribution* getProbabilityDistribution();
+	ProbabilityDistribution* getProbabilityDistribution(double m);
 	Proposal* getProposal(double h);
 	Proposal* getProposal();
 };
