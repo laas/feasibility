@@ -28,20 +28,22 @@ int main( int argc, char** argv )
 
 
 	char pname[100];
-	sprintf(pname, "mcmc_sampler_h_%.2f_m_%.2f_%s", h, m, robot_file.c_str());
+	sprintf(pname, "sampler_h_%d_m_%d_%d", (int)floor(100*h), (int)floor(100*m), hashit(argv[1]));
 
 	ros::init(argc, argv, pname);
 	ros::NodeHandle n;
 	ros::Rate r(1);
 	ROS_INFO("%s", argv[1]);
+	ROS_INFO("%s", pname);
 	char command[100];
 	char folder[80];
 	if (ros::ok())
 	{
 		uint Nsamples = atoi(argv[4]);
-		std_seed();
+		printf("input: swept volume: %s, height: %f, distance: %f, Nsamples: %d\n",argv[1],h,m,Nsamples);
 
-		sprintf(folder, "data/cylinder/h_%.2f_m_%.2f/", h, m);
+		std_seed();
+		sprintf(folder, "data/cylinderSpecial/h_%d_m_%d/", (int)floor(100*h), (int)floor(100*m));
 		sprintf(command, "mkdir -p %s", folder);
 		system(command);
 
@@ -49,8 +51,8 @@ int main( int argc, char** argv )
 
 		SamplingInterface sampler(log);
 		sampler.init( new SamplingCTOCylinder(argv[1], h, m));
-		sampler.mcmc(Nsamples);
-		//sampler.uniform(Nsamples);
-
+		//sampler.mcmc(Nsamples);
+		sampler.hmc(Nsamples);
+		//sampler.uniform_normalized(Nsamples);
 	}
 }

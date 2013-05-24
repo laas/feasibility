@@ -1,9 +1,11 @@
 #ifdef FCL_COLLISION_CHECKING
+#include <algorithm> //max_element
 #include "fcl/traversal/traversal_node_bvhs.h"
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 #endif
 #include "rviz/rviz_visualmarker.h"
+#include <Eigen/Core>
 
 namespace ros{
 	TriangleObject::TriangleObject(): RVIZVisualMarker(){
@@ -90,7 +92,7 @@ namespace ros{
 	}
 
 
-	double TriangleObject::distance_to(TriangleObject &rhs){
+	double TriangleObject::distance_to(TriangleObject &rhs, Eigen::VectorXd &derivative){
 		//rotation z-axis (as visualized in rviz)
 		
 #ifdef FCL_COLLISION_CHECKING
@@ -109,24 +111,18 @@ namespace ros{
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);
 
+		ROS_INFO("objects positions %f %f %f and %f %f %f", g.x, g.y, g.z, rhs.g.x, rhs.g.y, rhs.g.z);
+
+		//########################################################################
+		//distance checker
+		//########################################################################
 		fcl::DistanceRequest request;
-		//request.enable_nearest_points = true;
+		request.enable_nearest_points = true;
 		fcl::DistanceResult result;
 		double d = fcl::distance (this->bvh, Tlhs, rhs.bvh, Trhs, request, result);
+		fcl::Vec3f np[2] = result.nearest_points;
 
-		//fcl::Vec3f np[2] = result.nearest_points;
-		//double md = result.penetration_depth;
-		//ROS_INFO("distance: %f", d);
-
-
-		/*
-		ROS_INFO("norml2: %f", fcl::details::dot_prod3(np[0].data, np[1].data));
-		ROS_INFO("norml22: %f", sqrtf(fcl::details::dot_prod3(np[0].data, np[1].data)));
-		fcl::Vec3f n = (np[0]-np[1]);
-		//ROS_INFO("n: %f %f %f", n[0],n[1],n[2]);
-		double norml1 = sqrtf(fabs(n[0])+fabs(n[1])+fabs(n[2]));
-		ROS_INFO("norml1: %f", norml1);
-
+		//double dn = sqrtf(fcl::details::dot_prod3(np[0].data, np[1].data)); //distance between nearest points
 
 		double rx = np[0][0];
 		double ry = np[0][1];
@@ -135,20 +131,57 @@ namespace ros{
 		double oy = np[1][1];
 		double oz = np[1][2];
 
-		double dn = d-1.0;
+		double dn = sqrtf( (rx-ox)*(rx-ox) + (ry-oy)*(ry-oy) +(rz-oz)*(rz-oz));
+		//double dn = sqrtf( (ox-rx)*(ox-rx) + (oy-ry)*(oy-ry) +(oz-rz)*(oz-rz));
+		//double dx = (ox-rx)/dn; double dy = (oy-ry)/dn; double dz = (oz-rz)/dn;
 
-		double dx = (rx-ox)/dn;
-		double dy = (ry-oy)/dn;
-		double dz = (rz-oz)/dn;
+		ROS_INFO("norm: %f -- distance %f", dn,d);
+		if(dn < 0.001){
+			ROS_INFO("nearest points: %f %f %f -- %f %f %f", rx, ry, rz, ox, oy, oz);
+			derivative << 0.0, 0.0, 0.0, 0.0;
 
-		//double dd = computeDerivativeFromNearestPoints( np[0], np[1] );
-		ROS_INFO("nearest points: %f %f %f -- %f %f %f", np[0][0], np[0][1], np[0][2], np[1][0], np[1][1], np[1][2]);
-		ROS_INFO("derivative: %f %f %f", dx, dy, dz);
-		*/
-		//ROS_INFO("d_distance / d_x: %f", dd);
-		//result.clear();
+		}else{
+			//double dd = computeDerivativeFromNearestPoints( np[0], np[1] );
+			double dx = (rx-ox)/dn; double dy = (ry-oy)/dn; double dz = (rz-oz)/dn;
+			ROS_INFO("nearest points: %f %f %f -- %f %f %f", rx, ry, rz, ox, oy, oz);
 
-		return d;
+			derivative << dx, dy, 0.0, 0.0;
+			//let d be the distance between nearest points
+			//d = dn;
+		}
+
+
+		//########################################################################
+		///collision checker (returns penetration depth)
+		//########################################################################
+		fcl::CollisionResult cresult;
+		fcl::CollisionRequest crequest;
+		crequest.enable_cost=true;
+		crequest.enable_contact = true;
+		crequest.use_approximate_cost = false;
+
+		fcl::collide (this->bvh, Tlhs, rhs.bvh, Trhs, crequest, cresult);
+
+		uint numContacts = cresult.numContacts();
+		std::vector<double> pd(numContacts);
+		for (unsigned int j = 0; j < numContacts; ++j) {
+			const fcl::Contact& contact = cresult.getContact(j);
+			pd.push_back(contact.penetration_depth);
+			ROS_INFO("contact %d depth %f global dist %f",j,contact.penetration_depth,d);
+		}
+		double returnValue=d;
+		if(pd.empty()){
+		}else{
+			double maxd= *std::max_element(pd.begin(), pd.end());
+			ROS_INFO("max depth %f",maxd);
+			returnValue=-1000*maxd;
+			derivative*=-10;
+		}
+		ROS_INFO("gradient: %f %f %f", derivative[0],derivative[1],derivative[2]);
+		ROS_INFO("return value %f",returnValue);
+		return returnValue;
+
+
 #else
 		ABORT("This executable is not compiled with the FCL collision library");
 #endif
@@ -202,6 +235,7 @@ namespace ros{
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
 		int res=fscanf(fp, "%d", &ntris);
+		//printf("%d\n",ntris);
 		CHECK(res==1, fname);
 
 		std::vector<fcl::Vec3f> vertices;

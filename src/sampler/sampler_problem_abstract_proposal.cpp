@@ -1,4 +1,4 @@
-#include "sampler_abstract_problem.h"
+#include "sampler_problem_abstract.h"
 #include "util.h"
 
 Eigen::VectorXd Proposal::operator()( Eigen::VectorXd &x ){

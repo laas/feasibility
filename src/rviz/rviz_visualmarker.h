@@ -22,6 +22,7 @@
 #include <fcl/collision.h>
 #include <fcl/distance.h>
 #endif
+#include <Eigen/Core>
 
 #ifdef PQP_COLLISION_CHECKING
 #include <pqp/PQP.h>
@@ -179,7 +180,8 @@ namespace ros{
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 #endif
 		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
-		double distance_to(TriangleObject &rhs);
+		double distance_to(TriangleObject &rhs, Eigen::VectorXd &derivative);
+		double gradient_distance_to(TriangleObject &rhs);
 
 		void reloadBVH();
 	};

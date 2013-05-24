@@ -15,6 +15,7 @@ struct ProbabilityDistribution{
 };
 struct ObjectiveFunction{
 	virtual double operator()(Eigen::VectorXd &x) = 0; //evaluate E(x)
+	virtual Eigen::VectorXd grad(Eigen::VectorXd &x) = 0; //evaluate E(x)
 	virtual void update( Eigen::VectorXd &x ) = 0; //update internal structures according to x, if necesary
 };
 struct AbstractSamplingProblem{
