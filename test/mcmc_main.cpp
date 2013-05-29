@@ -54,5 +54,8 @@ int main( int argc, char** argv )
 		//sampler.mcmc(Nsamples);
 		sampler.hmc(Nsamples);
 		//sampler.uniform_normalized(Nsamples);
+
+
+		//system("convert_points_to_train_data(X, fname, rmax)");
 	}
 }

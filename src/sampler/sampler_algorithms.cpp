@@ -65,31 +65,40 @@ void SamplingInterface::hmc( uint Nsamples ){
 }
 void SamplingInterface::hmc_step(){
 }
+void toObjectiveFunctionSpace(Eigen::VectorXd &x){
+	x[2] = exp(x[2])/100.0;
+}
+void toSamplingSpace(Eigen::VectorXd &x){
+	x[2] = log(x[2]*100.0);
+}
 void SamplingInterface::hmc_multi_step( uint Nsamples ){
 	assert(S!=NULL);
 
 	//parameters
-	double tau = 7; //steps of leapfrog
-	double epsilon = 0.07; //stepsize of leapfrog
+	double tau = 13; //steps of leapfrog
+	double epsilon = 0.30; //stepsize of leapfrog
 
-	double lambda=1e3; //modifying the p dist
+	double lambda=1e2; //modifying the p dist
 	ObjectiveFunction *E = S->E;
 	//ProbabilityDistribution *p = S->p;
 	//Proposal *q = S->q;
 
+
+	toObjectiveFunctionSpace( x_old );
 	Eigen::VectorXd g_old = E->grad(x_old);
 	double E_old_dist = (*E)(x_old);
+	toSamplingSpace( x_old );
+
 	double E_old = lambda*E_old_dist*E_old_dist;
 
 
 	for(uint l=0;l<Nsamples;l++){
 		DEBUG(print();)
-		Eigen::VectorXd p = randn_vec(0,0.08,x_old.size());
-		p[2]=randn(0,0.03);
+		Eigen::VectorXd p = randn_vec(0,0.09,x_old.size());
+		p[2]=randn(0,0.09);
 		p[3]=0.0;
 		//Eigen::VectorXd p = (*q)(x_old);
 
-		std::cout << p << std::endl;
 		double H_old = 0.5*p.dot(p) + E_old;
 
 		Eigen::VectorXd x_new = x_old;
@@ -99,18 +108,35 @@ void SamplingInterface::hmc_multi_step( uint Nsamples ){
 		for(uint t=0;t<tau;t++){
 			p = p - 0.5*epsilon*g_new; //half step in p direction
 			x_new = x_new + epsilon*p;
-			g_new = E->grad(x_new);
-			if(x_new[2]>0.1){
-				g_new[2]=1; //~ -0.01
+
+			//##########################################
+			//billiard modification of leapfrog, to account for
+			//constraints
+			//see MCMC using Hamiltonian dynamics, 2012, Neal,
+			//in Handbook of MCMC, page 37
+			double u2 = log(100.0);
+			double l2 = log(1.0);
+			if(x_new[2]>u2){
+				//upper constraint
+				x_new[2] = u2 - (x_new[2]-u2);
+				p[2] = -p[2];
 			}else{
-				if(x_new[2]<0.01){
-					g_new[2]=-1;
+				if(x_new[2]<l2){
+					x_new[2] = l2 + (l2-x_new[2]);
+					p[2] = -p[2];
 				}
 			}
+			//##########################################
+			toObjectiveFunctionSpace( x_new );
+			g_new = E->grad(x_new);
+			toSamplingSpace( x_new );
 			p = p - epsilon*g_new*0.5; //another half step in p direction
 		}
 
+		toObjectiveFunctionSpace( x_new );
 		double E_new_dist = (*E)(x_new);
+		toSamplingSpace( x_new );
+
 		double E_new= lambda*E_new_dist*E_new_dist;
 		
 		double H_new = 0.5*p.dot(p) + E_new;
@@ -118,16 +144,21 @@ void SamplingInterface::hmc_multi_step( uint Nsamples ){
 
 
 		if( dH < 0.0){
+			toObjectiveFunctionSpace( x_new );
 			accept(x_new);
 			logging( x_new, E_new_dist);
+			toSamplingSpace( x_new );
+
 			g_old = g_new;
 			x_old = x_new;
 			E_old = E_new;
 
 		}else{
 			if(rand(0,1) < exp(-dH)){
+				toObjectiveFunctionSpace( x_new );
 				accept(x_new);
 				logging( x_new, E_new_dist);
+				toSamplingSpace( x_new );
 				g_old = g_new;
 				x_old = x_new;
 				E_old = E_new;

@@ -7,6 +7,8 @@
 #include "rviz/rviz_visualmarker.h"
 #include <Eigen/Core>
 
+#define DEBUG(x)
+
 namespace ros{
 	TriangleObject::TriangleObject(): RVIZVisualMarker(){
 	}
@@ -17,6 +19,11 @@ namespace ros{
 		this->bvh = NULL;
 		this->bvh = new fcl::BVHModel< BoundingVolume >();
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
+	}
+	void TriangleObject::reloadCylinderBVH(double radius, double height){
+		this->bvh = NULL;
+		this->bvh = new fcl::BVHModel< BoundingVolume >();
+		this->cylinder2BVH(this->bvh, radius, height);
 	}
 	void TriangleObject::init_object( std::string f, Geometry &in ){
 		this->g = in;
@@ -111,7 +118,7 @@ namespace ros{
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);
 
-		ROS_INFO("objects positions %f %f %f and %f %f %f", g.x, g.y, g.z, rhs.g.x, rhs.g.y, rhs.g.z);
+		DEBUG(ROS_INFO("objects positions %f %f %f and %f %f %f", g.x, g.y, g.z, rhs.g.x, rhs.g.y, rhs.g.z);)
 
 		//########################################################################
 		//distance checker
@@ -135,15 +142,15 @@ namespace ros{
 		//double dn = sqrtf( (ox-rx)*(ox-rx) + (oy-ry)*(oy-ry) +(oz-rz)*(oz-rz));
 		//double dx = (ox-rx)/dn; double dy = (oy-ry)/dn; double dz = (oz-rz)/dn;
 
-		ROS_INFO("norm: %f -- distance %f", dn,d);
+		DEBUG(ROS_INFO("norm: %f -- distance %f", dn,d);)
 		if(dn < 0.001){
-			ROS_INFO("nearest points: %f %f %f -- %f %f %f", rx, ry, rz, ox, oy, oz);
+			DEBUG(ROS_INFO("nearest points: %f %f %f -- %f %f %f", rx, ry, rz, ox, oy, oz);)
 			derivative << 0.0, 0.0, 0.0, 0.0;
 
 		}else{
 			//double dd = computeDerivativeFromNearestPoints( np[0], np[1] );
 			double dx = (rx-ox)/dn; double dy = (ry-oy)/dn; double dz = (rz-oz)/dn;
-			ROS_INFO("nearest points: %f %f %f -- %f %f %f", rx, ry, rz, ox, oy, oz);
+			DEBUG(ROS_INFO("nearest points: %f %f %f -- %f %f %f", rx, ry, rz, ox, oy, oz);)
 
 			derivative << dx, dy, 0.0, 0.0;
 			//let d be the distance between nearest points
@@ -166,19 +173,21 @@ namespace ros{
 		std::vector<double> pd(numContacts);
 		for (unsigned int j = 0; j < numContacts; ++j) {
 			const fcl::Contact& contact = cresult.getContact(j);
+			fcl::Vec3f n = contact.normal;
+			derivative[0] = n[0];
+			derivative[1] = n[1];
 			pd.push_back(contact.penetration_depth);
-			ROS_INFO("contact %d depth %f global dist %f",j,contact.penetration_depth,d);
+			DEBUG(ROS_INFO("contact %d depth %f global dist %f",j,contact.penetration_depth,d);)
 		}
 		double returnValue=d;
 		if(pd.empty()){
 		}else{
 			double maxd= *std::max_element(pd.begin(), pd.end());
-			ROS_INFO("max depth %f",maxd);
-			returnValue=-1000*maxd;
-			derivative*=-10;
+			DEBUG(ROS_INFO("max depth %f",maxd);)
+			returnValue=-10*maxd;
 		}
-		ROS_INFO("gradient: %f %f %f", derivative[0],derivative[1],derivative[2]);
-		ROS_INFO("return value %f",returnValue);
+		DEBUG(ROS_INFO("gradient: %f %f %f", derivative[0],derivative[1],derivative[2]);)
+		DEBUG(ROS_INFO("return value %f",returnValue);)
 		return returnValue;
 
 
@@ -305,4 +314,85 @@ namespace ros{
 		}
 		fclose(fp);
 	}
+#ifdef FCL_COLLISION_CHECKING
+	void TriangleObject::cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, double radius, double height){
+		
+		std::vector<fcl::Vec3f> vertices;
+		std::vector<fcl::Triangle> triangles;
+
+		//ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
+		uint N=20;//number of corners (more->smoother, but higher computational costs)
+
+		uint Nvertices = N+N+2*N; //top,bottom and connect the points by double triangles
+
+		uint i=0;//counter of vertices
+		for(double h=0;h<=height;h+=height){
+			double oldx = radius;
+			double oldy = 0.0;
+			for(double t=0;t<2*M_PI;t+=2*M_PI/N){
+				
+				//first vertex at middle point
+				fcl::Vec3f a(0, 0, h);
+				//second vertex at old pos
+				fcl::Vec3f b(oldx, oldy, h);
+				//third vertex at next pos
+				//t= 2*M_PI/(N-i-1);
+				double newx = cos(t)*radius;
+				double newy = sin(t)*radius;
+				fcl::Vec3f c(newx, newy, h);
+
+				vertices.push_back(a);
+				vertices.push_back(b);
+				vertices.push_back(c);
+
+				fcl::Triangle t(i,i+1,i+2);
+				triangles.push_back(t);
+				i=i+3;
+
+				oldx=newx;
+				oldy=newy;
+			}
+		}
+
+
+		double oldx = radius;
+		double oldy = 0.0;
+		for(double t=0;t<2*M_PI;t+=2*M_PI/N){
+			double newx = cos(t)*radius;
+			double newy = sin(t)*radius;
+
+			fcl::Vec3f a(oldx, oldy, 0);
+			fcl::Vec3f b(oldx, oldy, height);
+			fcl::Vec3f c(newx, newy, 0);
+
+			vertices.push_back(a);
+			vertices.push_back(b);
+			vertices.push_back(c);
+
+			fcl::Triangle t(i,i+1,i+2);
+			triangles.push_back(t);
+			i=i+3;
+
+			fcl::Vec3f d(newx, newy, 0);
+			fcl::Vec3f e(oldx, oldy, height);
+			fcl::Vec3f f(newx, newy, height);
+
+			vertices.push_back(d);
+			vertices.push_back(e);
+			vertices.push_back(f);
+
+			fcl::Triangle t2(i,i+1,i+2);
+			triangles.push_back(t2);
+			i=i+3;
+
+			oldx = newx;
+			oldy = newy;
+		}
+
+		bvh->bv_splitter.reset (new fcl::BVSplitter<BoundingVolume>(fcl::SPLIT_METHOD_MEAN));
+		bvh->beginModel();
+		bvh->addSubModel(vertices, triangles);
+		bvh->endModel();
+	}
+#endif
 }

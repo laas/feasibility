@@ -175,6 +175,8 @@ namespace ros{
 		virtual Color get_color();
 #ifdef FCL_COLLISION_CHECKING
 		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
+		void reloadCylinderBVH(double radius, double height);
+		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, double radius, double height);
 #endif
 #ifdef PQP_COLLISION_CHECKING
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );

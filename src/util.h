@@ -50,6 +50,9 @@ private:
 	FILE *fp;
 	std::string name;
 public:
+	std::string getName(){
+		return name;
+	}
 	Logger(std::string name = "log_output.tmp");
 	void operator()(std::string fmt, ...);
 	void operator()(std::vector<double> &v);

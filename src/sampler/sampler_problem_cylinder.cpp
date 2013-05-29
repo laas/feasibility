@@ -9,17 +9,17 @@ struct ProposalCylinder: public Proposal{
 	ProposalCylinder(double h){
 		// X,Y,R,H
 		Eigen::VectorXd m(4);
-		m << 0.01,0.01,0.02,0.0; //0.0 means keep fixed
+		m << 0.05,0.05,0.1,0.0; //0.0 means keep fixed
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
 		//ql << -0.5, -0.5, 0.01, h;
-		ql << -2.5, -2.5, 0.01, h;
+		ql << -2.5, -2.5, log(1.0), h;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
 		//qh << 0.7, 0.3, 0.1, h;
-		qh << 2.5, 2.5, 0.1, h;
+		qh << 2.5, 2.5, 1.0, h;
 		q_constraints_high = qh;
 	}
 };
@@ -60,11 +60,12 @@ struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 		double y1 = x(1);
 		double r = x(2);
 		double h = x(3);
-		char command[100];
-		sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", r, h);
-		DEBUG(ROS_INFO("%s",command);)
-		system(command);
-		b->reloadBVH();
+		//char command[100];
+		//sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", r, h);
+		//DEBUG(ROS_INFO("%s",command);)
+		//system(command);
+		//b->reloadBVH();
+		b->reloadCylinderBVH(r,h);
 		b->setXYT(x1,y1,0); //keep on floor
 	}
 };

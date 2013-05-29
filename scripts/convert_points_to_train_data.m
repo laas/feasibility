@@ -3,6 +3,7 @@ function convert_points_to_train_data(X, fname, rmax)
 	dimI = 3;
 	dimO = 1;
 	V=reshape([X(:,1:3) X(:,5) zeros(size(X,1),2)]',3,[])';
+	fname
 	F=fopen(strcat(fname,'.train'),'w');
 
 	fprintf(F, '%d %d %d\n', N, dimI, dimO);

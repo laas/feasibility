@@ -2,6 +2,7 @@
 # The make file requires that the fann library is installed (see ../README)
 
 GCC=gcc
+#LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):/usr/local/lib
 
 TARGETS = xor_train xor_test xor_test_fixed simple_train steepness_train simple_test robot mushroom cascade_train scaling_test scaling_train feasibility
 DEBUG_TARGETS = xor_train_debug xor_test_debug xor_test_fixed_debug cascade_train_debug
@@ -9,7 +10,7 @@ DEBUG_TARGETS = xor_train_debug xor_test_debug xor_test_fixed_debug cascade_trai
 all: $(TARGETS)
 
 %: %.c Makefile
-	$(GCC) -O3 $< -o $@ -lfann -lm
+	$(GCC) -O3 -g $< -o $@ -lfann -lm
 
 %_fixed: %.c Makefile
 	$(GCC) -O3 -DFIXEDFANN $< -o $@ -lfixedfann -lm
