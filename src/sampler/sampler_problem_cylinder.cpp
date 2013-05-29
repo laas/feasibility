@@ -1,21 +1,25 @@
-#include "sampler_abstract_problem.h"
+#include "sampler_problem_abstract.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
+
+#define DEBUG(x)
 
 using namespace ros;
 struct ProposalCylinder: public Proposal{
 	ProposalCylinder(double h){
 		// X,Y,R,H
 		Eigen::VectorXd m(4);
-		m << 0.8,0.8,0.1,0.0; //0.0 means keep fixed
+		m << 0.01,0.01,0.02,0.0; //0.0 means keep fixed
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
-		ql << -2, -2, 0.01, h;
+		//ql << -0.5, -0.5, 0.01, h;
+		ql << -2.5, -2.5, 0.01, h;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
-		qh << 2, 2, 5, h;
+		//qh << 0.7, 0.3, 0.1, h;
+		qh << 2.5, 2.5, 0.1, h;
 		q_constraints_high = qh;
 	}
 };
@@ -25,7 +29,8 @@ struct ProbabilityDistributionCylinder: public ProbabilityDistribution{
 		this->mean = m;
 	}
 	double operator()(double d){
-		return normpdf(d, mean, 0.17);
+		//return normpdf(d, mean, 0.05);
+		return exp(- 100*d*d);
 	}
 private:
 	double mean;
@@ -33,13 +38,21 @@ private:
 struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 	ros::TriangleObject *a;
 	ros::TriangleObject *b;
+
 	ObjectiveFunctionCylinder(  ros::TriangleObject *obj_a, ros::TriangleObject *obj_b ){
 		a = obj_a;
 		b = obj_b;
 	}
+	Eigen::VectorXd grad(Eigen::VectorXd &x){
+		update(x);
+		Eigen::VectorXd g(x.size());
+		double d = b->distance_to(*a,g);
+		return g;
+	}
 	double operator()(Eigen::VectorXd &x){
 		update(x);
-		double d = b->distance_to(*a);
+		Eigen::VectorXd g(x.size());
+		double d = b->distance_to(*a,g);
 		return d;
 	}
 	void update( Eigen::VectorXd &x ){
@@ -49,7 +62,7 @@ struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 		double h = x(3);
 		char command[100];
 		sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", r, h);
-		ROS_INFO("%s",command);
+		DEBUG(ROS_INFO("%s",command);)
 		system(command);
 		b->reloadBVH();
 		b->setXYT(x1,y1,0); //keep on floor

@@ -102,13 +102,16 @@ set(SOURCE
 	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
 	src/util.cpp
+	src/util_eigen.h 
+	src/util_eigen.cpp
 	src/util_timer.h 
 	src/util_timer.cpp
 	src/sampler/sampler.h
-	src/sampler/sampler.cpp
-	src/sampler/sampler_abstract_problem.h
-	src/sampler/sampler_cylinder.cpp
-	src/sampler/sampler_proposal.cpp
+	src/sampler/sampler_algorithms.cpp
+	src/sampler/sampler_algorithms_uniform.cpp
+	src/sampler/sampler_problem_abstract.h
+	src/sampler/sampler_problem_abstract_proposal.cpp
+	src/sampler/sampler_problem_cylinder.cpp
 	src/contact_transition.h 
 	src/contact_transition.cpp 
 )
