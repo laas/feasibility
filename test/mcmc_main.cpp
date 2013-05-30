@@ -18,8 +18,8 @@ using namespace ros;
 int main( int argc, char** argv )
 {
 
-	if(argc!=5){
-		printf("usage: mcmc_sampler <SweptVolumeFileName> <Height> <DistanceToBoundary> <Nsamples>\n");
+	if(argc!=6){
+		printf("usage: mcmc_sampler <SweptVolumeFileName> <Height> <DistanceToBoundary> <Nsamples> <rmax>\n");
 		return -1;
 	}
 	double h=atof(argv[2]);
@@ -40,6 +40,7 @@ int main( int argc, char** argv )
 	if (ros::ok())
 	{
 		uint Nsamples = atoi(argv[4]);
+		double rmax = atof(argv[5]);
 		printf("input: swept volume: %s, height: %f, distance: %f, Nsamples: %d\n",argv[1],h,m,Nsamples);
 
 		std_seed();
@@ -52,8 +53,8 @@ int main( int argc, char** argv )
 		SamplingInterface sampler(log);
 		sampler.init( new SamplingCTOCylinder(argv[1], h, m));
 		//sampler.mcmc(Nsamples);
-		sampler.hmc(Nsamples);
-		//sampler.uniform_normalized(Nsamples);
+		sampler.uniform_normalized(Nsamples);
+		//sampler.hmc(Nsamples, rmax);
 
 
 		//system("convert_points_to_train_data(X, fname, rmax)");

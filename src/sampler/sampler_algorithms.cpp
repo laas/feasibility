@@ -60,8 +60,10 @@ void SamplingInterface::mcmc_step(){
 	p_old = p_cand;
 	samples++;
 }
-void SamplingInterface::hmc( uint Nsamples ){
-	hmc_multi_step( Nsamples );
+void SamplingInterface::hmc( uint Nsamples, double rmax=0.3 ){
+	accepted_samples=0;
+	rejected_samples=0;
+	hmc_multi_step( Nsamples, rmax );
 }
 void SamplingInterface::hmc_step(){
 }
@@ -71,8 +73,33 @@ void toObjectiveFunctionSpace(Eigen::VectorXd &x){
 void toSamplingSpace(Eigen::VectorXd &x){
 	x[2] = log(x[2]*100.0);
 }
-void SamplingInterface::hmc_multi_step( uint Nsamples ){
+//##########################################
+//billiard modification of leapfrog, to account for
+//constraints
+//see MCMC using Hamiltonian dynamics, 2012, Neal,
+//in Handbook of MCMC, page 37
+//
+// INPUT: x: current state, p: current momentum, pos: which variable in x has to be
+// modified, l: lower constraint limit, u: upper constraint limit
+void SamplingInterface::leap_frog_constraints_handler(Eigen::VectorXd &x, Eigen::VectorXd &p, uint pos, double l, double u){
+	if(x[pos]>u){
+		//upper constraint
+		x[pos] = u - (x[pos]-u);
+		p[pos] = -p[pos];
+	}else{
+		if(x[pos]<l){
+			x[pos] = l + (l-x[pos]);
+			p[pos] = -p[pos];
+		}
+	}
+	//##########################################
+}
+		
+void SamplingInterface::hmc_multi_step( uint Nsamples, double rmax){
 	assert(S!=NULL);
+
+	ROS_INFO("RMAX %f", rmax);
+	ROS_INFO("RMAX LOG %f", log(100*rmax));
 
 	//parameters
 	double tau = 13; //steps of leapfrog
@@ -81,8 +108,7 @@ void SamplingInterface::hmc_multi_step( uint Nsamples ){
 	double lambda=1e2; //modifying the p dist
 	ObjectiveFunction *E = S->E;
 	//ProbabilityDistribution *p = S->p;
-	//Proposal *q = S->q;
-
+	Proposal *q = S->q;
 
 	toObjectiveFunctionSpace( x_old );
 	Eigen::VectorXd g_old = E->grad(x_old);
@@ -91,12 +117,11 @@ void SamplingInterface::hmc_multi_step( uint Nsamples ){
 
 	double E_old = lambda*E_old_dist*E_old_dist;
 
-
 	for(uint l=0;l<Nsamples;l++){
 		DEBUG(print();)
 		Eigen::VectorXd p = randn_vec(0,0.09,x_old.size());
 		p[2]=randn(0,0.09);
-		p[3]=0.0;
+		//p[3]=0.0; //deactivate height variable
 		//Eigen::VectorXd p = (*q)(x_old);
 
 		double H_old = 0.5*p.dot(p) + E_old;
@@ -109,24 +134,10 @@ void SamplingInterface::hmc_multi_step( uint Nsamples ){
 			p = p - 0.5*epsilon*g_new; //half step in p direction
 			x_new = x_new + epsilon*p;
 
-			//##########################################
-			//billiard modification of leapfrog, to account for
-			//constraints
-			//see MCMC using Hamiltonian dynamics, 2012, Neal,
-			//in Handbook of MCMC, page 37
-			double u2 = log(100.0);
-			double l2 = log(1.0);
-			if(x_new[2]>u2){
-				//upper constraint
-				x_new[2] = u2 - (x_new[2]-u2);
-				p[2] = -p[2];
-			}else{
-				if(x_new[2]<l2){
-					x_new[2] = l2 + (l2-x_new[2]);
-					p[2] = -p[2];
-				}
-			}
-			//##########################################
+			//handle constraints by modifying momentum and state
+			leap_frog_constraints_handler(x_new, p, 2, q->q_constraints_low[2], q->q_constraints_high[2]);
+			leap_frog_constraints_handler(x_new, p, 3, q->q_constraints_low[3], q->q_constraints_high[3]); //use same upper limit
+
 			toObjectiveFunctionSpace( x_new );
 			g_new = E->grad(x_new);
 			toSamplingSpace( x_new );

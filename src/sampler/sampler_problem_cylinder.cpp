@@ -9,17 +9,17 @@ struct ProposalCylinder: public Proposal{
 	ProposalCylinder(double h){
 		// X,Y,R,H
 		Eigen::VectorXd m(4);
-		m << 0.05,0.05,0.1,0.0; //0.0 means keep fixed
+		m << 0.05,0.05,0.1,0.1; //0.0 means keep fixed
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
 		//ql << -0.5, -0.5, 0.01, h;
-		ql << -2.5, -2.5, log(1.0), h;
+		ql << -1.5, -1.5, 0.01, 0.01;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
 		//qh << 0.7, 0.3, 0.1, h;
-		qh << 2.5, 2.5, 1.0, h;
+		qh << 1.5, 1.5, 0.5,/*log(90.0),*/ 0.5;
 		q_constraints_high = qh;
 	}
 };

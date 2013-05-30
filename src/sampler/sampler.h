@@ -19,8 +19,9 @@ class SamplingInterface{
 	Logger logger;
 
 	void logging( Eigen::VectorXd &v, double d);
+	void leap_frog_constraints_handler(Eigen::VectorXd &x, Eigen::VectorXd &p, uint pos, double l, double u);
 	void hmc_step(); //Hamiltonian Monte Carlo (as described in ITILA, Ch. 30, David MacKay)
-	void hmc_multi_step( uint Nsamples );
+	void hmc_multi_step( uint Nsamples, double rmax);
 	void mcmc_step(); //Metropolis-Hastings MCMC (as described in PRML, Bishop)
 	void mcmc_multi_step( uint Nsamples );
 	void accept( Eigen::VectorXd &x);
@@ -32,7 +33,7 @@ public:
 	void uniform(uint Nsamples);
 	void uniform_normalized(uint Nsamples);
 	void mcmc(uint Nsamples);
-	void hmc(uint Nsamples);
+	void hmc(uint Nsamples, double rmax);
 
 };
 

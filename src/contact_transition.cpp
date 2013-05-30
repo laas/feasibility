@@ -247,36 +247,6 @@ bool ContactTransition::isInCollision(  const std::vector<double> &p, const std:
 		return true;
 	}
 }
-//input: obj in cylinder coordinates (r,phi, yaw)| relative footstep of free
-//foot (FF), in X,Y,T, whereby T is degree divided by 100
-
-double ContactTransition::computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
-	if(obj.size()==0){
-		return -999;
-	}
-
-	double a = p.at(0);
-	double b = p.at(1);
-	double c = p.at(2);
-	double d = p.at(3);
-
-	std::vector<double> cost_per_object;
-	std::vector< std::vector<double> >::const_iterator oit;
-
-	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
-		//compute distance from hyperplane (TODO: port to eigen to make
-		//it accesible in N dimensions)
-		double ox = (*oit).at(0);
-		double oy = (*oit).at(1);
-		double ot = (*oit).at(2);
-		//double dist = (p.at(0)*ox+p.at(1)*oy+p.at(2)*ot+p.at(3));//sqrtf(a*a+b*b+c*c);
-		double dist = (a*ox+b*oy+c*ot+d) - 1.0;
-		cost_per_object.push_back( dist );
-		//cost_per_object.push_back( ((p.at(0)*(*oit).at(0)+p.at(1)*(*oit).at(1)+p.at(2)*(*oit).at(2)+p.at(3))/p.at(4)) - 1.0 );
-		//we learned the objects with a probability metric of +1 >
-	}
-	return *max_element(cost_per_object.begin(), cost_per_object.end());
-}
 
 double ContactTransition::GetCost( ContactTransition &successor ){
 	return successor.cost_so_far;
@@ -343,3 +313,77 @@ void ContactTransition::loadHyperPlaneParameters(const char *file){
 	}
 	ROS_INFO("successfully loaded hyperplane hash map without collisions and %d entries!", hyperplane.size());
 }
+double ContactTransition::computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
+	if(obj.size()==0){
+		return -999;
+	}
+
+	double a = p.at(0);
+	double b = p.at(1);
+	double c = p.at(2);
+	double d = p.at(3);
+
+	std::vector<double> cost_per_object;
+	std::vector< std::vector<double> >::const_iterator oit;
+
+	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
+		//compute distance from hyperplane (TODO: port to eigen to make
+		//it accesible in N dimensions)
+		double ox = (*oit).at(0);
+		double oy = (*oit).at(1);
+		double ot = (*oit).at(2);
+		//double dist = (p.at(0)*ox+p.at(1)*oy+p.at(2)*ot+p.at(3));//sqrtf(a*a+b*b+c*c);
+		double dist = (a*ox+b*oy+c*ot+d) - 1.0;
+		cost_per_object.push_back( dist );
+		//cost_per_object.push_back( ((p.at(0)*(*oit).at(0)+p.at(1)*(*oit).at(1)+p.at(2)*(*oit).at(2)+p.at(3))/p.at(4)) - 1.0 );
+		//we learned the objects with a probability metric of +1 >
+	}
+	return *max_element(cost_per_object.begin(), cost_per_object.end());
+}
+/*
+//############################################################################
+//## Fann functions
+//############################################################################
+std::vector< std::vector<double> > ContactTransition::prepareObjectPositionNN(double sf_x, double sf_y, double sf_r, char foot){
+	std::vector< std::vector<double> > v;
+	std::vector< std::vector<double> >::const_iterator vit;
+	std::vector<ros::RVIZVisualMarker*>::const_iterator oit;
+	for(  oit = objects.begin(); oit != objects.end(); ++oit ){
+		double x = (*oit)->g.x;
+		double y = (*oit)->g.y;
+		double yaw = (*oit)->g.getYawRadian();
+
+		//translate object, so that origin and sf origin conincide
+		double tx = x - sf_x;
+		double ty = y - sf_y;
+		//rotate object around origin, such that object is aligned with
+
+		//--> cylinder coordinates
+		std::vector<double> obj(3);
+		cyl.at(0)=tx;
+		cyl.at(1)=ty;
+		sqrtf(rx*rx + ry*ry); cyl.at(1)=atan2(rx,ry); cyl.at(2)=yaw;
+
+		//prune objects, which are far away
+		if(cyl.at(0)<0.5){
+			v.push_back(cyl);
+		}
+		DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
+
+	}
+	return v;
+
+}
+//input: obj in euclidean coordinates (x,y,r)| relative to footstep of free
+//foot (FF), in X,Y,T, whereby T is degree divided by 100
+double ContactTransition::computeNNDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
+
+
+}
+void ContactTransition::loadNNParameters(const char *file){
+// OUTPUT: [HyperplaneParams NormalizedConstant RelativeFootPosition]
+// ---> [a b c d Z x y theta], whereby a,b,c,d are the hyperplane params,
+// Z is sqrt(a*a+b*b+c*c) and x,y,theta is the position of the free foot,
+// relative to the support foot
+
+*/

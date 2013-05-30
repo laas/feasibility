@@ -1,10 +1,12 @@
 #!/bin/bash
-Nsamples=1000;
+Nsamples=5000;
+rmax=0.5;
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 for f in ~/git/fastReplanningData/data/fullBodyApprox/fullbody_30_-21_14*;
 do
 	BASE=`basename $f`;
 	FN="fullBodyApprox/$BASE";
-	./bin/MCMCSampler $FN 0.01 0.0 $Nsamples;
+	./bin/MCMCSampler $FN 0.01 0.0 $Nsamples $rmax;
 
 
 	#octave -q sampling_data_to_neural_network.m
@@ -20,7 +22,8 @@ do
 	fi
 
 	##convert sampling file to NN readable file
-	octave -q scripts/sampling_data_to_neural_network.m "$SAMPLEFILE" "$NNfile"
+	rmax=$rmax+0.2;
+	octave -q scripts/sampling_data_to_neural_network.m "$SAMPLEFILE" "$NNfile" $rmax
 
 	./scripts/extern/fann/examples/feasibility $NNfileBASE
 	#sprintf(cmd2, "./scripts/extern/fann/examples/feasibility %s", nn_file_name.c_str());

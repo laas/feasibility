@@ -14,8 +14,8 @@ int main( int argc, char** argv )
 
 	Environment* environment = Environment::getSalleBauzil();
 
-	MotionPlannerPerrin planner(*environment, argc, argv);
-	//MotionPlannerHyperPlanar planner(*environment, argc, argv);
+	//MotionPlannerPerrin planner(*environment, argc, argv);
+	MotionPlannerHyperPlanar planner(*environment, argc, argv);
 	while (ros::ok())
 	{
 		planner.plan();

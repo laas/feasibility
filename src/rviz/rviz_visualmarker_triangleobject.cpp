@@ -21,6 +21,7 @@ namespace ros{
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
 	}
 	void TriangleObject::reloadCylinderBVH(double radius, double height){
+		delete this->bvh;
 		this->bvh = NULL;
 		this->bvh = new fcl::BVHModel< BoundingVolume >();
 		this->cylinder2BVH(this->bvh, radius, height);
