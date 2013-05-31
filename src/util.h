@@ -42,6 +42,13 @@ std::string get_robot_str();
 std::string get_chair_str();
 std::string get_logging_str(const char* prefix, std::string s);
 
+void system2(std::string fmt, ...); //system with printf functionality
+
+double str2double(const std::string &s);
+bool isNum(char c);
+bool isNumOrMinus(char c);
+std::vector<double> extract_num_from_string( std::string s );
+
 //##########################################################################
 // logger / stable
 //##########################################################################

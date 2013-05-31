@@ -18,43 +18,40 @@ using namespace ros;
 int main( int argc, char** argv )
 {
 
-	if(argc!=6){
-		printf("usage: mcmc_sampler <SweptVolumeFileName> <Height> <DistanceToBoundary> <Nsamples> <rmax>\n");
+	if(argc!=4){
+		printf("usage: mcmc_sampler <SweptVolumeFileName> <Nsamples> <rmax>\n");
 		return -1;
 	}
 	std::string robot_file = get_tris_str(argv[1]);
 
-
 	char pname[100];
-	sprintf(pname, "sampler_h_%d_m_%d_%d", (int)floor(100*h), (int)floor(100*m), hashit(argv[1]));
+	sprintf(pname, "humanoids13_sampler_%d", hashit(argv[1]));
+	char folder[80];
+	sprintf(folder, "data/13humanoids/");
 
 	ros::init(argc, argv, pname);
 	ros::NodeHandle n;
 	ros::Rate r(1);
-	ROS_INFO("%s", argv[1]);
+
 	ROS_INFO("%s", pname);
-	char command[100];
-	char folder[80];
+
 	if (ros::ok())
 	{
-		uint Nsamples = atoi(argv[4]);
-		double rmax = atof(argv[5]);
-		printf("input: swept volume: %s, height: %f, distance: %f, Nsamples: %d\n",argv[1],h,m,Nsamples);
+		uint Nsamples = atoi(argv[2]);
+		double rmax = atof(argv[3]);
+		printf("input: swept volume: %s, Nsamples: %d\n",argv[1],Nsamples);
 
-		std_seed();
-		sprintf(folder, "data/13humanoids/");
-		sprintf(command, "mkdir -p %s", folder);
-		system(command);
+		std_seed(); //debug
+
+		system2("mkdir -p %s", folder);
 
 		Logger log(get_logging_str(folder, robot_file));
 
 		SamplingInterface sampler(log);
-		sampler.init( new SamplingCTOCylinder(argv[1], h, m));
+		sampler.init( new SamplingCTOCylinder(argv[1]) );
 		//sampler.mcmc(Nsamples);
 		sampler.uniform_normalized(Nsamples);
-		//sampler.hmc(Nsamples, rmax);
+		sampler.hmc(Nsamples, rmax);
 
-
-		//system("convert_points_to_train_data(X, fname, rmax)");
 	}
 }

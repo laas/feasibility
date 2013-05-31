@@ -379,11 +379,43 @@ std::vector< std::vector<double> > ContactTransition::prepareObjectPositionNN(do
 double ContactTransition::computeNNDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
 
 
-}
-void ContactTransition::loadNNParameters(const char *file){
-// OUTPUT: [HyperplaneParams NormalizedConstant RelativeFootPosition]
-// ---> [a b c d Z x y theta], whereby a,b,c,d are the hyperplane params,
-// Z is sqrt(a*a+b*b+c*c) and x,y,theta is the position of the free foot,
-// relative to the support foot
-
 */
+#include <dirent.h>
+void ContactTransition::loadNNParameters(const char *path){
+	//struct fann *ann = fann_create_from_file(argv[1]);
+	bool collision=false;
+	DIR* dpath = opendir( path );
+	if ( dpath ) 
+	{
+		struct dirent* hFile;
+		errno = 0;
+		while (( hFile = readdir( dpath )) != NULL ){
+			if( !strcmp( hFile->d_name, "."  )) continue;
+			if( !strcmp( hFile->d_name, ".." )) continue;
+			if( hFile->d_name[0] == '.' ) continue; //hidden files
+
+			if( strstr( hFile->d_name, ".net" )){
+				printf("found neural network %s, try loading it", hFile->d_name );
+				std::string file = hFile->d_name;
+				std::vector<double> v = extract_num_from_string(file);
+
+				//compute hash from v (position of free foot)
+		
+				//load d_name into fann structure
+				struct fann *ann = fann_create_from_file(hFile->d_name);
+
+				uint hash = hashit<double>(v);
+
+				if(neuralMap.find(hash)!=neuralMap.end()){
+					ROS_INFO("hash collision: %d", hash);
+					collision=true;
+				}
+				neuralMap[hash] = ann;
+				
+				
+			}
+		} 
+		closedir( dpath );
+	}
+}
+

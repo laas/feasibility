@@ -8,6 +8,9 @@
 //unordered_map query time O(1) -- map query time O(log(n))
 typedef std::unordered_map< int, std::vector<double> > HashMap; 
 
+#include <fann.h>
+typedef std::unordered_map< int, struct fann*> NeuralHashMap; 
+
 struct ContactTransition
 {
 	ros::Geometry g;
@@ -18,6 +21,7 @@ struct ContactTransition
 	static Timer* timer;
 
 	static HashMap hyperplane;
+	static NeuralHashMap neuralMap;
 	static std::vector<ros::RVIZVisualMarker*> objects;
 	static bool loaded;
 	double cost_so_far;
@@ -40,6 +44,8 @@ struct ContactTransition
 	static void loadHyperPlaneParameters(const char *file);
 	bool isInCollision(  const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
 
+	static void loadNNParameters(const char *path);
+
 	double computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
 
 	ros::Geometry computeAbsFFfromRelFF(
@@ -49,5 +55,6 @@ struct ContactTransition
 
 };//contactTransition
 HashMap ContactTransition::hyperplane;
+NeuralHashMap ContactTransition::neuralMap;
 std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;
 Timer* ContactTransition::timer;

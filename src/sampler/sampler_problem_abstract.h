@@ -30,7 +30,7 @@ struct AbstractSamplingProblem{
 struct SamplingCTOCylinder: public AbstractSamplingProblem{
 	char *robot;
 	SamplingCTOCylinder(char *argv, double h); 
-	SamplingCTOCylinder(char *argv, double h, double m);
+	SamplingCTOCylinder(char *argv, double h=0.0, double m=0.0);
 	ObjectiveFunction* getObjectiveFunction();
 	ProbabilityDistribution* getProbabilityDistribution();
 	ProbabilityDistribution* getProbabilityDistribution(double m);

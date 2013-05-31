@@ -142,11 +142,120 @@ std::string get_logging_str(const char* prefix, std::string s){
 	printf("%s\n",logfile);
 	return logfile;
 }
+bool isNumOrMinus(char c){
+	if(c=='-' || isNum(c)){
+		return true;
+	}
+	return false;
+}
+bool isNum(char c){
+	if(
+		c=='0' ||
+		c=='1' ||
+		c=='2' ||
+		c=='3' ||
+		c=='4' ||
+		c=='5' ||
+		c=='6' ||
+		c=='7' ||
+		c=='8' ||
+		c=='9'){
+	return true;
+	}
+	return false;
+}
+
+double str2double(const std::string& s)
+{
+    char* endptr;
+    double value = strtod(s.c_str(), &endptr);
+    if (*endptr) return 0;
+    return value;
+}
+/*
+double str2double( const std::string& s )
+{
+	std::istringstream i(s);
+	double x;
+	if (!(i >> x))
+		return 0;
+	return x;
+} 
+double str2double(std::string s){
+	double value;
+	try{
+	    value = boost::lexical_cast<double>(my_string);
+	}catch(boost::bad_lexical_cast const&){
+	    value = 0;
+	}
+	return value;
+}
+*/
+std::vector<double> extract_num_from_string( std::string s ){
+	std::string::iterator it=s.begin();
+
+	std::vector<double> v;
+
+	printf("orig: %s\n",s.c_str());
+
+	uint c=0;
+	while(it != s.end() && c<=s.size()){
+		std::string tmp;
+		while(!isNumOrMinus(*it)){ it++;c++;}
+		tmp+=*it;
+		it++;c++;
+		if(c>s.size()) break;
+		while(isNum(*it)){
+			tmp+=*it;
+			it++;c++;
+		}
+		v.push_back(str2double(tmp));
+	}
+	
+	std::cout << v << std::endl;
+
+	return v;
+}
 int round2(double d)
 {
 	return floor(d + 0.5);
 }
 
+void system2(std::string fmt, ...){
+	std::string tmp;
+	va_list list;
+	va_start(list, fmt);
+	for(const char *p=fmt.c_str(); *p; ++p){
+		if(*p!='%'){
+			tmp+=*p;
+		}else{
+			switch(*++p){
+			case 's':{
+				std::ostringstream ss;
+				ss << va_arg(list, char*);
+				tmp += ss.str();
+				continue;
+			}
+			case 'd':{
+				std::ostringstream ss;
+				ss << va_arg(list, int);
+				tmp += ss.str();
+				continue;
+			}
+			case 'f':{
+				std::ostringstream ss;
+				ss << va_arg(list, double);
+				tmp += ss.str();
+				continue;
+			}
+			default:
+				tmp+=*p;
+			}
+		}
+	}
+	va_end(list);
+	system(tmp.c_str());
+}
 //##########################################################################
 // logger / stable
 //##########################################################################

@@ -51,6 +51,18 @@ endif()
 ## be sure that <NAME> != <pkglib>
 
 ##########################################################
+pkg_check_modules(LibFann fann)
+include_directories(${LibFann_INCLUDE_DIRS})
+link_directories(${LibFann_LIBRARY_DIRS})
+if(${LibFann_FOUND})
+	message(STATUS "------------------- ")
+	message(STATUS ${LibFann_LIBRARY_DIRS})
+	message(STATUS ${LibFann_LIBRARIES})
+	message(STATUS ${LibFann_INCLUDE_DIRS})
+	message(STATUS "------------------- ")
+else()
+	message(STATUS "Compilation without fann libary")
+endif()
 ##########################################################
 pkg_check_modules(FCLLIB fcl)
 include_directories(${FCLLIB_INCLUDE_DIRS})
@@ -92,6 +104,7 @@ set(SOURCE
 	src/motionplanner.h
 	src/motionplannerperrin.h
 	src/motionplannerhyperplanar.h
+	src/motionplannerneural.h
 	src/rviz/rviz_visualmarker.h
 	src/rviz/rviz_visualmarker.cpp
 	src/rviz/rviz_geometry.cpp
@@ -118,9 +131,15 @@ set(SOURCE
 if(${FPlanner_FOUND})
 	set(SOURCE ${SOURCE} src/motionplannerperrin.h)
 endif()
+set(LibFann_LIBRARIES
+	fann
+	m
+)
+
+
 add_definitions("-std=c++0x")
 include_directories(src)
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lfcl -L/usr/local/bin")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lm -lfann")
 set(UTIL_LIB util)
 rosbuild_add_library(${UTIL_LIB} ${SOURCE})
 target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
@@ -135,8 +154,12 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
-target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
+#rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
+#target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
+rosbuild_add_executable(13HumanoidsSampler test/13humanoids_sampler.cpp )
+target_link_libraries(13HumanoidsSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
+rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
+target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
