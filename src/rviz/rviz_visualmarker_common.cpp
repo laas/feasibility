@@ -60,4 +60,25 @@ namespace ros{
 		return ros::MAGENTA;
 	}
 
+	CylinderMarker::CylinderMarker(double x, double y, double r, double h): RVIZVisualMarker() {
+		this->g.x = x;
+		this->g.y = y;
+		this->g.z = 0.0;
+		this->g.setYawRadian(0);
+		this->g.sx=r;
+		this->g.sy=r;
+		this->g.sz=h;
+		this->g.z = this->g.z + this->g.sz/2;
+		//cylinder2Marker();
+	}
+	std::string CylinderMarker::name(){
+		return std::string("cylinder_triangles");
+	}
+	uint32_t CylinderMarker::get_shape(){
+		return visualization_msgs::Marker::CYLINDER;
+	}
+	Color CylinderMarker::get_color(){
+		return ros::MAGENTA;
+	}
+
 }

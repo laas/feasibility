@@ -1,6 +1,14 @@
 #include "rviz/rviz_visualmarker.h"
 
 namespace ros{
+	TriangleMeshDecorator::TriangleMeshDecorator(TriangleObject *tobj, const char *meshname){
+		marker.mesh_resource = filename;
+		marker.mesh_use_embedded_materials=true;
+	}
+	uint32_t TriangleMeshDecorator::get_shape(){
+		return visualization_msgs::Marker::MESH_RESOURCE;
+	}
+
 	BlenderMeshTriangleObject::BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz): TriangleObject(){
 		filename = std::string(cfilename);
 

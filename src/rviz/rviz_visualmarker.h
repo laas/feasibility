@@ -36,7 +36,6 @@ namespace ros{
 	//predefined objects
 	//
 	struct TriangleObjectChair;
-
 	static const char *FRAME_NAME = "/mocap_world";
 	static const double ROS_DURATION = 0;
 
@@ -47,11 +46,11 @@ namespace ros{
 		double x,y,z;
 		double sx,sy,sz; //scale
 		void print();
-		double getQuaternionX(); //quaternions can only be explicity accessed
+		double getQuaternionX();
 		double getQuaternionY(); 
 		double getQuaternionZ(); 
 		double getQuaternionW(); 
-		void setQuaternionX(double); //quaternions can only be explicity accessed
+		void setQuaternionX(double);
 		void setQuaternionY(double); 
 		void setQuaternionZ(double); 
 		void setQuaternionW(double); 
@@ -136,13 +135,19 @@ namespace ros{
 	struct CubeMarker: public RVIZVisualMarker{
 		CubeMarker(double x, double y, double w=0.08, double yaw=0);
 		virtual std::string name();
-		uint32_t get_shape();
+		virtual uint32_t get_shape();
 		virtual Color get_color();
 	};
 	struct SphereMarker: public RVIZVisualMarker{
 		SphereMarker(double x, double y, double r=0.08, double z=0);
 		virtual std::string name();
-		uint32_t get_shape();
+		virtual uint32_t get_shape();
+		virtual Color get_color();
+	};
+	struct CylinderMarker: public RVIZVisualMarker{
+		CylinderMarker(double x, double y, double r, double h);
+		virtual std::string name();
+		virtual uint32_t get_shape();
 		virtual Color get_color();
 	};
 
@@ -150,7 +155,7 @@ namespace ros{
 		std::string text;
 		Text(double x, double y, double z, char *c);
 		virtual std::string name();
-		uint32_t get_shape();
+		virtual uint32_t get_shape();
 		virtual Color get_color();
 	};
 
@@ -171,7 +176,7 @@ namespace ros{
 		TriangleObject(std::string f, Geometry &in);
 		void init_object( std::string f, Geometry &in );
 		virtual std::string name();
-		uint32_t get_shape();
+		virtual uint32_t get_shape();
 		virtual Color get_color();
 #ifdef FCL_COLLISION_CHECKING
 		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
@@ -190,7 +195,7 @@ namespace ros{
 	struct FootMarker: public RVIZVisualMarker{
 		FootMarker(double x, double y, double yaw);
 		virtual std::string name();
-		uint32_t get_shape();
+		virtual uint32_t get_shape();
 		virtual Color get_color();
 		virtual void publish();
 	};
@@ -208,11 +213,20 @@ namespace ros{
 		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap);
 		TriangleObjectFloor(double x, double y, std::string fname);
 	};
+	struct TriangleObjectCylinder: public TriangleObject{
+		TriangleObjectCylinder(double x, double y);
+	};
 	struct TriangleObjectChair: public TriangleObject{
 		TriangleObjectChair(std::string mocap);
 	};
 	struct TriangleObjectRobot: public TriangleObject{
 		TriangleObjectRobot(std::string mocap);
+	};
+	//augments the triangle object by a mesh with the same size
+	struct TriangleMeshDecorator: public TriangleObject{
+		std::string filename;
+		TriangleMeshDecorator(TriangleObject *, const char *);
+		uint32_t get_shape();
 	};
 
 	struct BlenderMeshTriangleObject: public TriangleObject{

@@ -156,8 +156,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 #rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
 #target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
-rosbuild_add_executable(13HumanoidsSampler test/13humanoids_sampler.cpp )
-target_link_libraries(13HumanoidsSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
+#rosbuild_add_executable(13HumanoidsSampler test/13humanoids_sampler.cpp )
+#target_link_libraries(13HumanoidsSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
 rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
 target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
