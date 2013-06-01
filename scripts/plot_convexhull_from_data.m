@@ -4,7 +4,6 @@ function plot_convexhull_from_data(X)
 	T=0.0001;
 	IN=X(X(:,5)<T,:);
 	OUT=X(X(:,5)>T,:);
-
 	B=X;
 
 	%Xin = sortrows(B,-3); %%sort according to z values and remove everything
@@ -16,7 +15,6 @@ function plot_convexhull_from_data(X)
 	%x=x(i);y=y(i);z=z(i);
 	%B=Xin(i,:);
 
-
 	%plot_points_from_data(B, 0.0)
 	X=[B(:,1)';B(:,2)';B(:,3)']';
 	Xin=[IN(:,1)';IN(:,2)';IN(:,3)']';
@@ -26,35 +24,35 @@ function plot_convexhull_from_data(X)
 	Ki=convhulln(Xin);
 	Ko=convhulln(Xout);
 
-	p=trisurf(Ko,Xout(:,1),Xout(:,2),Xout(:,3))
-	set(p,'FaceLighting','phong','FaceColor','green',...
-		'FaceAlpha',0.1,...
-		'EdgeAlpha',0.0,...
-		'EdgeColor','green',...
-	      'AmbientStrength',0.5)
-	hold on;
+	%p=trisurf(Ko,Xout(:,1),Xout(:,2),Xout(:,3))
+	%set(p,'FaceLighting','phong','FaceColor','green',...
+	%	'FaceAlpha',0.1,...
+	%	'EdgeAlpha',0.0,...
+	%	'EdgeColor','green',...
+	%      'AmbientStrength',0.5)
+	%hold on;
 	
 	%axis tight;
 
-
 	%%%%%%% Kmeans clustering of the points inside the non-feasible space
 	IDX=kmeans(Xin,2);
-	Xin(IDX==2)
+	Xin(IDX==2);
 
 	SF = Xin(IDX==1,1:3);
 	FF = Xin(IDX==2,1:3);
 	Ksf=convhulln(SF);
 	Kff=convhulln(FF);
-	p=trisurf(Ksf,SF(:,1),SF(:,2),SF(:,3))
-	set(p,'FaceLighting','phong','FaceColor','red',...
+	p=trisurf(Ksf,SF(:,1),SF(:,2),SF(:,3));
+	color='green';
+	set(p,'FaceLighting','phong','FaceColor',color,...
 		'FaceAlpha',0.4,...
 		'EdgeAlpha',0.0,...
 		'EdgeColor','red',...
 	      'AmbientStrength',0.5)
 
 	hold on;
-	p=trisurf(Kff,FF(:,1),FF(:,2),FF(:,3))
-	set(p,'FaceLighting','phong','FaceColor','red',...
+	p=trisurf(Kff,FF(:,1),FF(:,2),FF(:,3));
+	set(p,'FaceLighting','phong','FaceColor',color,...
 		'FaceAlpha',0.4,...
 		'EdgeAlpha',0.0,...
 		'EdgeColor','red',...
