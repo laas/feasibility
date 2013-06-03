@@ -1,6 +1,6 @@
-#include "motionplanner.h"
+#include "planner/motionplanner.h"
 #include "../extern/astar/stlastar.h"
-#include "contact_transition.h"
+#include "planner/contact_transition.h"
 #include "util_timer.h"
 
 struct MotionPlannerAStar: public MotionPlanner{
@@ -15,14 +15,13 @@ struct MotionPlannerAStar: public MotionPlanner{
 		astarsearch = new AStarSearch<ContactTransition>(10000);
 		ContactTransition::timer = new Timer();
 		ContactTransition::timer->register_stopper("prepare", "prepare objects");
-		ContactTransition::timer->register_stopper("hyperplanar", "compute hyperplanar");
+		ContactTransition::timer->register_stopper("actionExpansion", "compute actionExpansion");
 		ContactTransition::timer->register_stopper("ff", "compute ff transformation");
-		ContactTransition::timer->register_stopper("loader", "load hyperplane params");
 		ContactTransition::timer->register_stopper("a*", "a* algorithm");
 
-		ContactTransition::timer->begin("loader");
-		ContactTransition::loadHyperPlaneParameters("data/planeparams.dat");
-		ContactTransition::timer->end("loader");
+	}
+	void setConstraintsChecker( ConstraintsChecker *constraints ){
+		ContactTransition::setConstraintsChecker( constraints );
 	}
 	void setGoal( ros::Geometry &goal ){
 		//this->goal = new ContactTransition( goal );
@@ -57,27 +56,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 		//g.at(1)=-0.16;
 		//g.at(2)=0.0;
 
-
-
-		//std::vector<double> obj(3);
-		//obj.at(0)=0;
-		//obj.at(1)=0;
-		//obj.at(2)=M_PI;
-		//
-		//for(double v=0.0;v<5;v+=0.1){
-		//	obj.at(0)=v;
-		//	std::vector<std::vector<double> > kob;
-		//	kob.push_back(obj);
-		//	double d = goal.computeHyperPlaneDistance(g, kob);
-		//	ROS_INFO("hyperplane dist for obj x = %f >> %f", v, d);
-		//}
-		//return;
-		//ros::LeftFootMarker m(0,1,0);
-		//m.addText("PLANNER");
-		//m.publish();
-		//goal.getDistanceToHyperPlane();
-		//start.loadObjectPositions(environment);
-
 		astarsearch->SetStartAndGoalStates( start, goal );
 		unsigned int SearchSteps = 0;
 		uint SearchState;
@@ -111,7 +89,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 		else
 			return false;
 	}
-	
 
 	//plot footsteps into rviz
 	void publish(){

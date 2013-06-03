@@ -1,6 +1,6 @@
-#include "motionplanner.h"
+#include "planner/motionplanner.h"
 #include "../extern/astar/stlastar.h"
-#include "contact_transition.h"
+#include "planner/contact_transition.h"
 #include "util_timer.h"
 
 struct MotionPlannerNeural: public MotionPlanner{

@@ -101,10 +101,14 @@ set(SOURCE
 	src/environment.h
 	src/environment.cpp
 	src/environment_sallebauzil.cpp
-	src/motionplanner.h
-	src/motionplannerperrin.h
-	src/motionplannerhyperplanar.h
-	src/motionplannerneural.h
+	src/planner/motionplanner.h
+	src/planner/motionplanner_astar.h
+	src/planner/constraints_checker.h 
+	src/planner/constraints_checker_ann.h 
+	src/planner/constraints_checker_ann.cpp
+	src/planner/constraints_checker_hyperplanar.h 
+	src/planner/contact_transition.h 
+	src/planner/contact_transition.cpp 
 	src/rviz/rviz_visualmarker.h
 	src/rviz/rviz_visualmarker.cpp
 	src/rviz/rviz_geometry.cpp
@@ -125,11 +129,9 @@ set(SOURCE
 	src/sampler/sampler_problem_abstract.h
 	src/sampler/sampler_problem_abstract_proposal.cpp
 	src/sampler/sampler_problem_cylinder.cpp
-	src/contact_transition.h 
-	src/contact_transition.cpp 
 )
 if(${FPlanner_FOUND})
-	set(SOURCE ${SOURCE} src/motionplannerperrin.h)
+	set(SOURCE ${SOURCE} src/planner/motionplannerperrin.h)
 endif()
 set(LibFann_LIBRARIES
 	fann
@@ -164,8 +166,8 @@ target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlan
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
-rosbuild_add_executable(ENVTester test/env_main.cpp )
-target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
+#rosbuild_add_executable(ENVTester test/env_main.cpp )
+#target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
 
 #rosbuild_add_executable(VisSteps src/vis_steps.cpp )
 #target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})

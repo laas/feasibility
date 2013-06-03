@@ -2,8 +2,8 @@
 #include <ros/time.h>
 #include "environment.h"
 
-#include "motionplannerhyperplanar.h"
-#include "motionplannerperrin.h"
+#include "planner/motionplannerhyperplanar.h"
+#include "planner/motionplannerperrin.h"
 
 using namespace ros;
 int main( int argc, char** argv )
