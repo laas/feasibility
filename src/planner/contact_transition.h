@@ -20,6 +20,7 @@ struct ContactTransition
 	char L_or_R;
 	static Timer* timer;
 
+	static ConstraintsChecker constraints;
 	static HashMap hyperplane;
 	static NeuralHashMap neuralMap;
 	static std::vector<ros::RVIZVisualMarker*> objects;
