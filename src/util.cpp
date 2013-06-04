@@ -191,12 +191,12 @@ double str2double(std::string s){
 	return value;
 }
 */
+//extract_num_from_string: take a string and extract all signed integers from it  and put them into a vector of doubles
+// ->better rename string2integersAsDouble ?
 std::vector<double> extract_num_from_string( std::string s ){
 	std::string::iterator it=s.begin();
 
 	std::vector<double> v;
-
-	printf("orig: %s\n",s.c_str());
 
 	uint c=0;
 	while(it != s.end() && c<=s.size()){
@@ -211,8 +211,6 @@ std::vector<double> extract_num_from_string( std::string s ){
 		}
 		v.push_back(str2double(tmp));
 	}
-	
-	std::cout << v << std::endl;
 
 	return v;
 }

@@ -316,6 +316,82 @@ namespace ros{
 		fclose(fp);
 	}
 #ifdef FCL_COLLISION_CHECKING
+	std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > getCylinderVerticesAndTriangles(uint N, double radius, double height){
+
+		std::vector<fcl::Vec3f> vertices;
+		std::vector<fcl::Triangle> triangles;
+
+		//ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
+		//uint N=20;//number of corners (more->smoother, but higher computational costs)
+
+		uint Nvertices = N+N+2*N; //top,bottom and connect the points by double triangles
+
+		uint i=0;//counter of vertices
+		for(double h=0;h<=height;h+=height){
+			double oldx = radius;
+			double oldy = 0.0;
+			for(double t=0;t<2*M_PI;t+=2*M_PI/N){
+				
+				//first vertex at middle point
+				fcl::Vec3f a(0, 0, h);
+				//second vertex at old pos
+				fcl::Vec3f b(oldx, oldy, h);
+				//third vertex at next pos
+				//t= 2*M_PI/(N-i-1);
+				double newx = cos(t)*radius;
+				double newy = sin(t)*radius;
+				fcl::Vec3f c(newx, newy, h);
+
+				vertices.push_back(a);
+				vertices.push_back(b);
+				vertices.push_back(c);
+
+				fcl::Triangle t(i,i+1,i+2);
+				triangles.push_back(t);
+				i=i+3;
+
+				oldx=newx;
+				oldy=newy;
+			}
+		}
+
+
+		double oldx = radius;
+		double oldy = 0.0;
+		for(double t=0;t<2*M_PI;t+=2*M_PI/N){
+			double newx = cos(t)*radius;
+			double newy = sin(t)*radius;
+
+			fcl::Vec3f a(oldx, oldy, 0);
+			fcl::Vec3f b(oldx, oldy, height);
+			fcl::Vec3f c(newx, newy, 0);
+
+			vertices.push_back(a);
+			vertices.push_back(b);
+			vertices.push_back(c);
+
+			fcl::Triangle t(i,i+1,i+2);
+			triangles.push_back(t);
+			i=i+3;
+
+			fcl::Vec3f d(newx, newy, 0);
+			fcl::Vec3f e(oldx, oldy, height);
+			fcl::Vec3f f(newx, newy, height);
+
+			vertices.push_back(d);
+			vertices.push_back(e);
+			vertices.push_back(f);
+
+			fcl::Triangle t2(i,i+1,i+2);
+			triangles.push_back(t2);
+			i=i+3;
+
+			oldx = newx;
+			oldy = newy;
+		}
+		return std::make_pair( vertices, triangles );
+
+	}
 	void TriangleObject::cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, double radius, double height){
 		
 		std::vector<fcl::Vec3f> vertices;
@@ -389,6 +465,14 @@ namespace ros{
 			oldx = newx;
 			oldy = newy;
 		}
+		/*
+		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > vt;
+		vt = getCylinderVerticesAndTriangles(20, radius, height);
+
+		std::vector<fcl::Vec3f> vertices = vt.first;
+		std::vector<fcl::Triangle> triangles = vt.second;
+		*/
+
 
 		bvh->bv_splitter.reset (new fcl::BVSplitter<BoundingVolume>(fcl::SPLIT_METHOD_MEAN));
 		bvh->beginModel();

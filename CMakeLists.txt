@@ -101,6 +101,7 @@ set(SOURCE
 	src/environment.h
 	src/environment.cpp
 	src/environment_sallebauzil.cpp
+	src/environment_13humanoids.cpp
 	src/planner/motionplanner.h
 	src/planner/motionplanner_astar.h
 	src/planner/constraints_checker.h 

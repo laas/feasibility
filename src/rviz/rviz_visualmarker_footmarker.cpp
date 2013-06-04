@@ -20,7 +20,7 @@ namespace ros{
 	}
 	void FootMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
-		marker.lifetime = ros::Duration(ROS_DURATION);
+		marker.lifetime = ros::Duration();
 		rviz->footstep_publish(marker);
 		if(textHover){
 			visualization_msgs::Marker cmarker = createTextMarker();

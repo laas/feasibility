@@ -2,7 +2,17 @@
 #include "environment.h"
 #include "util.h"
 
+Environment* Environment::singleton = NULL;
 #define DEBUG(x) x
+Environment* Environment::get13Humanoids(){
+	if(singleton==NULL){
+		singleton = Environment13Humanoids::getInstance();
+	}else{
+		ABORT("One instance of environment already exists!");
+	}
+	singleton->init();
+	return singleton;
+}
 Environment* Environment::getSalleBauzil(){
 	if(singleton==NULL){
 		singleton = EnvironmentSalleBauzil::getInstance();

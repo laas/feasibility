@@ -22,7 +22,7 @@ struct ContactTransition
 	static Timer* timer;
 
 	static ConstraintsChecker *constraints;
-	static HashMap actionSpace;
+	//static HashMap actionSpace;
 	//static HashMap hyperplane;
 	//static NeuralHashMap neuralMap;
 	static std::vector<ros::RVIZVisualMarker*> objects;
@@ -62,7 +62,6 @@ struct ContactTransition
 
 };//contactTransition
 //HashMap ContactTransition::hyperplane;
-HashMap ContactTransition::actionSpace;
 ConstraintsChecker *ContactTransition::constraints;
 std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;
 Timer* ContactTransition::timer;

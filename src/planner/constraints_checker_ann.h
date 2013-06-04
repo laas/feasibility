@@ -6,23 +6,28 @@
 
 class ConstraintsCheckerANN: public ConstraintsChecker{
 private:
-	typedef std::unordered_map< int, struct fann*> NeuralHashMap; 
 	NeuralHashMap neuralMap;
 public:
 	ConstraintsCheckerANN();
-	virtual bool isFeasible(  const std::vector<double> &p, 
-			const std::vector< std::vector<double> > &obj);
+	~ConstraintsCheckerANN();
 
-// support foot (SF)
-//get object position in the coordinate system of the SF -- and prune objects
-//which are too far away
-	virtual 
-	std::vector< std::vector<double> > 
-	prepareObjectPosition(std::vector<ros::RVIZVisualMarker*> &obj, 
-			double sf_x, double sf_y, double sf_yaw, char foot);
+	virtual bool 
+	isFeasible(  
+		const std::vector<double> &p, 
+		const std::vector< std::vector<double> > &obj
+	);
+
+	virtual std::vector< std::vector<double> > 
+	prepareObjectPosition(
+		std::vector<ros::RVIZVisualMarker*> &obj, 
+		double sf_x, double sf_y, double sf_yaw, char foot
+	);
+
 private:
+	double 
+	computeNNOutput( 
+		const std::vector<double> &p, 
+		const std::vector< std::vector<double> > &obj
+	);
 	void loadNNParameters(const char *path);
-
 };
-
-

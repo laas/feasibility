@@ -2,9 +2,15 @@
 #include <vector>
 #include "rviz/rviz_visualmarker.h"
 
+typedef std::unordered_map< int, struct fann*> NeuralHashMap; 
+typedef std::unordered_map< int, std::vector<double>> ActionSpace; 
 class ConstraintsChecker{
 public:
+	ActionSpace actionSpace;
 	ConstraintsChecker(){};
+	~ConstraintsChecker(){
+		actionSpace.clear();
+	}
 	virtual 
 	bool isFeasible(  const std::vector<double> &p, 
 			const std::vector< std::vector<double> > &obj)=0;

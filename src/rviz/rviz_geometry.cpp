@@ -58,4 +58,10 @@ namespace ros{
 		printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
 		std::cout << std::endl;
 	}
+	double Geometry::getHeight(){
+		return this->height;
+	}
+	double Geometry::getRadius(){
+		return this->radius;
+	}
 };

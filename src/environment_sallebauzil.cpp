@@ -1,9 +1,8 @@
 #include "environment.h"
-Environment* Environment::singleton = NULL;
 
 void EnvironmentSalleBauzil::setObjects(){
-	//ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.8, 0.5, "chairLabo.tris", "/evart/chair2/PO");
-	ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
+	ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.8, 0.5, "chairLabo.tris", "/evart/chair2/PO");
+	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
 	chair->addText("/evart/chair2/PO");
 	chair->subscribeToEvart("/evart/chair2/PO");
 	objects.push_back(chair);

@@ -45,6 +45,7 @@ namespace ros{
 		Geometry();
 		double x,y,z;
 		double sx,sy,sz; //scale
+		double radius,height;
 		void print();
 		double getQuaternionX();
 		double getQuaternionY(); 
@@ -56,6 +57,8 @@ namespace ros{
 		void setQuaternionW(double); 
 		void setYawRadian(double yaw); //yaw in radians, of course 
 		double getYawRadian(); //yaw in radians, of course 
+		double getHeight();
+		double getRadius();
 	};
 
 	struct Color{
@@ -118,6 +121,12 @@ namespace ros{
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
 		virtual Color get_color() = 0;
+		Color set_color(double r, double g, double b, double a){
+			this->c.r=r;
+			this->c.g=g;
+			this->c.b=b;
+			this->c.a=a;
+		}
 		visualization_msgs::Marker createTextMarker();
 		void drawLine(double x_in, double y_in);
 		void init_marker();
@@ -131,7 +140,6 @@ namespace ros{
 		}
 	};
 
-
 	struct CubeMarker: public RVIZVisualMarker{
 		CubeMarker(double x, double y, double w=0.08, double yaw=0);
 		virtual std::string name();
@@ -144,11 +152,21 @@ namespace ros{
 		virtual uint32_t get_shape();
 		virtual Color get_color();
 	};
-	struct CylinderMarker: public RVIZVisualMarker{
-		CylinderMarker(double x, double y, double r, double h);
+	struct CylinderMarkerTriangles: public RVIZVisualMarker{
+#ifdef FCL_COLLISION_CHECKING
+		typedef fcl::AABB BoundingVolume;
+		//typedef fcl::OBBRSS BoundingVolume;
+		fcl::BVHModel< BoundingVolume > *bvh;
+#endif
+		CylinderMarkerTriangles(double x, double y, double r, double h);
 		virtual std::string name();
 		virtual uint32_t get_shape();
 		virtual Color get_color();
+
+		void cylinder2marker(visualization_msgs::Marker &marker, uint N, double radius, double height);
+		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, uint N, double radius, double height);
+		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
+		getCylinderVerticesAndTriangles(uint N, double radius, double height);
 	};
 
 	struct Text: public RVIZVisualMarker{
@@ -182,6 +200,7 @@ namespace ros{
 		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
 		void reloadCylinderBVH(double radius, double height);
 		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, double radius, double height);
+		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > getCylinderVerticesAndTriangles(uint N, double radius, double height);
 #endif
 #ifdef PQP_COLLISION_CHECKING
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );

@@ -24,11 +24,9 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ContactTransition::setConstraintsChecker( constraints );
 	}
 	void setGoal( ros::Geometry &goal ){
-		//this->goal = new ContactTransition( goal );
 		this->goal = goal;
 	}
 	void setStart( ros::Geometry &start ){
-		//this->start = new ContactTransition( start );
 		this->start = start;
 		this->start.rel_x_parent = 0;
 		this->start.rel_y_parent = 0;
@@ -37,24 +35,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 	}
 
 	void start_planner(){
-		//goal.print();
-		//goal.showSuccessors(1,-2,0,'L');
-		//goal.showSuccessors(1,-1,M_PI/2,'L');
-		//goal.showSuccessors(1,0,M_PI,'L');
-		//goal.showSuccessors(1,1,3*M_PI/2,'L');
-		//goal.showSuccessors(1,2,2*M_PI,'L');
-		//goal.showSuccessors(1,-2,0,'R');
-		//goal.showSuccessors(1,-1,M_PI/2,'R');
-		//goal.showSuccessors(1,0,M_PI,'R');
-		//goal.showSuccessors(0.5,0,M_PI/6,'R');
-		//goal.showSuccessors(1,2,2*M_PI,'R');
-	//goal.showSuccessors(0.982171, 0.502283, 1.012291, 'L');
-		//return;
-
-		//std::vector<double> g(3);
-		//g.at(0)=0.0;
-		//g.at(1)=-0.16;
-		//g.at(2)=0.0;
 
 		astarsearch->SetStartAndGoalStates( start, goal );
 		unsigned int SearchSteps = 0;

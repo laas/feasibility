@@ -24,6 +24,7 @@ protected:
 	~Environment();
 public:
 	static Environment* getSalleBauzil();
+	static Environment* get13Humanoids();
 	void init();
 	void clean();
 	bool isChanged();
@@ -34,6 +35,17 @@ public:
 	ros::Geometry getStart();
 };
 
+struct Environment13Humanoids: public Environment{
+private:
+	Environment13Humanoids(): Environment(){ }
+public:
+	static Environment *getInstance(){
+		return new Environment13Humanoids();
+	}
+	void setObjects();
+	void setGoalObject();
+	void setStartObject();
+};
 struct EnvironmentSalleBauzil: public Environment{
 private:
 	EnvironmentSalleBauzil(): Environment(){ }
