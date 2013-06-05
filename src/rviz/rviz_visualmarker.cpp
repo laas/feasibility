@@ -5,6 +5,9 @@ namespace ros{
 	RVIZVisualMarker::~RVIZVisualMarker(){
 		thread_stop();
 	}
+	PQP_Model* RVIZVisualMarker::get_pqp_ptr(){
+		return this->pqp_model;
+	}
 	RVIZVisualMarker::RVIZVisualMarker(){
 		id=global_id;
 		textHover = false;

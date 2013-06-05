@@ -48,6 +48,8 @@ double str2double(const std::string &s);
 bool isNum(char c);
 bool isNumOrMinus(char c);
 std::vector<double> extract_num_from_string( std::string s );
+std::string get_logging_str(const char* prefix, std::string s);
+uint get_num_files_in_dir(const char *path, const char *ending);
 
 //##########################################################################
 // logger / stable

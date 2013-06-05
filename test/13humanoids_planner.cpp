@@ -16,7 +16,8 @@
 #include "environment.h"
 #include "planner/motionplanner_astar.h"
 #include "planner/constraints_checker_ann.h"
-
+#include "planner/constraints_checker_swept_volumer.h"
+#include "planner/constraints_checker_wallconstraints_decorator.h"
 using namespace ros;
 int main( int argc, char** argv )
 {
@@ -48,7 +49,13 @@ int main( int argc, char** argv )
 		Environment* environment = Environment::get13Humanoids();
 
 		MotionPlannerAStar planner(*environment, argc, argv);
-		planner.setConstraintsChecker( new ConstraintsCheckerANN() );
+		planner.setConstraintsChecker( 
+			//new ConstraintsCheckerWallConstraints(
+				//new ConstraintsCheckerANN()
+				new ConstraintsCheckerSweptVolume()
+				//, -10, 10, -10, 10
+			//)
+		);
 		r.sleep();
 		planner.plan();
 		planner.publish();

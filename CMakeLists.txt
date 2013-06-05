@@ -108,6 +108,10 @@ set(SOURCE
 	src/planner/constraints_checker_ann.h 
 	src/planner/constraints_checker_ann.cpp
 	src/planner/constraints_checker_hyperplanar.h 
+	src/planner/constraints_checker_swept_volumer.h
+	src/planner/constraints_checker_swept_volumer.cpp
+	src/planner/constraints_checker_wallconstraints_decorator.h 
+	src/planner/constraints_checker_wallconstraints_decorator.cpp
 	src/planner/contact_transition.h 
 	src/planner/contact_transition.cpp 
 	src/rviz/rviz_visualmarker.h

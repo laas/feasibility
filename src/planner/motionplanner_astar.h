@@ -15,6 +15,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 		astarsearch = new AStarSearch<ContactTransition>(10000);
 		ContactTransition::timer = new Timer();
 		ContactTransition::timer->register_stopper("prepare", "prepare objects");
+		ContactTransition::timer->register_stopper("loader", "Loading prerequisite structures");
 		ContactTransition::timer->register_stopper("actionExpansion", "compute actionExpansion");
 		ContactTransition::timer->register_stopper("ff", "compute ff transformation");
 		ContactTransition::timer->register_stopper("a*", "a* algorithm");

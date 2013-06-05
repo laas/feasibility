@@ -9,6 +9,7 @@
 #include <stdio.h> //fopen
 #include <stdarg.h> //va_arg
 #include <string.h> //strlen
+#include <dirent.h> //opendir
 #include "util.h"
 using std::endl;
 using std::cout;
@@ -191,6 +192,26 @@ double str2double(std::string s){
 	return value;
 }
 */
+uint get_num_files_in_dir(const char *path, const char *ending){
+	DIR* dpath = opendir( path );
+	uint num = 0;
+	if ( dpath ) 
+	{
+		struct dirent* hFile;
+		errno = 0;
+		while (( hFile = readdir( dpath )) != NULL ){
+			if( !strcmp( hFile->d_name, "."  )) continue;
+			if( !strcmp( hFile->d_name, ".." )) continue;
+			if( hFile->d_name[0] == '.' ) continue; //hidden files
+
+			if( strstr( hFile->d_name, ending)){
+				num++;
+			}
+		} 
+		closedir( dpath );
+	}
+	return num;
+}
 //extract_num_from_string: take a string and extract all signed integers from it  and put them into a vector of doubles
 // ->better rename string2integersAsDouble ?
 std::vector<double> extract_num_from_string( std::string s ){
@@ -201,7 +222,10 @@ std::vector<double> extract_num_from_string( std::string s ){
 	uint c=0;
 	while(it != s.end() && c<=s.size()){
 		std::string tmp;
-		while(!isNumOrMinus(*it)){ it++;c++;}
+		while(!isNumOrMinus(*it)){ 
+			if(c>s.size()) break;
+			it++;c++;
+		}
 		tmp+=*it;
 		it++;c++;
 		if(c>s.size()) break;

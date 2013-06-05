@@ -1,8 +1,7 @@
 #pragma once
 #include <fann.h>
 #include <unordered_map>
-#include <dirent.h>
-#include "constraints_checker.h"
+#include "planner/constraints_checker.h"
 
 class ConstraintsCheckerANN: public ConstraintsChecker{
 private:

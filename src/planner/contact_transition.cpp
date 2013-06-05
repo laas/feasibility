@@ -8,7 +8,7 @@
 #include <Eigen/Geometry>
 #include <Eigen/Core>
 
-#define DEBUG(x)
+#define DEBUG(x) x
 #define TIMER_DEBUG(x) x
 
 ContactTransition::ContactTransition(){
@@ -21,7 +21,7 @@ ContactTransition::ContactTransition( ros::Geometry &g){
 	this->g.setYawRadian( g.getYawRadian() );
 }
 double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
-	//heuristic = distance to goal + distance to obstacles
+	//heuristic = distance to goal (classical l2 norm)
 	double xg = nodeGoal.g.x;
 	double yg = nodeGoal.g.y;
 	double x = this->g.x;
@@ -144,26 +144,21 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	double ff_rel_y = parent->rel_y_parent;
 	double ff_rel_yaw = parent->rel_yaw_parent;
 
-	std::vector<double> ff_rel(3);
-	ff_rel.at(0)=ff_rel_x; ff_rel.at(1)=ff_rel_y; ff_rel.at(2)=ff_rel_yaw;
 
-	//TODO: include first half-step!
-	//ROS_INFO("%f %f %f\n", sf.at(0),sf.at(1),sf.at(2));
-	//std::vector<double> sf_abs = constraints->actionSpace.find(hashit<double>(sf))->second;
+	std::vector<double> ff_rel = vecD(ff_rel_x, ff_rel_y, ff_rel_yaw);
+	double ff_hash = hashit<double>(ff_rel);
 
-	std::vector<double> sf = vecD(ff_rel_x, ff_rel_y, ff_rel_yaw);
-	double sf_hash = hashit<double>(sf);
-
-	bool sf_feasible = true;
-	if(constraints->actionSpace.find(sf_hash)!=constraints->actionSpace.end()){
+	bool ff_start_feasible = true;
+	//Check first foot first -> if it is infeasible, we do not need to test
+	//the rest 
+	if(constraints->actionSpace.find(ff_hash)!=constraints->actionSpace.end()){
 		//support foot exists in actionSpace, which means that it is not
 		//the first footstep and we can check its feasibility
-		
-		//std::vector<double> sf_abs = constraints->actionSpace.find(sf_hash)->second;
-		//sf_feasible = constraints->isFeasible(sf_abs, obj);
+		std::vector<double> ff_rel_table = constraints->actionSpace.find(ff_hash)->second;
+		ff_start_feasible = constraints->isFeasible(ff_rel_table, obj);
 	}
 
-	if(sf_feasible){
+	if(ff_start_feasible){
 		uint counter=0;
 		TIMER_DEBUG( timer->begin("actionExpansion") );
 
@@ -178,7 +173,6 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 				double next_ff_rel_x = it->second.at(0);
 				double next_ff_rel_y = it->second.at(1);
 				double next_ff_rel_yaw = toRad(it->second.at(2)/100.0);
-
 				ros::Geometry ng = computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, L_or_R);
 
 				ContactTransition next(ng);
@@ -190,7 +184,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 				next.cost_so_far = 0.0;
 				astarsearch->AddSuccessor(next);
 
-				//DEBUG(
+				DEBUG(
 					if(rand(0,1)>0.9){
 						if(foot=='L'){
 							ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
@@ -200,7 +194,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 							rp.publish();
 						}
 					}
-				//);
+				);
 				TIMER_DEBUG( timer->end("ff") );
 				continue;
 			}

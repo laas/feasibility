@@ -75,6 +75,8 @@ namespace ros{
 
 		this->bvh = new fcl::BVHModel< BoundingVolume >();
 		cylinder2BVH(this->bvh, N, r, h);
+		this->pqp_model = new PQP_Model;
+		cylinder2PQP(this->pqp_model, N, r, h);
 		cylinder2marker(this->marker, N, r, h);
 		init_marker();
 	}
@@ -160,6 +162,36 @@ namespace ros{
 			oldy = newy;
 		}
 		return std::make_pair( vertices, triangles );
+
+	}
+	void CylinderMarkerTriangles::cylinder2PQP(PQP_Model *m, uint N, double radius, double height){
+		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > vt;
+		vt = getCylinderVerticesAndTriangles(N, radius, height);
+
+		std::vector<fcl::Vec3f> vertices = vt.first;
+		std::vector<fcl::Triangle> triangles = vt.second;
+
+		m->BeginModel();
+			
+		uint counter=0;
+		for (uint i = 0; i < vertices.size(); i+=3){
+			PQP_REAL p1[3],p2[3],p3[3];
+			p1[0] = vertices.at(i)[0];
+			p1[1] = vertices.at(i)[1];
+			p1[2] = vertices.at(i)[2];
+
+			p2[0] = vertices.at(i+1)[0];
+			p2[1] = vertices.at(i+1)[1];
+			p2[2] = vertices.at(i+1)[2];
+
+			p3[0] = vertices.at(i+2)[0];
+			p3[1] = vertices.at(i+2)[1];
+			p3[2] = vertices.at(i+2)[2];
+
+			m->AddTri(p1,p2,p3,counter);
+			counter++;
+		}
+		m->EndModel();
 
 	}
 	void CylinderMarkerTriangles::cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, uint N, double radius, double height){

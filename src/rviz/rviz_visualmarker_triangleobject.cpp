@@ -57,6 +57,34 @@ namespace ros{
 	Color TriangleObject::get_color(){
 		return ros::WHITE;
 	}
+#ifdef FCL_COLLISION_CHECKING
+	void TriangleObject::set_bvh_ptr( fcl::BVHModel< BoundingVolume > *bvh_in ){
+		this->bvh = bvh_in;
+	}
+	fcl::BVHModel< BoundingVolume >* TriangleObject::get_bvh_ptr(){
+		return this->bvh;
+	}
+#endif
+	//Only load BVH structure for distance checking
+	SweptVolumeObject::SweptVolumeObject(): TriangleObject() {
+	}
+	SweptVolumeObject::SweptVolumeObject(std::string f, Geometry &in): TriangleObject() {
+		this->g = in;
+
+		double scale = 1.0;
+		this->g.sx = scale;
+		this->g.sy = scale;
+		this->g.sz = scale;
+		this->tris_file_name=f;
+
+		//this->bvh = new fcl::BVHModel< BoundingVolume >();
+		//this->tris2BVH(this->bvh, tris_file_name.c_str() );
+		this->pqp_model = new PQP_Model;
+		this->tris2PQP( this->pqp_model, tris_file_name.c_str() );
+		//this->tris2PQP(this->bvh, tris_file_name.c_str() );
+		//this->tris2marker( this->marker, tris_file_name.c_str() );
+		//init_marker();
+	}
 
 	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname): TriangleObject(){
 		std::string object_file = get_tris_str(fname);
@@ -100,6 +128,76 @@ namespace ros{
 	}
 
 
+	void TriangleObject::set_pqp_ptr( PQP_Model* pqp_in ){
+		this->pqp_model = pqp_in;
+	}
+	double TriangleObject::pqp_distance_to(TriangleObject &rhs){
+
+		PQP_REAL R1[3][3], R2[3][3], T1[3], T2[3];
+		double t = g.getYawRadian();
+		double tr = rhs.g.getYawRadian();
+		R1[0][0]=cos(t);
+		R1[1][0]=sin(t);
+		R1[0][1]=-sin(t);
+		R1[1][1]=cos(t);
+		R1[2][2]=1;
+
+		R2[0][0]=cos(tr);
+		R2[1][0]=sin(tr);
+		R2[0][1]=-sin(tr);
+		R2[1][1]=cos(tr);
+		R2[2][2]=1;
+
+		T1[0] = g.x;
+		T1[1] = g.y;
+		T1[2] = g.z;
+
+		T2[0] = rhs.g.x;
+		T2[1] = rhs.g.y;
+		T2[2] = rhs.g.z;
+
+
+		PQP_CollideResult cres;
+		//ROS_INFO("%d <-> %d", this->pqp_model->num_tris, rhs.pqp_model->num_tris);
+		PQP_Collide( &cres, R1, T1, this->pqp_model, R2, T2, rhs.pqp_model);
+		if(cres.NumPairs()>0){
+			return -1;
+		}else{
+			return 1;
+		}
+	}
+	double TriangleObject::fast_distance_to(TriangleObject &rhs){
+		
+#ifdef FCL_COLLISION_CHECKING
+		double t = g.getYawRadian();
+		double tr = rhs.g.getYawRadian();
+		fcl::Matrix3f r1 (cos(t),-sin(t),0,
+				  sin(t),cos(t) ,0,
+				  0     ,0      ,1);
+		fcl::Matrix3f r2 (cos(tr),-sin(tr),0,
+				  sin(tr),cos(tr) ,0,
+				  0     ,0      ,1);
+
+		fcl::Vec3f d1(g.x,g.y,g.z);
+		fcl::Vec3f d2(rhs.g.x,rhs.g.y,rhs.g.z);
+
+		fcl::Transform3f Tlhs(r1, d1);
+		fcl::Transform3f Trhs(r2, d2);
+
+		//########################################################################
+		//distance checker
+		//########################################################################
+		fcl::DistanceRequest request;
+		fcl::DistanceResult result;
+		//ROS_INFO("%d <-> %d", this->bvh->num_tris, rhs.bvh->num_tris);
+		double d = fcl::distance (this->bvh, Tlhs, rhs.bvh, Trhs, request, result);
+
+		return d;
+
+#else
+		ABORT("This executable is not compiled with the FCL collision library");
+#endif
+	}
 	double TriangleObject::distance_to(TriangleObject &rhs, Eigen::VectorXd &derivative){
 		//rotation z-axis (as visualized in rviz)
 		
@@ -199,6 +297,36 @@ namespace ros{
 	double computeDerivativeFromNearestPoints( fcl::Vec3f &a, fcl::Vec3f &b){
 	}
 #ifdef PQP_COLLISION_CHECKING
+	void TriangleObject::tris2PQP(PQP_Model *m, const char *fname ){
+		int ntris;
+
+		FILE *fp = fopen_s(fname,"r");
+		int res=fscanf(fp, "%d", &ntris);
+		CHECK(res==1, fname);
+		m->BeginModel();
+
+		std::vector<fcl::Vec3f> vertices;
+		std::vector<fcl::Triangle> triangles;
+		double scale = 1.0; //bigger obstacles for planning phase
+		for (int i = 0; i < ntris; i++){
+			double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
+			res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
+			CHECK(res==9, "fscanf failed");
+
+			PQP_REAL p1[3],p2[3],p3[3],p4[3],p5[3],p6[3];
+			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
+			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
+			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
+			m->AddTri(p1,p2,p3,i);
+			
+		}
+		m->EndModel();
+		fclose(fp);
+
+		DEBUG( ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);)
+
+	}
 	void TriangleObject::tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){
 		int ntris;
 
@@ -235,7 +363,7 @@ namespace ros{
 		m_margin->EndModel();
 		fclose(fp);
 
-		ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);
+		DEBUG( ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);)
 
 	}
 #endif

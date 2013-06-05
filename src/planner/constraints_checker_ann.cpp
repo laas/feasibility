@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include "constraints_checker_ann.h"
 
 #define DEBUG(x) 
@@ -40,17 +41,13 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 		std::vector<double> d(4);
 		//X,Y,R,H
 		d.at(0)=rx;
-		d.at(1)=ry;
+		d.at(1)=(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
 		d.at(2)=(*oit)->g.getRadius();
 		d.at(3)=(*oit)->g.getHeight();
 
-		if(foot=='R'){
-			ry=-ry;//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-		}
-		//prune objects, which are far away
 		double dist = sqrtf(rx*rx+ry*ry);
 		DEBUG(ROS_INFO("object %d/%d at %f %f (dist %f)", c++, objects.size(), rx, ry, dist);)
-		if(dist<1.5){
+		if(dist<MAX_SWEPT_VOLUME_LIMIT){
 			v.push_back(d);
 		}
 		//DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
