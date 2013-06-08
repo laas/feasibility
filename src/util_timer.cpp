@@ -19,6 +19,13 @@ void Timer::checkExist(const char *name){
 		throw "stopper not found, please register first";
 	}
 }
+Timer::~Timer(){
+	stoppermap.clear();
+}
+double Timer::getFinalTime(const char* name){
+	checkExist(name);
+	return stoppermap[std::string(name)].sum;
+}
 void Timer::begin(const char* name){
 	checkExist(name);
 	stoppermap[std::string(name)].start = ros::Time::now().toSec();

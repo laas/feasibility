@@ -23,12 +23,13 @@ protected:
 	Environment();
 	~Environment();
 public:
+	static uint Nobjects;
+	static void resetInstance();
 	static Environment* getSalleBauzil();
 	static Environment* get13Humanoids();
 	void init();
 	void clean();
 	bool isChanged();
-	void cleanObjects();
 	void reloadObjects();
 	std::vector<ros::RVIZVisualMarker*> getObjects();
 	ros::Geometry getGoal();

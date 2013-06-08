@@ -1,14 +1,13 @@
-#include <algorithm>//lowerbound, sort
-//#include <map>
 #include <unordered_map>
-#include <algorithm> //max_element
+#include <algorithm> //lowerbound, sort, max_element
+#include <vector> //max_element
 #include "contact_transition.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
 #include <Eigen/Geometry>
 #include <Eigen/Core>
 
-#define DEBUG(x) x
+#define DEBUG(x)
 #define TIMER_DEBUG(x) x
 
 ContactTransition::ContactTransition(){
@@ -26,7 +25,15 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double yg = nodeGoal.g.y;
 	double x = this->g.x;
 	double y = this->g.y;
+	//return norml1(x,xg,y,yg);
 	return norml2(x,xg,y,yg);
+}
+void ContactTransition::cleanStatic(){
+	std::vector<ros::RVIZVisualMarker*>::iterator oit;
+	for(  oit = objects.begin(); oit != objects.end(); ++oit ){
+		if(*oit!=NULL) *oit=NULL;
+	}
+	objects.clear();
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.3;
@@ -59,65 +66,6 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	return ff_abs;
 }
 	
-/*
-void ContactTransition::showSuccessors( double x, double y, double t, char L_or_R){
-	HashMap::const_iterator it;
-	char foot = 'L';
-	if(L_or_R == 'L'){
-		foot='R';
-		ros::LeftFootMarker m(x,y,t);
-		m.publish();
-	}else{
-		foot='L';
-		ros::RightFootMarker m(x,y,t);
-		m.publish();
-	}
-
-	double abs_x = x;
-	double abs_y = y;
-	double abs_t = t;
-
-	uint counter=0;
-	//CHECK( (abs_t <= M_PI && abs_t >= -M_PI), "angle not in right interval");
-
-	for(  it = hyperplane.begin(); it != hyperplane.end(); ++it ){
-
-		double valX = it->second.at(5);
-		double valY = it->second.at(6);
-		double valT = toRad(it->second.at(7)*100.0);
-
-		double newX = abs_x + cos(abs_t)*valX - sin(abs_t)*valY;
-		double newY = abs_y + sin(abs_t)*valX + cos(abs_t)*valY;
-		double newT = valT + abs_t;
-
-		if(L_or_R == 'R'){
-			//reflection at x-axis [1 0,0 -1], following rotation around z and
-			//translation to x,y
-			newX = abs_x + cos(abs_t)*valX + sin(abs_t)*valY;
-			newY = abs_y + sin(abs_t)*valX - cos(abs_t)*valY;
-			newT = -(valT - abs_t);
-		}
-		while(newT>M_PI) newT-=2*M_PI;
-		while(newT<-M_PI) newT+=2*M_PI;
-
-		ros::Geometry ng;
-		ng.x = newX;
-		ng.y = newY;
-		ng.setYawRadian(newT);
-
-		if(rand()>0.0){
-			if(foot=='L'){
-				ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
-				rp.publish();
-			}else{
-				ros::RightFootMarker rp(ng.x, ng.y, ng.getYawRadian());
-				rp.publish();
-			}
-		}
-		//}
-	}
-}
-*/
 bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsearch, ContactTransition *parent_node ){
 	char foot;
 	ContactTransition *parent = this;
@@ -156,15 +104,30 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		//the first footstep and we can check its feasibility
 		std::vector<double> ff_rel_table = constraints->actionSpace.find(ff_hash)->second;
 		ff_start_feasible = constraints->isFeasible(ff_rel_table, obj);
+		feasibilityChecks++;
+
+		//position constraints
+		if(sf_abs_x < -0.3 || sf_abs_x > 3.3 || sf_abs_y < -0.9 || sf_abs_y > 0.9){
+			ff_start_feasible = false;
+		}
 	}
 
 	if(ff_start_feasible){
-		uint counter=0;
+		DEBUG(
+			//sleep(1);
+			if(foot=='L'){
+				ros::ColorFootMarker rp(parent->g.x, parent->g.y, parent->g.getYawRadian(),"white");
+				rp.reset();
+				rp.publish();
+			}
+
+		)
 		TIMER_DEBUG( timer->begin("actionExpansion") );
 
 		ActionSpace::const_iterator it;
 		for(  it = constraints->actionSpace.begin(); it != constraints->actionSpace.end(); ++it ){
 
+			feasibilityChecks++;
 			if(constraints->isFeasible( it->second, obj)){
 
 				//relative position of the next proposed pos of FF
@@ -185,16 +148,14 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 				astarsearch->AddSuccessor(next);
 
 				DEBUG(
-					if(rand(0,1)>0.9){
-						if(foot=='L'){
-							ros::LeftFootMarker rp(ng.x, ng.y, ng.getYawRadian());
-							rp.publish();
-						}else{
-							ros::RightFootMarker rp(ng.x, ng.y, ng.getYawRadian());
-							rp.publish();
-						}
+					if(foot=='L'){
+						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "green");
+						rp.publish();
+					}else{
+						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "red");
+						rp.publish();
 					}
-				);
+				)
 				TIMER_DEBUG( timer->end("ff") );
 				continue;
 			}

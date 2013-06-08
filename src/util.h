@@ -50,6 +50,10 @@ bool isNumOrMinus(char c);
 std::vector<double> extract_num_from_string( std::string s );
 std::string get_logging_str(const char* prefix, std::string s);
 uint get_num_files_in_dir(const char *path, const char *ending);
+#ifdef PQP_COLLISION_CHECKING
+#include <pqp/PQP.h>
+void MRotZ(PQP_REAL R[3][3], PQP_REAL t);
+#endif
 
 //##########################################################################
 // logger / stable
@@ -63,6 +67,7 @@ public:
 		return name;
 	}
 	Logger(std::string name = "log_output.tmp");
+	~Logger();
 	void operator()(std::string fmt, ...);
 	void operator()(std::vector<double> &v);
 };

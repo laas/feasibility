@@ -34,13 +34,12 @@ int FANN_API stopper_criterion(struct fann *ann, struct fann_train_data *train,
 int main(int argc, char** argv)
 {
 	if(argc!=2){
-		printf("usage: feasibility <TrainingDataFile>");
+		printf("usage: feasibility <TrainingDataFile> <Neurons>");
 	}
 
 	//for(i=4;i<=30;i+=6){
-	int i=5;
 	const char *absoluteFannPath = "/home/aorthey/git/feasibility/extern/fann/";
-	const unsigned int num_neurons_hidden = i;
+	const unsigned int num_neurons_hidden = atoi(argv[2]);
 
 	int k;
 	const uint MAX_RESTART=3;
@@ -52,7 +51,7 @@ int main(int argc, char** argv)
 	const unsigned int epochs_between_reports = 100;
 	struct fann_train_data *train_data, *test_data;
 	char hneurons[10];
-	sprintf(hneurons,"%d",i);
+	sprintf(hneurons,"%d",num_neurons_hidden);
 	char trainF[280]={ '\0'};
 	char testF[280]={ '\0'};
 	char validateF[280]={ '\0'};
@@ -75,7 +74,7 @@ int main(int argc, char** argv)
 	for(k=0;k<MAX_RESTART;k++){//multiple times restart to make algorithms more robust against local minima
 		low_test_err=100000;
 		test_error_upward=0;
-		printf("starting with %d neurons in hidden layer\n", i);
+		printf("starting with %d neurons in hidden layer\n", num_neurons_hidden);
 
 
 		validate_data = fann_read_train_from_file(validateF);
@@ -123,6 +122,9 @@ int main(int argc, char** argv)
 	strcat(net,absoluteFannPath);
 	strcat(net,"datasets/humanoids/");
 	strcat(net,argv[1]);
+	strcat(net,"_");
+	strcat(net, hneurons);
+	strcat(net,"neuron");
 	strcat(net,".net");
 	fann_save(ann[bestk], net);
 

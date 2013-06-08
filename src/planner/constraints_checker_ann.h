@@ -7,7 +7,7 @@ class ConstraintsCheckerANN: public ConstraintsChecker{
 private:
 	NeuralHashMap neuralMap;
 public:
-	ConstraintsCheckerANN();
+	ConstraintsCheckerANN(uint Hneurons=5);
 	~ConstraintsCheckerANN();
 
 	virtual bool 
@@ -28,5 +28,5 @@ private:
 		const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj
 	);
-	void loadNNParameters(const char *path);
+	void loadNNParameters(const char *path, uint Hneurons);
 };

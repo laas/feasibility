@@ -13,6 +13,8 @@ class Timer{
 	void checkExist(const char *name);
 public:
 	Timer(){};
+	~Timer();
+	double getFinalTime(const char* name);
 	void begin(const char* name);
 	void end(const char* name);
 	void reset();

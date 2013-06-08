@@ -1,7 +1,6 @@
 #include "rviz/rviz_visualmarker.h"
 
 namespace ros{
-	uint TriangleObject::mesh_counter=0;
 	RVIZInterface *RVIZVisualMarker::rviz = NULL;
 	uint RVIZVisualMarker::global_id = 0;
 

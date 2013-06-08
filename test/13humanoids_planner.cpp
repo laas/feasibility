@@ -33,33 +33,47 @@ int main( int argc, char** argv )
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
-	if (ros::ok())
+	Environment* environment;
+
+
+
+	MotionPlannerAStar *astar;
+
+	environment = Environment::get13Humanoids();
+	astar = new MotionPlannerAStar(environment, argc, argv);
+
+	ConstraintsChecker *ccANN = new ConstraintsCheckerANN();
+	ConstraintsChecker *ccSweptVolume = NULL;//new ConstraintsCheckerSweptVolume();
+	while (ros::ok())
 	{
-		printf("input: neural net %s\n",argv[1]);
+		//printf("input: neural net %s\n",argv[1]);
+		printf("Press \n[R] reload environment\n[1] for swept volume approximation\n[2] for ANN approximationx\n[3] clean footsteps\n[4] quit\n");
+		char c;
+		do
+		    c = getchar();
+		while (isspace(c));
 
-		//struct fann *ann = fann_create_from_file(argv[1]);
-		//fann_type cyl[4];
-		//cyl[0]=1;
-		//cyl[1]=1;
-		//cyl[2]=0.1;
-		//cyl[3]=0.1;
-		//fann_type *calc_out = fann_run(ann, cyl);
-		//printf("outcome %f\n", *calc_out);
+		if(c=='R'){
+			environment->resetInstance();
+			environment = Environment::get13Humanoids();
+			astar = new MotionPlannerAStar(environment, argc, argv);
+		}
+		if(c=='1'){
+			astar->setConstraintsChecker(ccSweptVolume);
+			astar->plan();
+			astar->publish("green", "green");
+		}
 
-		Environment* environment = Environment::get13Humanoids();
-
-		MotionPlannerAStar planner(*environment, argc, argv);
-		planner.setConstraintsChecker( 
-			//new ConstraintsCheckerWallConstraints(
-				//new ConstraintsCheckerANN()
-				new ConstraintsCheckerSweptVolume()
-				//, -10, 10, -10, 10
-			//)
-		);
-		r.sleep();
-		planner.plan();
-		planner.publish();
-		r.sleep();
-
+		if(c=='2'){
+			astar->setConstraintsChecker(ccANN);
+			astar->plan();
+			astar->publish("red", "red");
+		}
+		if(c=='3'){
+			astar->clean_publish();
+		}
+		if(c=='4'){
+			break;
+		}
 	}
 }

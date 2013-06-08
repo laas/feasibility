@@ -80,13 +80,12 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 			//according to its geometry. this will be used in the
 			//distance function to compute the neccessary
 			//transformation
-			//ROS_INFO("%s", (*oit)->name().c_str());
 
 			ros::RVIZVisualMarker *t = *oit;
-			ros::TriangleObject *o = new ros::SweptVolumeObject();
+			ros::TriangleObject *o = new ros::SweptVolumeObject(); //ligthweight object, such that we can only copy pointer
 			o->g = t->g;
 			//o->set_bvh_ptr( t->get_bvh_ptr() );
-			o->set_pqp_ptr( t->get_pqp_ptr() );
+			o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
 
 			o->g.x = rx;
 			o->g.y=(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
@@ -130,13 +129,13 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 					collision=true;
 				}
 
-				//load d_name into fann structure
 				std::string rel_file_path = path;
 				rel_file_path += file.c_str();
 
 				ros::Geometry g;
 				g.x = v.at(0);
 				g.y = v.at(1);
+				g.z = 0.0;
 				double yawDegree = v.at(2)*100.0;
 				g.setYawRadian( toRad(yawDegree) );
 				ros::SweptVolumeObject* sv = new ros::SweptVolumeObject(rel_file_path.c_str(), g);

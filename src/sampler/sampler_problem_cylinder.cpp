@@ -36,10 +36,10 @@ private:
 	double mean;
 };
 struct ObjectiveFunctionCylinder: public ObjectiveFunction{
-	ros::TriangleObject *a;
-	ros::TriangleObject *b;
+	ros::TrisTriangleObject *a;
+	ros::CylinderMarkerTriangles *b;
 
-	ObjectiveFunctionCylinder(  ros::TriangleObject *obj_a, ros::TriangleObject *obj_b ){
+	ObjectiveFunctionCylinder(  ros::TrisTriangleObject *obj_a, ros::CylinderMarkerTriangles *obj_b ){
 		a = obj_a;
 		b = obj_b;
 	}
@@ -88,8 +88,8 @@ ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 	sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", 1.0,1.0);
 	system(command);
 
-	TriangleObject *robot = new TriangleObject(robot_file.c_str(), robot_pos);
-	TriangleObjectFloor *cylinder = new TriangleObjectFloor(0.8, 0.5, "partXYRH.tris" );
+	TrisTriangleObject *robot = new TrisTriangleObject(robot_file.c_str(), robot_pos);
+	CylinderMarkerTriangles *cylinder = new CylinderMarkerTriangles(0,0,0.1,0.1);
 
 	E = new ObjectiveFunctionCylinder(robot, cylinder);
 	return E;

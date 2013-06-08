@@ -1,12 +1,10 @@
 #include "rviz_visualmarker.h"
 
-#define DEBUG(x)
+#define DEBUG(x) x
+#define THREAD_DEBUG(x) x
 namespace ros{
 	RVIZVisualMarker::~RVIZVisualMarker(){
 		thread_stop();
-	}
-	PQP_Model* RVIZVisualMarker::get_pqp_ptr(){
-		return this->pqp_model;
 	}
 	RVIZVisualMarker::RVIZVisualMarker(){
 		id=global_id;
@@ -204,20 +202,20 @@ namespace ros{
 		ros::Rate r(10); //Hz
 		m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 		std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
-		DEBUG(ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str()));
+		THREAD_DEBUG(ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str()));
 
 		while(1){
 			boost::this_thread::interruption_point();
 			ros::spinOnce();
 		}
 
-		DEBUG(ROS_INFO("thread %s finished", name_id.c_str()));
+		THREAD_DEBUG(ROS_INFO("thread %s finished", name_id.c_str()));
 	}
 	void RVIZVisualMarker::thread_stop(){
 		if(this->m_thread!=NULL){
 			this->m_thread->interrupt();
 			std::string id = boost::lexical_cast<std::string>(this->m_thread->get_id());
-			DEBUG(ROS_INFO("RVIZVisualMarker:: waiting for thread %s to terminate", id.c_str()));
+			THREAD_DEBUG(ROS_INFO("RVIZVisualMarker:: waiting for thread %s to terminate", id.c_str()));
 			this->m_thread->join();
 		}
 	}

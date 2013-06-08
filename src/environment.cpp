@@ -3,6 +3,7 @@
 #include "util.h"
 
 Environment* Environment::singleton = NULL;
+uint Environment::Nobjects = 10;
 #define DEBUG(x) x
 Environment* Environment::get13Humanoids(){
 	if(singleton==NULL){
@@ -22,21 +23,11 @@ Environment* Environment::getSalleBauzil(){
 	singleton->init();
 	return singleton;
 }
-void Environment::cleanObjects(){
-	std::vector<ros::RVIZVisualMarker*>::iterator obj;
-	for(obj = objects.begin();obj!=objects.end();obj++){
-		delete (*obj);
-	}
-	objects.clear();
-	delete goal;
-	delete start;
-}
 void Environment::reloadObjects(){
 	DEBUG( ROS_INFO("Thread stopping"));
 	thread_stop();
 
-	cleanObjects();
-
+	clean();
 	setGoalObject();
 	setStartObject();
 	setObjects();
@@ -71,19 +62,16 @@ void Environment::thread_publish(){
 }
 
 void Environment::thread_start(){
-	//assert(!m_thread);
 	ROS_INFO("starting Environment thread");
 	m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&Environment::thread_publish, this) );
 }
 void Environment::thread_stop(){
-	assert(m_thread);
-	DEBUG(ROS_INFO("thread stop"));
 	if(this->m_thread!=NULL){
 		this->m_thread->interrupt();
 		std::string id = boost::lexical_cast<std::string>(this->m_thread->get_id());
-		ROS_INFO("waiting for thread %s to terminate", id.c_str());
+		DEBUG(ROS_INFO("waiting for thread %s to terminate", id.c_str());)
 		this->m_thread->join();
-		this->m_thread.reset();
+		//this->m_thread.reset();
 	}
 }
 
@@ -95,10 +83,15 @@ bool Environment::isChanged(){
 		return false;
 	}
 }
+void Environment::resetInstance()
+{
+	DEBUG(ROS_INFO("***** DELETE SINGLETON *****");)
+	delete singleton;
+	singleton = NULL;
+}
+
 Environment::Environment(){
-	goal = NULL;
-	start = NULL;
-	objects.empty();
+	DEBUG(ROS_INFO("***** NEW ENVIRONMENT CREATED *****");)
 	changedEnv = true;
 }
 
@@ -113,15 +106,20 @@ void Environment::init(){
 }
 
 Environment::~Environment(){
+	ROS_INFO("deleting environment");
 	clean();
-	thread_stop();
 }
 void Environment::clean(){
+	thread_stop();
 	std::vector<ros::RVIZVisualMarker*>::iterator obj;
 	for(obj = objects.begin();obj!=objects.end();obj++){
-		delete (*obj);
+		if(*obj!=NULL) delete (*obj);
+		*obj=NULL;
 	}
 	objects.clear();
+	DEBUG(ROS_INFO("***** DELETED OBJECTS *****");)
+	if(goal!=NULL){ delete goal; goal=NULL;}
+	if(start!=NULL){ delete start; start=NULL;}
 }
 std::vector<ros::RVIZVisualMarker*> Environment::getObjects(){
 	return objects;

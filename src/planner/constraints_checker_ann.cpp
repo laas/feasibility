@@ -2,12 +2,13 @@
 #include "constraints_checker_ann.h"
 
 #define DEBUG(x) 
-Logger logger;
+
+DEBUG(Logger logger;)
 bool ConstraintsCheckerANN::isFeasible(  const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){
 
 	double continuous_feasibility = this->computeNNOutput( p, obj);
-	logger("%f %f %f %f\n", p.at(0), p.at(1), p.at(2), continuous_feasibility);
+	DEBUG(logger("%f %f %f %f\n", p.at(0), p.at(1), p.at(2), continuous_feasibility);)
 	if(continuous_feasibility<=0){
 		return false;
 	}else{
@@ -88,20 +89,25 @@ double ConstraintsCheckerANN::computeNNOutput(  const std::vector<double> &p,
 	return min;
 
 }
-void ConstraintsCheckerANN::loadNNParameters(const char *path){
+void ConstraintsCheckerANN::loadNNParameters(const char *path, uint Hneurons){
+	char postfix[20];
+	sprintf(postfix, "%d%s", Hneurons, "neuron.net");
+	ROS_INFO("%s", postfix);
 	//struct fann *ann = fann_create_from_file(argv[1]);
 	bool collision=false;
+	uint Nfiles = get_num_files_in_dir(path, postfix);
 	DIR* dpath = opendir( path );
 	if ( dpath ) 
 	{
 		struct dirent* hFile;
 		errno = 0;
+		uint number = 0;
 		while (( hFile = readdir( dpath )) != NULL ){
 			if( !strcmp( hFile->d_name, "."  )) continue;
 			if( !strcmp( hFile->d_name, ".." )) continue;
 			if( hFile->d_name[0] == '.' ) continue; //hidden files
 
-			if( strstr( hFile->d_name, ".net" )){
+			if( strstr( hFile->d_name, postfix )){
 				std::string file = hFile->d_name;
 				std::vector<double> v = extract_num_from_string(file);
 				v.at(0)/=100.0;
@@ -126,7 +132,7 @@ void ConstraintsCheckerANN::loadNNParameters(const char *path){
 				struct fann *ann = fann_create_from_file(rel_file_path.c_str());
 				neuralMap[hash] = ann;
 				actionSpace[hash] = v;
-				printf("ANN %s, action %f %f %f, rel_path %s \n", hFile->d_name, v.at(0), v.at(1), v.at(2), rel_file_path.c_str());
+				printf("[%d/%d] loaded %s\n", number++, Nfiles, hFile->d_name);
 			}
 		} 
 		closedir( dpath );
@@ -141,7 +147,7 @@ void ConstraintsCheckerANN::loadNNParameters(const char *path){
 ConstraintsCheckerANN::~ConstraintsCheckerANN(){
 	neuralMap.clear();
 }
-ConstraintsCheckerANN::ConstraintsCheckerANN(){
-	this->loadNNParameters("extern/fann/datasets/humanoids/");
+ConstraintsCheckerANN::ConstraintsCheckerANN(uint Hneurons){
+	this->loadNNParameters("extern/fann/datasets/humanoids/", Hneurons);
 }
 

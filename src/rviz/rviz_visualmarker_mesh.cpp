@@ -9,7 +9,7 @@ namespace ros{
 		return visualization_msgs::Marker::MESH_RESOURCE;
 	}
 
-	BlenderMeshTriangleObject::BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz): TriangleObject(){
+	BlenderMeshTriangleObject::BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz): TrisTriangleObject(){
 		filename = std::string(cfilename);
 
 		tris_file_name = get_tris_str(trisname);

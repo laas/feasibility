@@ -36,6 +36,7 @@ namespace ros{
 	//predefined objects
 	//
 	typedef fcl::AABB BoundingVolume;
+	//typedef fcl::OBBRSS BoundingVolume;
 	struct TriangleObjectChair;
 	static const char *FRAME_NAME = "/mocap_world";
 	static const double ROS_DURATION = 0;
@@ -91,15 +92,6 @@ namespace ros{
 
 	class RVIZVisualMarker{
 	protected:
-#ifdef FCL_COLLISION_CHECKING
-		//typedef fcl::OBBRSS BoundingVolume;
-		fcl::BVHModel< BoundingVolume > *bvh;
-#endif
-		std::string tris_file_name;
-#ifdef PQP_COLLISION_CHECKING
-		PQP_Model *pqp_model;
-		PQP_Model *pqp_margin;
-#endif
 		static RVIZInterface *rviz; 
 		static uint global_id;
 		uint id;
@@ -125,13 +117,14 @@ namespace ros{
 		void setXYT(double x, double y, double yaw_rad);
 		void print();
 		RVIZVisualMarker();
+		virtual ~RVIZVisualMarker();
 		bool isChanged(double threshold=0.01);
 		virtual void publish();
 		void reset();
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
 		virtual Color get_color() = 0;
-		Color set_color(double r, double g, double b, double a){
+		void set_color(double r, double g, double b, double a){
 			this->c.r=r;
 			this->c.g=g;
 			this->c.b=b;
@@ -141,14 +134,12 @@ namespace ros{
 		void drawLine(double x_in, double y_in);
 		void init_marker();
 		Geometry* getGeometry();
-		~RVIZVisualMarker();
 		void addText( std::string s );
 		void subscribeToEvart(std::string &topic);
 		void subscribeToEvart(const char *c);
 		virtual double getTextZ(){
 			return g.z+g.sz/2+0.1;
 		}
-		PQP_Model* get_pqp_ptr();
 	};
 
 	struct CubeMarker: public RVIZVisualMarker{
@@ -163,26 +154,6 @@ namespace ros{
 		virtual uint32_t get_shape();
 		virtual Color get_color();
 	};
-	struct CylinderMarkerTriangles: public RVIZVisualMarker{
-		/*
-#ifdef FCL_COLLISION_CHECKING
-		typedef fcl::AABB BoundingVolume;
-		//typedef fcl::OBBRSS BoundingVolume;
-		fcl::BVHModel< BoundingVolume > *bvh;
-		PQP_Model *pqp_model;
-#endif
-		*/
-		CylinderMarkerTriangles(double x, double y, double r, double h);
-		virtual std::string name();
-		virtual uint32_t get_shape();
-		virtual Color get_color();
-
-		void cylinder2marker(visualization_msgs::Marker &marker, uint N, double radius, double height);
-		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, uint N, double radius, double height);
-		void cylinder2PQP(PQP_Model *m, uint N, double radius, double height);
-		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
-		getCylinderVerticesAndTriangles(uint N, double radius, double height);
-	};
 
 	struct Text: public RVIZVisualMarker{
 		std::string text;
@@ -193,36 +164,72 @@ namespace ros{
 	};
 
 	struct TriangleObject: public RVIZVisualMarker{
+	protected:
+#ifdef FCL_COLLISION_CHECKING
+		fcl::BVHModel< BoundingVolume > *bvh;
+#endif
+		std::string tris_file_name;
+#ifdef PQP_COLLISION_CHECKING
+		PQP_Model *pqp_model;
+		PQP_Model *pqp_margin;
+#endif
+	public:
+		TriangleObject();
+		virtual ~TriangleObject();
+		virtual std::string name();
+		virtual uint32_t get_shape();
+		virtual Color get_color();
+#ifdef PQP_COLLISION_CHECKING
+		double pqp_distance_to(TriangleObject &rhs);
+		void set_pqp_ptr( PQP_Model* pqp_in );
+		PQP_Model* get_pqp_ptr();
+#endif
+#ifdef FCL_COLLISION_CHECKING
+		void set_bvh_ptr( fcl::BVHModel< BoundingVolume > *bvh_in );
+		fcl::BVHModel< BoundingVolume >* get_bvh_ptr();
+#endif
+		double distance_to(TriangleObject &rhs, Eigen::VectorXd &derivative);
+		double fast_distance_to(TriangleObject &rhs);
+		double gradient_distance_to(TriangleObject &rhs);
+
+	};
+
+	struct CylinderMarkerTriangles: public TriangleObject{
+		CylinderMarkerTriangles(double x, double y, double r, double h);
+		virtual std::string name();
+		virtual uint32_t get_shape();
+		virtual Color get_color();
+
+		void cylinder2marker(visualization_msgs::Marker &marker, uint N, double radius, double height);
+		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, uint N, double radius, double height);
+		void cylinder2PQP(PQP_Model *m, uint N, double radius, double height);
+		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
+		getCylinderVerticesAndTriangles(uint N, double radius, double height);
+		void reloadCylinderBVH(double radius, double height);
+	};
+
+	struct TrisTriangleObject: public TriangleObject{
 		static uint mesh_counter;
 	public:
-		explicit TriangleObject();
-		TriangleObject(std::string f, Geometry &in);
+		explicit TrisTriangleObject();
+		TrisTriangleObject(std::string f, Geometry &in);
 		void init_object( std::string f, Geometry &in );
 		virtual std::string name();
 		virtual uint32_t get_shape();
 		virtual Color get_color();
 #ifdef FCL_COLLISION_CHECKING
-		void set_bvh_ptr( fcl::BVHModel< BoundingVolume > *bvh_in );
-		fcl::BVHModel< BoundingVolume >* get_bvh_ptr();
 		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
 		void reloadCylinderBVH(double radius, double height);
-		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, double radius, double height);
-		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > getCylinderVerticesAndTriangles(uint N, double radius, double height);
 #endif
 #ifdef PQP_COLLISION_CHECKING
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 		void tris2PQP(PQP_Model *m, const char *fname );
-		double pqp_distance_to(TriangleObject &rhs);
-		void set_pqp_ptr( PQP_Model* pqp_in );
 #endif
 		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
-		double distance_to(TriangleObject &rhs, Eigen::VectorXd &derivative);
-		double fast_distance_to(TriangleObject &rhs);
-		double gradient_distance_to(TriangleObject &rhs);
 
 		void reloadBVH();
 	};
-	struct SweptVolumeObject: public TriangleObject{
+	struct SweptVolumeObject: public TrisTriangleObject{
 		SweptVolumeObject();
 		SweptVolumeObject(std::string f, Geometry &in);
 	};
@@ -232,6 +239,11 @@ namespace ros{
 		virtual uint32_t get_shape();
 		virtual Color get_color();
 		virtual void publish();
+	};
+	struct ColorFootMarker: public FootMarker{
+		ColorFootMarker(double x, double y, double tz, const char *color);
+		virtual std::string name();
+		virtual Color get_color();
 	};
 	struct LeftFootMarker: public FootMarker{
 		LeftFootMarker(double x, double y, double tz);
@@ -243,17 +255,17 @@ namespace ros{
 		virtual std::string name();
 		virtual Color get_color();
 	};
-	struct TriangleObjectFloor: public TriangleObject{
+	struct TriangleObjectFloor: public TrisTriangleObject{
 		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap);
 		TriangleObjectFloor(double x, double y, std::string fname);
 	};
-	struct TriangleObjectCylinder: public TriangleObject{
+	struct TriangleObjectCylinder: public TrisTriangleObject{
 		TriangleObjectCylinder(double x, double y);
 	};
-	struct TriangleObjectChair: public TriangleObject{
+	struct TriangleObjectChair: public TrisTriangleObject{
 		TriangleObjectChair(std::string mocap);
 	};
-	struct TriangleObjectRobot: public TriangleObject{
+	struct TriangleObjectRobot: public TrisTriangleObject{
 		TriangleObjectRobot(std::string mocap);
 	};
 	//augments the triangle object by a mesh with the same size
@@ -263,7 +275,7 @@ namespace ros{
 		uint32_t get_shape();
 	};
 
-	struct BlenderMeshTriangleObject: public TriangleObject{
+	struct BlenderMeshTriangleObject: public TrisTriangleObject{
 		std::string filename;
 		BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz);
 		uint32_t get_shape();

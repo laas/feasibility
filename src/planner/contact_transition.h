@@ -7,10 +7,6 @@
 #include "planner/constraints_checker.h"
 
 //unordered_map query time O(1) -- map query time O(log(n))
-typedef std::unordered_map< int, std::vector<double> > HashMap; 
-
-//#include <fann.h>
-//typedef std::unordered_map< int, struct fann*> NeuralHashMap; 
 
 struct ContactTransition
 {
@@ -21,16 +17,16 @@ struct ContactTransition
 	char L_or_R;
 	static Timer* timer;
 
+	static uint feasibilityChecks;
+
 	static ConstraintsChecker *constraints;
-	//static HashMap actionSpace;
-	//static HashMap hyperplane;
-	//static NeuralHashMap neuralMap;
 	static std::vector<ros::RVIZVisualMarker*> objects;
 	static bool loaded;
 	double cost_so_far;
 
 	ContactTransition();
 	void print();
+	static void cleanStatic();
 
 	/// package of functions, neccessary for A* star algorithm --> see
 	//stlastar.h
@@ -43,25 +39,13 @@ struct ContactTransition
 	void showSuccessors( double x, double y, double t, char L_or_R);
 	static void setConstraintsChecker( ConstraintsChecker *c );
 
-	/// everything related to hyperplane implementation
-	/*
-	std::vector< std::vector<double> > prepareObjectPosition(double sf_x, double sf_y, double sf_yaw, char foot);
-
-	static void loadHyperPlaneParameters(const char *file);
-	bool isInCollision(  const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
-
-	static void loadNNParameters(const char *path);
-
-	double computeHyperPlaneDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj);
-
-	*/
 	ros::Geometry computeAbsFFfromRelFF(
 		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
 		double ff_rel_x, double ff_rel_y, double ff_rel_t, 
 		char sf_foot);
 
 };//contactTransition
-//HashMap ContactTransition::hyperplane;
 ConstraintsChecker *ContactTransition::constraints;
 std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;
 Timer* ContactTransition::timer;
+uint ContactTransition::feasibilityChecks;

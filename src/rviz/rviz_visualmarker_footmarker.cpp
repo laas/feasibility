@@ -46,4 +46,33 @@ namespace ros{
 	Color RightFootMarker::get_color(){
 		return Color(0.1,0.9,0.0,0.8);
 	}
+	ColorFootMarker::ColorFootMarker(double x, double y, double tz, const char *color): FootMarker(x,y,tz) {
+		struct str2num {
+			const char *str;
+			double r,g,b,a;
+		}registerMap[] = {
+		    { "red"  , 1.0, 0.0, 0.0, 1.0 },
+		    { "green", 0.0, 1.0, 0.0, 1.0 },
+		    { "blue" , 0.0, 0.0, 1.0, 1.0 },
+		    { "white" , 1.0, 1.0, 1.0, 1.0 },
+		    { NULL , 0.0, 0.0, 0.0, 0.0 }
+		};
+
+		int i;
+		for (i=0; registerMap[i].str != NULL; i++){
+			if(strcmp(color, registerMap[i].str)==0){
+				c.r=registerMap[i].r;
+				c.g=registerMap[i].g;
+				c.b=registerMap[i].b;
+				c.a=registerMap[i].a;
+			}
+		}
+		init_marker();
+	}
+	std::string ColorFootMarker::name(){
+		return std::string("foot_colored");
+	}
+	Color ColorFootMarker::get_color(){
+		return c;
+	}
 }

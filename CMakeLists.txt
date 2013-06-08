@@ -8,8 +8,8 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
 #set(ROS_BUILD_TYPE Release)
-set(ROS_COMPILE_FLAGS "-O3 -Wextra")
-#set(ROS_BUILD_TYPE Debug)
+#set(ROS_COMPILE_FLAGS "-O3 -Wextra")
+set(ROS_BUILD_TYPE Debug)
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -119,7 +119,9 @@ set(SOURCE
 	src/rviz/rviz_geometry.cpp
 	src/rviz/rviz_visualmarker_interface.cpp
 	src/rviz/rviz_visualmarker_triangleobject.cpp
+	src/rviz/rviz_visualmarker_tristriangleobject.cpp
 	src/rviz/rviz_visualmarker_footmarker.cpp
+	src/rviz/cylindermarkertriangles.cpp
 	src/rviz/rviz_visualmarker_mesh.cpp
 	src/rviz/rviz_visualmarker_common.cpp
 	src/util.h 
@@ -167,6 +169,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #target_link_libraries(13HumanoidsSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
 rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
 target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
+target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})

@@ -610,7 +610,6 @@ public: // methods
 
 	}
 
-private: // methods
 
 	// This is called when a search fails or is cancelled to free all used
 	// memory 
@@ -644,6 +643,7 @@ private: // methods
 
 		FreeNode(m_Goal);
 	}
+private: // methods
 
 
 	// This call is made by the search class when the search ends. A lot of nodes may be

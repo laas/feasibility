@@ -281,6 +281,8 @@ void system2(std::string fmt, ...){
 //##########################################################################
 // logger / stable
 //##########################################################################
+Logger::~Logger(){
+}
 Logger::Logger(std::string name){
 	this->name = name;
 	fp = fopen_s(name.c_str(), "w");
@@ -369,3 +371,14 @@ CSVReader::~CSVReader(){
 
 
 //##########################################################################
+#ifdef PQP_COLLISION_CHECKING
+void MRotZ(PQP_REAL R[3][3], PQP_REAL t){
+	R[0][0]=cos(t);
+	R[1][0]=sin(t);
+	R[0][1]=-R[1][0];
+	R[1][1]=R[0][0];
+	R[2][0]=R[2][1]=0.0;
+	R[0][2]=R[1][2]=0.0;
+	R[2][2]=1.0;
+}
+#endif

@@ -29,4 +29,3 @@ public:
 			double sf_x, double sf_y, double sf_yaw, char foot)=0;
 
 };
-
