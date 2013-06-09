@@ -42,7 +42,6 @@ int main( int argc, char** argv )
 	ConstraintsChecker *ccANN6 = new ConstraintsCheckerANN(6);
 	ConstraintsChecker *ccANN5 = new ConstraintsCheckerANN(5);
 	ConstraintsChecker *ccANN4 = new ConstraintsCheckerANN(4);
-	ConstraintsChecker *ccSweptVolume = new ConstraintsCheckerSweptVolume();
 
 	uint objects = atoi(argv[2]);
 	if (ros::ok())
@@ -86,14 +85,9 @@ int main( int argc, char** argv )
 			results = astar->getResults();
 			results.print();
 			logger("ann4 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
-			astar->setConstraintsChecker(ccSweptVolume);
-			astar->plan();
-			astar->publish("red", "red");
-			astar->clean_publish();
-			results = astar->getResults();
-			results.print();
-			logger("sv %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
+			//// */
 			ROS_INFO("Finished trial %d/100 with %d objects", i, objects);
 		}//conduct enough trials to get sufficient statistics
 	}//if ros
 }
+

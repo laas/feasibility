@@ -171,6 +171,8 @@ rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
 target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
 target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+rosbuild_add_executable(13HumanoidsPlannerExpNoSV test/13humanoids_planner_experiment_nosweptvolume.cpp )
+target_link_libraries(13HumanoidsPlannerExpNoSV ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
