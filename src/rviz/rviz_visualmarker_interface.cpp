@@ -5,7 +5,10 @@ namespace ros{
 	uint RVIZVisualMarker::global_id = 0;
 
 	Color::Color(){
-		r=0;g=0;b=0;a=1;
+		r=1;g=0;b=0;a=1;
+	}
+	Color::Color(const Color& c){
+		r=c.r;g=c.g;b=c.b;a=c.a;
 	}
 	Color::Color(double r, double g, double b, double a){
 		this->r = r;this->g=g;this->b=b;this->a=a;

@@ -44,7 +44,4 @@ namespace ros{
 	double BlenderMeshTriangleObject::getTextZ(){
 		return 0.8;
 	}
-	Color BlenderMeshTriangleObject::get_color(){
-		return ros::TEXT_COLOR;
-	}
 }

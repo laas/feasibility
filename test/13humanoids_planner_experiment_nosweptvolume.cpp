@@ -39,8 +39,8 @@ int main( int argc, char** argv )
 	if(astar!=NULL) delete astar;
 
 	MResults results;
-	ConstraintsChecker *ccANN6 = new ConstraintsCheckerANN(6);
-	ConstraintsChecker *ccANN5 = new ConstraintsCheckerANN(5);
+	ConstraintsChecker *ccANN16 = new ConstraintsCheckerANN(16);
+	//ConstraintsChecker *ccANN6 = new ConstraintsCheckerANN(6);
 	ConstraintsChecker *ccANN4 = new ConstraintsCheckerANN(4);
 
 	uint objects = atoi(argv[2]);
@@ -66,25 +66,25 @@ int main( int argc, char** argv )
 			astar->clean_publish();
 			results = astar->getResults();
 			results.print();
-			logger("ann6 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
-			astar->setConstraintsChecker(ccANN5);
-			astar->plan();
-			astar->publish("red", "green");
-			astar->clean_publish();
-			results = astar->getResults();
-			results.print();
-			logger("ann5 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
+			logger("ann4 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
+			//astar->setConstraintsChecker(ccANN6);
+			//astar->plan();
+			//astar->publish("red", "green");
+			//astar->clean_publish();
+			//results = astar->getResults();
+			//results.print();
+			//logger("ann6 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
 			//
 			//####################
 			//
 			//astar = new MotionPlannerAStar(environment, argc, argv);
-			astar->setConstraintsChecker(ccANN4);
+			astar->setConstraintsChecker(ccANN16);
 			astar->plan();
 			astar->publish("red", "green");
 			astar->clean_publish();
 			results = astar->getResults();
 			results.print();
-			logger("ann4 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
+			logger("ann16 %d %d %f %f %f %f\n", objects, results.success, results.time, (double)results.steps, (double)results.iterations, (double)results.feasibilityChecks);
 			//// */
 			ROS_INFO("Finished trial %d/100 with %d objects", i, objects);
 		}//conduct enough trials to get sufficient statistics

@@ -34,8 +34,8 @@ namespace ros{
 	uint32_t CylinderMarkerTriangles::get_shape(){
 		return visualization_msgs::Marker::TRIANGLE_LIST;
 	}
-	Color CylinderMarkerTriangles::get_color(){
-		return ros::Color(1,0,0,0.3);
+	Color CylinderMarkerTriangles::default_color(){
+		return ros::Color(0.8,0.2,0.2,0.9);
 	}
 #ifdef FCL_COLLISION_CHECKING
 	std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > CylinderMarkerTriangles::getCylinderVerticesAndTriangles(uint N, double radius, double height){

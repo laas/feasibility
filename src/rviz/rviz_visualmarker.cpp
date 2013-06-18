@@ -127,11 +127,22 @@ namespace ros{
 		marker.scale.y = g.sy;
 		marker.scale.z = g.sz;
 
-		Color c = get_color();
-		marker.color.r = c.r;
-		marker.color.g = c.g;
-		marker.color.b = c.b;
-		marker.color.a = c.a;
+		Color cc = get_color();
+		std_msgs::ColorRGBA c;
+		c.r = cc.r;
+		c.g = cc.g;
+		c.b = cc.b;
+		c.a = cc.a;
+
+		marker.color.r=c.r;
+		marker.color.g=c.g;
+		marker.color.b=c.b;
+		marker.color.a=c.a;
+
+		for(uint i=0;i<marker.colors.size();i++){
+			marker.colors.at(i)=c;
+		}
+
 	}
 
 	void RVIZVisualMarker::drawLine(double x_in, double y_in){

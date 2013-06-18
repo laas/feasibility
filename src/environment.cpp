@@ -1,3 +1,4 @@
+#include <string>
 #include <rviz/rviz_visualmarker.h>
 #include "environment.h"
 #include "util.h"
@@ -5,21 +6,31 @@
 Environment* Environment::singleton = NULL;
 uint Environment::Nobjects = 10;
 #define DEBUG(x) x
+Environment* Environment::get13HumanoidsReal(){
+	return getInstance("13humanoidsReal");
+}
 Environment* Environment::get13Humanoids(){
-	if(singleton==NULL){
-		singleton = Environment13Humanoids::getInstance();
-	}else{
-		ABORT("One instance of environment already exists!");
-	}
-	singleton->init();
-	return singleton;
+	return getInstance("13humanoids");
 }
 Environment* Environment::getSalleBauzil(){
+	return getInstance("SalleBauzil");
+}
+Environment* Environment::getInstance(const char* iname){
 	if(singleton==NULL){
-		singleton = EnvironmentSalleBauzil::getInstance();
+		if(strcmp("13humanoidsReal", iname)==0){
+			singleton = new Environment13HumanoidsReal();
+		}else if(strcmp("13humanoids", iname)==0){
+			singleton = new Environment13Humanoids();
+		}else if(strcmp("SalleBauzil", iname)==0){
+			singleton = new EnvironmentSalleBauzil();
+		}else{
+			PRINT("No class for name " << iname );
+			ABORT("No class error");
+		}
 	}else{
 		ABORT("One instance of environment already exists!");
 	}
+
 	singleton->init();
 	return singleton;
 }
@@ -31,6 +42,7 @@ void Environment::reloadObjects(){
 	setGoalObject();
 	setStartObject();
 	setObjects();
+	setDecorations();
 	CHECK(goal!=NULL, "goal state was not initialized in your Environment!");
 	CHECK(start!=NULL, "start state was not initialized in your Environment!");
 	CHECK(objects.size()>0, "objects were not initialized in your Environment!");
@@ -45,6 +57,9 @@ void Environment::thread_publish(){
 		for(obj = objects.begin();obj!=objects.end();obj++){
 			(*obj)->publish();
 			change |= (*obj)->isChanged();
+		}
+		for(obj = decorations.begin();obj!=decorations.end();obj++){
+			(*obj)->publish();
 		}
 		this->goal->publish();
 		this->start->publish();
@@ -95,10 +110,14 @@ Environment::Environment(){
 	changedEnv = true;
 }
 
+void Environment::setDecorations(){
+}
+
 void Environment::init(){
 	setGoalObject();
 	setStartObject();
 	setObjects();
+	setDecorations();
 	CHECK(goal!=NULL, "goal state was not initialized in your Environment!");
 	CHECK(start!=NULL, "start state was not initialized in your Environment!");
 	CHECK(objects.size()>0, "objects were not initialized in your Environment!");
@@ -113,6 +132,10 @@ void Environment::clean(){
 	thread_stop();
 	std::vector<ros::RVIZVisualMarker*>::iterator obj;
 	for(obj = objects.begin();obj!=objects.end();obj++){
+		if(*obj!=NULL) delete (*obj);
+		*obj=NULL;
+	}
+	for(obj = decorations.begin();obj!=decorations.end();obj++){
 		if(*obj!=NULL) delete (*obj);
 		*obj=NULL;
 	}

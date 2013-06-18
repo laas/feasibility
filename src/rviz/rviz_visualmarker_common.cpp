@@ -7,6 +7,8 @@ namespace ros{
 		this->g.z = z;
 		this->g.setYawRadian(0);
 		this->g.sz=0.1;
+		set_color(ros::TEXT_COLOR);
+
 		init_marker();
 		marker.text = std::string(c);
 		text = marker.text;
@@ -17,9 +19,6 @@ namespace ros{
 	uint32_t Text::get_shape(){
 		return visualization_msgs::Marker::TEXT_VIEW_FACING;
 	}
-	Color Text::get_color(){
-		return ros::TEXT_COLOR;
-	}
 	SphereMarker::SphereMarker(double x, double y, double r, double z): RVIZVisualMarker() {
 		this->g.x = x;
 		this->g.y = y;
@@ -29,6 +28,7 @@ namespace ros{
 		this->g.sy=r;
 		this->g.sz=0.05;
 		this->g.z = this->g.z + this->g.sz/2;
+		set_color(ros::MAGENTA);
 		init_marker();
 	}
 	std::string SphereMarker::name(){
@@ -36,9 +36,6 @@ namespace ros{
 	}
 	uint32_t SphereMarker::get_shape(){
 		return visualization_msgs::Marker::CYLINDER;
-	}
-	Color SphereMarker::get_color(){
-		return ros::MAGENTA;
 	}
 	CubeMarker::CubeMarker(double x, double y, double r, double yaw): RVIZVisualMarker() {
 		this->g.x = x;
@@ -48,6 +45,7 @@ namespace ros{
 		this->g.sy=r;
 		this->g.sz=r;
 		this->g.z = this->g.z + this->g.sz/2; //bottom of cube should be at desired z, not center
+		set_color(ros::MAGENTA);
 		init_marker();
 	}
 	std::string CubeMarker::name(){
@@ -55,9 +53,6 @@ namespace ros{
 	}
 	uint32_t CubeMarker::get_shape(){
 		return visualization_msgs::Marker::CUBE;
-	}
-	Color CubeMarker::get_color(){
-		return ros::MAGENTA;
 	}
 
 

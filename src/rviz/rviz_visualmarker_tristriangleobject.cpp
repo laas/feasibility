@@ -41,6 +41,7 @@ namespace ros{
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
 #endif
 		this->tris2marker( this->marker, tris_file_name.c_str() );
+		set_color(ros::WHITE);
 		init_marker();
 
 	}
@@ -49,9 +50,6 @@ namespace ros{
 	}
 	uint32_t TrisTriangleObject::get_shape(){
 		return visualization_msgs::Marker::TRIANGLE_LIST;
-	}
-	Color TrisTriangleObject::get_color(){
-		return ros::WHITE;
 	}
 #ifdef PQP_COLLISION_CHECKING
 	void TrisTriangleObject::tris2PQP(PQP_Model *m, const char *fname ){

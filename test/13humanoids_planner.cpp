@@ -22,28 +22,28 @@ using namespace ros;
 int main( int argc, char** argv )
 {
 
-	if(argc!=2){
-		printf("usage: planner <NeuralNet>\n");
+	if(argc!=3){
+		printf("usage: planner <name> <objects>\n");
 		return -1;
 	}
 	char pname[100];
-	sprintf(pname, "humanoids13_planner_%d", hashit(argv[1]));
+	sprintf(pname, "REALhumanoids13_planner_%d", hashit(argv[1]));
 
 	ros::init(argc, argv, pname);
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
 	Environment* environment;
-
-
+	uint objects = atoi(argv[2]);
 
 	MotionPlannerAStar *astar;
 
-	environment = Environment::get13Humanoids();
+	Environment::Nobjects=objects;
+	environment = Environment::get13HumanoidsReal();
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
-	ConstraintsChecker *ccANN = new ConstraintsCheckerANN();
-	ConstraintsChecker *ccSweptVolume = NULL;//new ConstraintsCheckerSweptVolume();
+	ConstraintsChecker *ccANN = new ConstraintsCheckerANN(16);
+	ConstraintsChecker *ccSweptVolume = NULL;// new ConstraintsCheckerSweptVolume();
 	while (ros::ok())
 	{
 		//printf("input: neural net %s\n",argv[1]);
@@ -55,7 +55,7 @@ int main( int argc, char** argv )
 
 		if(c=='R'){
 			environment->resetInstance();
-			environment = Environment::get13Humanoids();
+			environment = Environment::get13HumanoidsReal();
 			astar = new MotionPlannerAStar(environment, argc, argv);
 		}
 		if(c=='1'){
@@ -67,7 +67,7 @@ int main( int argc, char** argv )
 		if(c=='2'){
 			astar->setConstraintsChecker(ccANN);
 			astar->plan();
-			astar->publish("red", "red");
+			astar->publish("red", "green");
 		}
 		if(c=='3'){
 			astar->clean_publish();

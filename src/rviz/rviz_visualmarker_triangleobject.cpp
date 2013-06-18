@@ -37,9 +37,6 @@ namespace ros{
 	uint32_t TriangleObject::get_shape(){
 		return visualization_msgs::Marker::TRIANGLE_LIST;
 	}
-	Color TriangleObject::get_color(){
-		return ros::WHITE;
-	}
 #ifdef FCL_COLLISION_CHECKING
 	void TriangleObject::set_bvh_ptr( fcl::BVHModel< BoundingVolume > *bvh_in ){
 		this->bvh = bvh_in;

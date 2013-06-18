@@ -1,15 +1,16 @@
 <package>
   <description brief="Learning Feasibility Space">
   </description>
-  <author>rqhq</author>
+  <author>Andreas Orthey</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-
   <depend package="std_msgs"/>
   <depend package="rospy"/>
   <depend package="roscpp"/>
   <depend package="tf"/>
   <depend package="visualization_msgs"/>
+  <depend package="kdl_parser" />
+ <depend package="robot_state_publisher"/>
 </package>
 
 

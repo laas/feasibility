@@ -1,7 +1,7 @@
 #!/bin/bash
 Nsamples=3000;
 rmax=0.5;
-NEURONS=6;
+NEURONS=16;
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 #for f in ~/git/fastReplanningData/data/fullBodyApprox/fullbody_30_-21_14*;
 for f in ~/git/fastReplanningData/data/fullBodyApprox/fullbody*;

@@ -7,6 +7,7 @@ namespace ros{
 		this->g.sx=0.18;
 		this->g.sy=0.09;
 		this->g.sz=0.02;
+		set_color(0.9,0.9,0.9,0.8);
 		init_marker();
 	}
 	std::string FootMarker::name(){
@@ -14,9 +15,6 @@ namespace ros{
 	}
 	uint32_t FootMarker::get_shape(){
 		return visualization_msgs::Marker::CUBE;
-	}
-	Color FootMarker::get_color(){
-		return Color(0.9,0.9,0.9,0.8);
 	}
 	void FootMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
@@ -29,22 +27,18 @@ namespace ros{
 	}
 
 	LeftFootMarker::LeftFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {
+		set_color(0.9,0.1,0.0,0.8);
 		init_marker();
 	}
 	std::string LeftFootMarker::name(){
 		return std::string("foot_L");
 	}
-	Color LeftFootMarker::get_color(){
-		return Color(0.9,0.1,0.0,0.8);
-	}
 	RightFootMarker::RightFootMarker(double x, double y, double tz): FootMarker(x,y,tz) {
+		set_color(0.1,0.9,0.0,0.8);
 		init_marker();
 	}
 	std::string RightFootMarker::name(){
 		return std::string("foot_R");
-	}
-	Color RightFootMarker::get_color(){
-		return Color(0.1,0.9,0.0,0.8);
 	}
 	ColorFootMarker::ColorFootMarker(double x, double y, double tz, const char *color): FootMarker(x,y,tz) {
 		struct str2num {
@@ -71,8 +65,5 @@ namespace ros{
 	}
 	std::string ColorFootMarker::name(){
 		return std::string("foot_colored");
-	}
-	Color ColorFootMarker::get_color(){
-		return c;
 	}
 }

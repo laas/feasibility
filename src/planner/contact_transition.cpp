@@ -107,7 +107,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		feasibilityChecks++;
 
 		//position constraints
-		if(sf_abs_x < -0.3 || sf_abs_x > 3.3 || sf_abs_y < -0.9 || sf_abs_y > 0.9){
+		if(sf_abs_x < -0.3 || sf_abs_x > 3.3 || sf_abs_y < -0.76 || sf_abs_y > 0.76){
 			ff_start_feasible = false;
 		}
 	}
