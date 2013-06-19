@@ -173,6 +173,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
 target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+rosbuild_add_executable(13HumanoidsPlannerEndless test/13humanoids_planner_endless.cpp )
+target_link_libraries(13HumanoidsPlannerEndless ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
 #rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
 #target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
