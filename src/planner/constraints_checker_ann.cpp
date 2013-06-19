@@ -132,7 +132,7 @@ void ConstraintsCheckerANN::loadNNParameters(const char *path, uint Hneurons){
 				struct fann *ann = fann_create_from_file(rel_file_path.c_str());
 				neuralMap[hash] = ann;
 				actionSpace[hash] = v;
-				printf("[%d/%d] loaded %s\n", number++, Nfiles, hFile->d_name);
+				DEBUG(printf("[%d/%d] loaded %s\n", number++, Nfiles, hFile->d_name);)
 			}
 		} 
 		closedir( dpath );

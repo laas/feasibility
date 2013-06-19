@@ -49,22 +49,12 @@ struct Environment13HumanoidsReal: public Environment{
 };
 struct Environment13Humanoids: public Environment{
 	Environment13Humanoids(): Environment(){ }
-	/*
-	static Environment *getInstance(){
-		return new Environment13Humanoids();
-	}
-	*/
 	void setObjects();
 	void setGoalObject();
 	void setStartObject();
 };
 struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){ }
-	/*
-	static Environment *getInstance(){
-		return new EnvironmentSalleBauzil();
-	}
-	*/
 	void setObjects();
 	void setGoalObject();
 	void setStartObject();

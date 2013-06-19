@@ -26,7 +26,7 @@ include(CheckFunctionExists)
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
 
 #add_definitions("-DPQP_COLLISION_CHECKING")
-#include_directories("/opt")
+include_directories("/opt/ros/electric/stacks/visualization/interactive_markers")
 #link_directories("/opt/openrobots")
 #set(MISC
 #	PQP
@@ -151,6 +151,8 @@ add_definitions("-std=c++0x")
 include_directories(src)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lm -lfann")
 set(UTIL_LIB util)
+
+
 rosbuild_add_library(${UTIL_LIB} ${SOURCE})
 target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARY_DIRS})
@@ -168,16 +170,19 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
 #rosbuild_add_executable(13HumanoidsSampler test/13humanoids_sampler.cpp )
 #target_link_libraries(13HumanoidsSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
+
 rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
 target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
-target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-rosbuild_add_executable(13HumanoidsPlannerExpNoSV test/13humanoids_planner_experiment_nosweptvolume.cpp )
-target_link_libraries(13HumanoidsPlannerExpNoSV ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
-rosbuild_add_executable(PublishHrp2 test/publish_hrp2.cpp )
-target_link_libraries(PublishHrp2 ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+#rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
+#target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+#rosbuild_add_executable(13HumanoidsPlannerExpNoSV test/13humanoids_planner_experiment_nosweptvolume.cpp )
+#target_link_libraries(13HumanoidsPlannerExpNoSV ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+#
+#rosbuild_add_executable(PublishHrp2 test/publish_hrp2.cpp )
+#target_link_libraries(PublishHrp2 ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
+rosbuild_add_executable(TestInteractiveMarker test/test_imarker.cpp )
 #rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
 #target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 

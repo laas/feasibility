@@ -30,6 +30,7 @@ double toDeg(double d);
 double norml2(double x1, double x2, double y1, double y2);
 double norml1(double x1, double x2, double y1, double y2);
 int hashit(const char *str);
+void string_validate_chars( std::string& );
 
 template<typename T>
 int hashit(std::vector<T> in);
@@ -46,6 +47,7 @@ void system2(std::string fmt, ...); //system with printf functionality
 
 double str2double(const std::string &s);
 bool isNum(char c);
+bool isAlphaNum_(char c);
 bool isNumOrMinus(char c);
 std::vector<double> extract_num_from_string( std::string s );
 std::string get_logging_str(const char* prefix, std::string s);

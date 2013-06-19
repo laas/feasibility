@@ -4,6 +4,7 @@
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
 #include <geometry_msgs/Transform.h>
+#include <interactive_markers/interactive_marker_server.h>
 
 #include <std_msgs/String.h>
 #include <vector>
@@ -101,13 +102,21 @@ namespace ros{
 		static uint global_id;
 		uint id;
 		Color c;
+
 		visualization_msgs::Marker marker;
+		visualization_msgs::InteractiveMarker active_marker;
+		static boost::shared_ptr<interactive_markers::InteractiveMarkerServer> server;
+
 		std::string text;
 		bool textHover;
 		std::string geometry_subscribe_topic;
+
 		boost::shared_ptr<boost::thread> m_thread;
+		boost::shared_ptr<boost::thread> m_thread_interactive_marker;
+
 		ros::Subscriber m_subscriber;
 		bool changedPosition;
+		void interactiveMarkerFeedbackLoop( const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback );
 	private:
 		//Threading for updates from ROS topics
 		void Callback_updatePosition( const geometry_msgs::TransformStamped& tf);
@@ -116,39 +125,37 @@ namespace ros{
 		void thread_stop();
 
 		void update_marker();
+
+		void init_marker_interactive();
+
+		void thread_interactive_marker_main();
+		void thread_interactive_marker_start();
+		void thread_interactive_marker_stop();
 	public:
 		Geometry g;
 		Geometry g_old;
 		void setXYT(double x, double y, double yaw_rad);
+		void make_interactive();
+
 		void print();
 		RVIZVisualMarker();
 		virtual ~RVIZVisualMarker();
-		bool isChanged(double threshold=0.01);
 		virtual void publish();
-		void reset();
-		virtual std::string name() = 0;
-		virtual uint32_t get_shape() = 0;
-		Color get_color(){
-			return c;
-		}
-		void set_color(const Color& rhs){
-			this->c = rhs;
-			update_marker();
-		}
-		void set_color(double r, double g, double b, double a){
-			this->c.r=r;
-			this->c.g=g;
-			this->c.b=b;
-			this->c.a=a;
-			update_marker();
-		}
-		visualization_msgs::Marker createTextMarker();
-		void drawLine(double x_in, double y_in);
-		void init_marker();
-		Geometry* getGeometry();
+		bool isChanged(double threshold=0.01);
+		void set_color(const Color& rhs);
+		void set_color(double r, double g, double b, double a);
+		Color get_color();
 		void addText( std::string s );
 		void subscribeToEvart(std::string &topic);
 		void subscribeToEvart(const char *c);
+		void drawLine(double x_in, double y_in);
+
+		void reset();
+		virtual std::string name() = 0;
+		virtual uint32_t get_shape() = 0;
+		visualization_msgs::Marker createTextMarker();
+		void init_marker();
+		Geometry* getGeometry();
 		virtual double getTextZ(){
 			return g.z+g.sz/2+0.1;
 		}
@@ -271,7 +278,8 @@ namespace ros{
 	struct TriangleObjectRobot: public TrisTriangleObject{
 		TriangleObjectRobot(std::string mocap);
 	};
-	//augments the triangle object by a mesh with the same size
+	//augments the triangle object by a mesh with the same size (TODO:
+	//embedding into voronoi hull)
 	struct TriangleMeshDecorator: public TriangleObject{
 		std::string filename;
 		TriangleMeshDecorator(TriangleObject *, const char *);

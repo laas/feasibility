@@ -149,6 +149,18 @@ bool isNumOrMinus(char c){
 	}
 	return false;
 }
+bool isAlphaNum_(char c){
+	if(isNum(c)){
+		return true;
+	}
+	if(isalpha(c)){
+		return true;
+	}
+	if(c=='/' || c=='_'){
+		return true;
+	}
+	return false;
+}
 bool isNum(char c){
 	if(
 		c=='0' ||
@@ -211,6 +223,15 @@ uint get_num_files_in_dir(const char *path, const char *ending){
 		closedir( dpath );
 	}
 	return num;
+}
+void string_validate_chars( std::string& s){
+	std::string::iterator it=s.begin();
+	while(it != s.end()){
+		if(!isAlphaNum_(*it)){
+			*it = '0';
+		}
+		it++;
+	}
 }
 //extract_num_from_string: take a string and extract all signed integers from it  and put them into a vector of doubles
 // ->better rename string2integersAsDouble ?

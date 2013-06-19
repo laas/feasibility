@@ -1,11 +1,9 @@
 #include "rviz_visualmarker.h"
 
 #define DEBUG(x) x
-#define THREAD_DEBUG(x) x
+#define THREAD_DEBUG(x)
 namespace ros{
-	RVIZVisualMarker::~RVIZVisualMarker(){
-		thread_stop();
-	}
+	boost::shared_ptr<interactive_markers::InteractiveMarkerServer> RVIZVisualMarker::server;
 	RVIZVisualMarker::RVIZVisualMarker(){
 		id=global_id;
 		textHover = false;
@@ -14,6 +12,148 @@ namespace ros{
 			rviz = new RVIZInterface();
 		}
 		changedPosition = false;
+	}
+
+	void RVIZVisualMarker::interactiveMarkerFeedbackLoop( const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback ){
+		THREAD_DEBUG(ROS_INFO_STREAM( feedback->marker_name << " is now at "
+			<< feedback->pose.position.x << ", " << feedback->pose.position.y);)
+
+		//update geometry
+		this->g.x = feedback->pose.position.x;
+		this->g.y = feedback->pose.position.y;
+		this->g.z = feedback->pose.position.z;
+		update_marker();
+		boost::this_thread::interruption_point();
+	}
+
+	void RVIZVisualMarker::thread_interactive_marker_main(){
+
+		std::string name_id = boost::lexical_cast<std::string>(m_thread_interactive_marker->get_id());
+		THREAD_DEBUG(ROS_INFO("thread %s started", name_id.c_str()));
+		while(1){
+			boost::this_thread::interruption_point();
+			ros::spinOnce();
+		}
+		THREAD_DEBUG(ROS_INFO("thread %s finished", name_id.c_str()));
+	}
+
+	void RVIZVisualMarker::thread_interactive_marker_start(){
+		static bool server_init= false;
+		if(!server_init){
+			THREAD_DEBUG(ROS_INFO("init interactive marker server"));
+			//server = new interactive_markers::InteractiveMarkerServer("interactive_markers");
+			server.reset( new interactive_markers::InteractiveMarkerServer("interactive_markers"));
+			ros::Duration(0.1).sleep();
+			server_init=true;
+		}
+
+		THREAD_DEBUG(ROS_INFO("inserting marker %s into server", active_marker.name.c_str()));
+		server->applyChanges();
+
+		//class member function has to be first converted to the
+		//callback object, which is defined in interactive marker,
+		//afterwards we can insert it into the server without compiler
+		//errors
+		boost::function<void (const visualization_msgs::InteractiveMarkerFeedbackConstPtr&)> bindedLoop =
+			bind(&RVIZVisualMarker::interactiveMarkerFeedbackLoop, this, _1);
+
+
+		//server->insert(active_marker, &RVIZVisualMarker::interactiveMarkerFeedbackLoop);
+		server->insert(active_marker, bindedLoop );
+		server->applyChanges();
+
+		//thread off
+		m_thread_interactive_marker = boost::shared_ptr<boost::thread>(new boost::thread(&RVIZVisualMarker::thread_interactive_marker_main, this) );
+	}
+
+	void RVIZVisualMarker::thread_interactive_marker_stop(){
+		if(this->m_thread_interactive_marker!=NULL){
+			this->m_thread_interactive_marker->interrupt();
+			std::string id = boost::lexical_cast<std::string>(this->m_thread_interactive_marker->get_id());
+			THREAD_DEBUG(ROS_INFO("RVIZVisualMarker:: waiting for thread %s to terminate", id.c_str()));
+			this->m_thread_interactive_marker->join();
+		}
+	}
+
+	void RVIZVisualMarker::make_interactive(){
+		std::string imarker_name = this->name();
+		imarker_name+=boost::lexical_cast<std::string>(this->id);
+		string_validate_chars( imarker_name );
+
+		active_marker.header.frame_id = "/base_link";
+		active_marker.name = imarker_name.c_str();
+		active_marker.description = imarker_name.c_str();
+
+		tf::Vector3 position(this->g.x, this->g.y, this->g.z);
+		tf::pointTFToMsg(position, active_marker.pose.position);
+		active_marker.scale = 1;
+
+		visualization_msgs::InteractiveMarkerControl control;
+		control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;
+
+		control.orientation.w = 1;
+		control.orientation.x = 0;
+		control.orientation.y = 1;
+		control.orientation.z = 0;
+		control.always_visible = true;
+		control.name = "move_xy";
+		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_PLANE;
+		active_marker.controls.push_back(control);
+
+		control.always_visible = true;
+		control.markers.push_back( this->marker );
+		active_marker.controls.push_back(control);
+
+		thread_interactive_marker_start();
+
+	}
+	void RVIZVisualMarker::init_marker_interactive(){
+		char fname[50];
+		std::string name = this->name();
+		sprintf(fname, "%d_%s",this->id, name.c_str());
+
+		marker.header.frame_id = FRAME_NAME;
+
+		marker.ns = fname;
+		marker.id = this->id;
+		marker.type = get_shape();
+		marker.action = visualization_msgs::Marker::ADD;
+		marker.pose.position.x = g.x;
+		marker.pose.position.y = g.y;
+		marker.pose.position.z = g.z;
+		marker.pose.orientation.x = g.getQuaternionX();
+		marker.pose.orientation.y = g.getQuaternionY();
+		marker.pose.orientation.z = g.getQuaternionZ();
+		marker.pose.orientation.w = g.getQuaternionW();
+
+		marker.scale.x = g.sx;
+		marker.scale.y = g.sy;
+		marker.scale.z = g.sz;
+
+		Color c = get_color();
+		marker.color.r = c.r;
+		marker.color.g = c.g;
+		marker.color.b = c.b;
+		marker.color.a = c.a;
+
+		g_old = g;
+	}
+	RVIZVisualMarker::~RVIZVisualMarker(){
+		thread_stop();
+	}
+	Color RVIZVisualMarker::get_color(){
+		return c;
+	}
+	void RVIZVisualMarker::set_color(const Color& rhs){
+		this->c = rhs;
+		update_marker();
+	}
+	void RVIZVisualMarker::set_color(double r, double g, double b, double a){
+		this->c.r=r;
+		this->c.g=g;
+		this->c.b=b;
+		this->c.a=a;
+		update_marker();
 	}
 	void RVIZVisualMarker::addText(std::string s){
 		textHover = true;
@@ -87,6 +227,7 @@ namespace ros{
 		std::string name = this->name();
 		sprintf(fname, "%d_%s",this->id, name.c_str());
 
+		marker.header.frame_id = FRAME_NAME;
 		marker.ns = fname;
 		marker.id = this->id;
 		marker.type = get_shape();
