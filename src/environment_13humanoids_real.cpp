@@ -37,19 +37,18 @@ void Environment13HumanoidsReal::setObjects(){
 	for(uint i=0;i<Nobjects;i++){
 		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-1.5,1.5), rand(0.01,0.04), rand(0.01,0.06));
 		c->set_color(1.0,0.3,0.3,0.3);
+		//c->make_interactive();
 		objects.push_back(c);
 	}
-	for(uint i=0;i< std::min((int)objects.size(),5);i++){
+	for(uint i=0;i< std::min((int)objects.size(),10);i++){
 		objects.at(i)->make_interactive();
 	}
-	/*
 	for(uint i=0;i<10;i++){
-		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-1.5,1.5), rand(0.01,0.08), rand(0.1,0.5));
+		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-1.5,1.5), rand(0.01,0.08), rand(0.5,1.5));
 		c->set_color(0,0.8,0,0.3);
 		c->make_interactive();
 		objects.push_back(c);
 	}
-	*/
 }
 void Environment13HumanoidsReal::setGoalObject(){
 	goal = new ros::SphereMarker(3.0, 0.0, 0.2, 0.0);

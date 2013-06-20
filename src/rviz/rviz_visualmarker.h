@@ -92,8 +92,7 @@ namespace ros{
 		RVIZInterface();
 		bool waitForSubscribers(ros::Duration timeout);
 		void reset();
-		void publish(visualization_msgs::Marker &m);
-		void footstep_publish(visualization_msgs::Marker &m);
+		void publish(visualization_msgs::Marker &m, bool save=false);
 	};
 
 	class RVIZVisualMarker{

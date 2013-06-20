@@ -7,7 +7,7 @@ class ConstraintsCheckerANN: public ConstraintsChecker{
 private:
 	NeuralHashMap neuralMap;
 public:
-	ConstraintsCheckerANN(uint Hneurons=5);
+	ConstraintsCheckerANN(uint Hneurons=16);
 	~ConstraintsCheckerANN();
 
 	virtual bool 

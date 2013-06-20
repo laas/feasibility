@@ -107,11 +107,17 @@ struct MotionPlannerAStar: public MotionPlanner{
 		{
 			ContactTransition *node = astarsearch->GetSolutionStart();
 			int steps = 0;
+			double oldX = node->g.x;
+			double oldY = node->g.y-0.1;
+
+			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
+			l.publish();
+			l.drawLine(oldX, oldY);
 
 			ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
 			m.publish();
-			double oldX = node->g.x;
-			double oldY = node->g.y;
+			oldX = node->g.x;oldY = node->g.y;
+
 			for( ;; )
 			{
 				DEBUG(ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, node->g.getYawRadian());)
@@ -145,11 +151,13 @@ struct MotionPlannerAStar: public MotionPlanner{
 	void clean(){
 		ContactTransition::cleanStatic();
 		astarsearch->EnsureMemoryFreed();
-
 	}
 
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
 		ContactTransition::objects.push_back(m);
 		//ContactTransition::objects = environment->getObjects();
+	}
+	virtual void cleanObjects(){
+		ContactTransition::objects.clear();
 	}
 };

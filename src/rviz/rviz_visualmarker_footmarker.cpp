@@ -4,9 +4,9 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.setYawRadian(yaw);
-		this->g.sx=0.18;
-		this->g.sy=0.09;
-		this->g.sz=0.02;
+		this->g.sx=0.23;
+		this->g.sy=0.13;
+		this->g.sz=0.03;
 		set_color(0.9,0.9,0.9,0.8);
 		init_marker();
 	}
@@ -19,7 +19,7 @@ namespace ros{
 	void FootMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
 		marker.lifetime = ros::Duration();
-		rviz->footstep_publish(marker);
+		rviz->publish(marker, true);
 		if(textHover){
 			visualization_msgs::Marker cmarker = createTextMarker();
 			rviz->publish(cmarker);

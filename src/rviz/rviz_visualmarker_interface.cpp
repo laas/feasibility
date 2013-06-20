@@ -1,5 +1,6 @@
 #include "rviz/rviz_visualmarker.h"
 
+#define DEBUG(x)
 namespace ros{
 	RVIZInterface *RVIZVisualMarker::rviz = NULL;
 	uint RVIZVisualMarker::global_id = 0;
@@ -18,20 +19,19 @@ namespace ros{
 		ROS_INFO("started RVIZ interface");
 		publisher = n.advertise<visualization_msgs::Marker>(topic_name.c_str(), 10000);
 	}
-	void RVIZInterface::publish(visualization_msgs::Marker &m){
+
+	//bool save: stores the marker in an internal structure, such that we
+	//can reset it conveniently
+	void RVIZInterface::publish(visualization_msgs::Marker &m, bool save){
+		if(save) marker_list.push_back(m);
+		DEBUG(ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);)
+
 		//time 0 means, that the marker will be displayed, regardless of
 		//the internal time
-		//ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
 		m.header.stamp = ros::Time();//ros::Time::now();
-		//waitForSubscribers(ros::Duration(5));
 		publisher.publish(m);
 	}
 
-	void RVIZInterface::footstep_publish(visualization_msgs::Marker &m){
-		marker_list.push_back(m);
-		this->publish(m);
-		//ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);
-	}
 	bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 	{
 	    if(publisher.getNumSubscribers() > 0) return true;

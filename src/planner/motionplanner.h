@@ -39,6 +39,7 @@ public:
 			ros::Geometry start = environment->getStart();
 			setStart( start );
 
+			cleanObjects();
 			std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
 			std::vector<ros::RVIZVisualMarker*>::iterator it;
 			for(it=objects.begin(); it!=objects.end(); it++){
@@ -59,6 +60,7 @@ protected:
 	virtual void setGoal( ros::Geometry &goal ) = 0;
 	virtual void setStart( ros::Geometry &start ) = 0;
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m) = 0;
+	virtual void cleanObjects() = 0;
 
 };
 Environment *MotionPlanner::environment;

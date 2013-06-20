@@ -86,7 +86,7 @@ namespace ros{
 
 		tf::Vector3 position(this->g.x, this->g.y, this->g.z);
 		tf::pointTFToMsg(position, active_marker.pose.position);
-		active_marker.scale = 1;
+		active_marker.scale = 0.2;//sqrtf(g.sx*g.sx + g.sy*g.sy);
 
 		visualization_msgs::InteractiveMarkerControl control;
 		control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;
@@ -95,7 +95,7 @@ namespace ros{
 		control.orientation.x = 0;
 		control.orientation.y = 1;
 		control.orientation.z = 0;
-		control.always_visible = true;
+		control.always_visible = false;
 		control.name = "move_xy";
 		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_PLANE;
 		active_marker.controls.push_back(control);
@@ -322,7 +322,7 @@ namespace ros{
 		line.header.frame_id = FRAME_NAME;
 		line.header.stamp = ros::Time::now();
 		line.lifetime = ros::Duration();
-		this->rviz->publish(line);
+		this->rviz->publish(line, true);
 	}
 	void RVIZVisualMarker::Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
 		geometry_msgs::Transform t = tf.transform;
@@ -372,7 +372,6 @@ namespace ros{
 		}
 	}
 	void RVIZVisualMarker::thread_start(){
-		//assert(!m_thread);
 		m_thread = boost::shared_ptr<boost::thread>(new boost::thread(&RVIZVisualMarker::thread_evart, this) );
 	}
 	void RVIZVisualMarker::subscribeToEvart(const char *c){

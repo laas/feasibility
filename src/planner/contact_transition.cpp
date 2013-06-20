@@ -123,7 +123,6 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 		)
 		TIMER_DEBUG( timer->begin("actionExpansion") );
-
 		ActionSpace::const_iterator it;
 		for(  it = constraints->actionSpace.begin(); it != constraints->actionSpace.end(); ++it ){
 
@@ -182,15 +181,4 @@ bool ContactTransition::IsSameState( ContactTransition &rhs ){
 	double yaw = this->g.getYawRadian();
 	return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg) + (yaw-yawg)*(yaw-yawg))<0.01;
 }
-
-/*
-//############################################################################
-//## Fann functions
-//############################################################################
-//input: obj in euclidean coordinates (x,y,r)| relative to footstep of free
-//foot (FF), in X,Y,T, whereby T is degree divided by 100
-double ContactTransition::computeNNDistance( const std::vector<double> &p, const std::vector< std::vector<double> > &obj){
-
-
-*/
 
