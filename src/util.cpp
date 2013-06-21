@@ -23,6 +23,9 @@ FILE *fopen_s(const char *path, const char *mode){
 	}
 	return tmp;
 }
+void seed(double s){
+	srand(s);
+}
 void std_seed(){
 	srand(0);
 }

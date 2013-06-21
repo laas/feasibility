@@ -207,4 +207,43 @@ namespace ros{
 	}
 	double computeDerivativeFromNearestPoints( fcl::Vec3f &a, fcl::Vec3f &b){
 	}
+	void TriangleObject::tris2marker(visualization_msgs::Marker &marker, const char *fname){
+		
+		int ntris;
+		FILE *fp = fopen_s(fname,"r");
+
+		int res=fscanf(fp, "%d", &ntris);
+		CHECK(res==1, fname);
+
+
+		Color cc = get_color();
+		std_msgs::ColorRGBA c;
+		c.r = cc.r;
+		c.g = cc.g;
+		c.b = cc.b;
+		c.a = cc.a;
+
+		for (int i = 0; i < 3*ntris; i+=3){
+			geometry_msgs::Point p;
+			geometry_msgs::Point p1;
+			geometry_msgs::Point p2;
+			double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
+			res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
+			
+			double sX = 1.0;
+			double sY = 1.0;
+			double sZ = 1.0;
+			p.x = sX*p1x;p.y = sY*p1y;p.z = sZ*p1z;
+			p1.x = sX*p2x;p1.y = sY*p2y;p1.z = sZ*p2z;
+			p2.x = sX*p3x;p2.y = sY*p3y;p2.z = sZ*p3z;
+			marker.points.push_back(p);
+			marker.points.push_back(p1);
+			marker.points.push_back(p2);
+			marker.colors.push_back(c);
+			marker.colors.push_back(c);
+			marker.colors.push_back(c);
+		}
+		fclose(fp);
+	}
 }

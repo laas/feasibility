@@ -122,9 +122,11 @@ set(SOURCE
 	src/rviz/rviz_visualmarker_triangleobject.cpp
 	src/rviz/rviz_visualmarker_tristriangleobject.cpp
 	src/rviz/rviz_visualmarker_footmarker.cpp
-	src/rviz/cylindermarkertriangles.cpp
+	src/rviz/rviz_visualmarker_collada.cpp
 	src/rviz/rviz_visualmarker_mesh.cpp
+	src/rviz/visualmarker_decorator.cpp
 	src/rviz/rviz_visualmarker_common.cpp
+	src/rviz/cylindermarkertriangles.cpp
 	src/util.h 
 	src/util.cpp
 	src/util_eigen.h 

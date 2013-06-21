@@ -3,7 +3,7 @@ namespace ros{
 	FootMarker::FootMarker(double x, double y, double yaw): RVIZVisualMarker(){
 		this->g.x = x;
 		this->g.y = y;
-		this->g.setYawRadian(yaw);
+		this->g.setRPYRadian(0,0,yaw);
 		this->g.sx=0.23;
 		this->g.sy=0.13;
 		this->g.sz=0.03;

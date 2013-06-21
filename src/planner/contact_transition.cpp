@@ -17,7 +17,7 @@ void ContactTransition::print(){
 }
 ContactTransition::ContactTransition( ros::Geometry &g){
 	this->g = g;
-	this->g.setYawRadian( g.getYawRadian() );
+	this->g.setRPYRadian(0,0, g.getYawRadian() );
 }
 double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	//heuristic = distance to goal (classical l2 norm)
@@ -61,7 +61,7 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	ros::Geometry ff_abs;
 	ff_abs.x = ff_abs_x;
 	ff_abs.y = ff_abs_y;
-	ff_abs.setYawRadian(ff_abs_yaw);
+	ff_abs.setRPYRadian(0,0,ff_abs_yaw);
 
 	return ff_abs;
 }

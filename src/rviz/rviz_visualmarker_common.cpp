@@ -5,7 +5,7 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.z = z;
-		this->g.setYawRadian(0);
+		this->g.setRPYRadian(0,0,0);
 		this->g.sz=0.1;
 		set_color(ros::TEXT_COLOR);
 
@@ -23,7 +23,7 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.z = z;
-		this->g.setYawRadian(0);
+		this->g.setRPYRadian(0,0,0);
 		this->g.sx=r;
 		this->g.sy=r;
 		this->g.sz=0.05;
@@ -40,7 +40,7 @@ namespace ros{
 	CubeMarker::CubeMarker(double x, double y, double r, double yaw): RVIZVisualMarker() {
 		this->g.x = x;
 		this->g.y = y;
-		this->g.setYawRadian(yaw);
+		this->g.setRPYRadian(0,0,yaw);
 		this->g.sx=r;
 		this->g.sy=r;
 		this->g.sz=r;

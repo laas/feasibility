@@ -108,15 +108,13 @@ struct MotionPlannerAStar: public MotionPlanner{
 			ContactTransition *node = astarsearch->GetSolutionStart();
 			int steps = 0;
 			double oldX = node->g.x;
-			double oldY = node->g.y-0.1;
+			double oldY = node->g.y-0.2;
 
 			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
 			l.publish();
-			l.drawLine(oldX, oldY);
 
 			ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
 			m.publish();
-			oldX = node->g.x;oldY = node->g.y;
 
 			for( ;; )
 			{

@@ -59,8 +59,8 @@ namespace ros{
 		void setQuaternionY(double); 
 		void setQuaternionZ(double); 
 		void setQuaternionW(double); 
-		void setYawRadian(double yaw); //yaw in radians, of course 
-		double getYawRadian(); //yaw in radians, of course 
+		void setRPYRadian(double roll, double pitch, double yaw); //yaw, in radians of course 
+		double getYawRadian(); //yaw, in radians of course 
 		double getHeight();
 		double getRadius();
 	};
@@ -81,7 +81,8 @@ namespace ros{
 	static Color WHITE(1.0,1.0,1.0,1.0);
 	static Color MAGENTA(0.9,0.0,0.9,1.0);
 
-	static Color TEXT_COLOR(0.9,0.9,0.9,1.0);
+	//static Color TEXT_COLOR(0.9,0.9,0.9,1.0);
+	static Color TEXT_COLOR(0.1,0.1,0.1,1.0);
 
 	struct RVIZInterface{
 	private:
@@ -123,8 +124,6 @@ namespace ros{
 		void thread_start();
 		void thread_stop();
 
-		void update_marker();
-
 		void init_marker_interactive();
 
 		void thread_interactive_marker_main();
@@ -133,13 +132,15 @@ namespace ros{
 	public:
 		Geometry g;
 		Geometry g_old;
+		void setScale(double sx, double sy, double sz);
+		void setXYZ(double x, double y, double z);
 		void setXYT(double x, double y, double yaw_rad);
+		void setRPYRadian(double roll, double pitch, double yaw);
 		void make_interactive();
 
 		void print();
 		RVIZVisualMarker();
 		virtual ~RVIZVisualMarker();
-		virtual void publish();
 		bool isChanged(double threshold=0.01);
 		void set_color(const Color& rhs);
 		void set_color(double r, double g, double b, double a);
@@ -150,14 +151,29 @@ namespace ros{
 		void drawLine(double x_in, double y_in);
 
 		void reset();
+		visualization_msgs::Marker createTextMarker();
+
+		void init_marker();
+		void init_marker(visualization_msgs::Marker &marker);
+		void update_marker();
+		void update_marker( visualization_msgs::Marker &marker );
+
+		Geometry* getGeometry();
+
+		//virtual methods
+		virtual void publish();
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
-		visualization_msgs::Marker createTextMarker();
-		void init_marker();
-		Geometry* getGeometry();
+
 		virtual double getTextZ(){
 			return g.z+g.sz/2+0.1;
 		}
+	};
+	struct ColladaObject: public RVIZVisualMarker{
+		std::string filename;
+		ColladaObject(const char *cfilename);
+		uint32_t get_shape();
+		virtual std::string name();
 	};
 
 	struct CubeMarker: public RVIZVisualMarker{
@@ -206,6 +222,8 @@ namespace ros{
 		double fast_distance_to(TriangleObject &rhs);
 		double gradient_distance_to(TriangleObject &rhs);
 
+		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
+
 	};
 
 	struct CylinderMarkerTriangles: public TriangleObject{
@@ -226,7 +244,11 @@ namespace ros{
 		static uint mesh_counter;
 	public:
 		explicit TrisTriangleObject();
+		TrisTriangleObject(const char *c, Geometry &in);
 		TrisTriangleObject(std::string f, Geometry &in);
+		TrisTriangleObject(const char *c);
+		TrisTriangleObject(std::string f);
+
 		void init_object( std::string f, Geometry &in );
 		virtual std::string name();
 		virtual uint32_t get_shape();
@@ -238,7 +260,6 @@ namespace ros{
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 		void tris2PQP(PQP_Model *m, const char *fname );
 #endif
-		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
 
 		void reloadBVH();
 	};
@@ -280,9 +301,17 @@ namespace ros{
 	//augments the triangle object by a mesh with the same size (TODO:
 	//embedding into voronoi hull)
 	struct TriangleMeshDecorator: public TriangleObject{
-		std::string filename;
+	private:
+		TriangleObject *_tobj;
+		visualization_msgs::Marker _deco_marker;
+		std::string _deco_file;
+
+		TriangleMeshDecorator();
+	public:
 		TriangleMeshDecorator(TriangleObject *, const char *);
+		virtual void publish();
 		uint32_t get_shape();
+		virtual std::string name();
 	};
 
 	struct BlenderMeshTriangleObject: public TrisTriangleObject{

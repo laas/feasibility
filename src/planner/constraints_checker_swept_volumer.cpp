@@ -89,7 +89,7 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 
 			o->g.x = rx;
 			o->g.y=(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-			o->g.setYawRadian( ryaw );
+			o->g.setRPYRadian(0,0, ryaw );
 			_objects.push_back(o);
 		}
 	}
@@ -137,7 +137,7 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 				g.y = v.at(1);
 				g.z = 0.0;
 				double yawDegree = v.at(2)*100.0;
-				g.setYawRadian( toRad(yawDegree) );
+				g.setRPYRadian(0,0, toRad(yawDegree) );
 				ros::SweptVolumeObject* sv = new ros::SweptVolumeObject(rel_file_path.c_str(), g);
 
 				sweptvolumeMap[hash] = sv;

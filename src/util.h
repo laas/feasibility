@@ -19,6 +19,7 @@
 
 FILE *fopen_s(const char *path, const char *mode);
 void std_seed();
+void seed(double s);
 double rand(double lowerLimit, double upperLimit);
 double randn(double m, double stddev);
 double randn_boxmuller(double m, double stddev);
@@ -53,6 +54,7 @@ std::vector<double> extract_num_from_string( std::string s );
 std::string get_logging_str(const char* prefix, std::string s);
 uint get_num_files_in_dir(const char *path, const char *ending);
 #ifdef PQP_COLLISION_CHECKING
+//for backward compability with N.Perrin framework
 #include <pqp/PQP.h>
 void MRotZ(PQP_REAL R[3][3], PQP_REAL t);
 #endif

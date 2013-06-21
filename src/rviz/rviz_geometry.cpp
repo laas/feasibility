@@ -39,9 +39,9 @@ namespace ros{
 	void Geometry::setQuaternionW(double r){
 		this->rw=r;
 	}
-	void Geometry::setYawRadian(double yaw){
+	void Geometry::setRPYRadian(double roll, double pitch, double yaw){
 		tf::Quaternion q;
-		q.setRPY(0,0,yaw); //in radian
+		q.setRPY(roll, pitch, yaw); //in radian
 		this->rx = q.getX();
 		this->ry = q.getY();
 		this->rz = q.getZ();

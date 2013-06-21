@@ -12,7 +12,7 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.z = 0.0;
-		this->g.setYawRadian(0);
+		this->g.setRPYRadian(0,0,0);
 		this->g.sx=1;
 		this->g.sy=1;
 		this->g.sz=1;

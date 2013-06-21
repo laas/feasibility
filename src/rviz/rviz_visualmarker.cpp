@@ -13,6 +13,22 @@ namespace ros{
 		}
 		changedPosition = false;
 	}
+	void RVIZVisualMarker::setScale(double sx, double sy, double sz){
+		this->g.sx = sx;
+		this->g.sy = sy;
+		this->g.sz = sz;
+		update_marker();
+	}
+	void RVIZVisualMarker::setXYZ(double x, double y, double z){
+		this->g.x = x;
+		this->g.y = y;
+		this->g.z = z;
+		update_marker();
+	}
+	void RVIZVisualMarker::setRPYRadian(double roll, double pitch, double yaw){
+		this->g.setRPYRadian(roll, pitch, yaw);
+		update_marker();
+	}
 
 	void RVIZVisualMarker::interactiveMarkerFeedbackLoop( const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback ){
 		THREAD_DEBUG(ROS_INFO_STREAM( feedback->marker_name << " is now at "
@@ -82,11 +98,12 @@ namespace ros{
 
 		active_marker.header.frame_id = "/base_link";
 		active_marker.name = imarker_name.c_str();
-		active_marker.description = imarker_name.c_str();
+//		active_marker.description = "";
+		active_marker.description = "";
 
 		tf::Vector3 position(this->g.x, this->g.y, this->g.z);
 		tf::pointTFToMsg(position, active_marker.pose.position);
-		active_marker.scale = 0.2;//sqrtf(g.sx*g.sx + g.sy*g.sy);
+		active_marker.scale = 0.1;//sqrtf(g.sx*g.sx + g.sy*g.sy);
 
 		visualization_msgs::InteractiveMarkerControl control;
 		control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;
@@ -165,7 +182,7 @@ namespace ros{
 	void RVIZVisualMarker::setXYT(double x, double y, double yaw_rad){
 		g.x = x;
 		g.y = y;
-		g.setYawRadian(yaw_rad);
+		g.setRPYRadian(0,0,yaw_rad);
 	}
 	bool RVIZVisualMarker::isChanged(double threshold){
 		if( dist(g.x, g_old.x, g.y, g_old.y) > threshold ){
@@ -223,6 +240,9 @@ namespace ros{
 		return &g;
 	}
 	void RVIZVisualMarker::init_marker(){
+		init_marker(this->marker);
+	}
+	void RVIZVisualMarker::init_marker(visualization_msgs::Marker &marker){
 		char fname[50];
 		std::string name = this->name();
 		sprintf(fname, "%d_%s",this->id, name.c_str());
@@ -254,6 +274,9 @@ namespace ros{
 	}
 
 	void RVIZVisualMarker::update_marker(){
+		update_marker(this->marker);
+	}
+	void RVIZVisualMarker::update_marker( visualization_msgs::Marker &marker ){
 		marker.id = this->id;
 		marker.type = get_shape();
 		marker.pose.position.x = g.x;

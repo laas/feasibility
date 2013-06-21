@@ -43,7 +43,7 @@ int main( int argc, char** argv )
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
 	ConstraintsChecker *ccANN = new ConstraintsCheckerANN(16);
-	ConstraintsChecker *ccSweptVolume = NULL;// new ConstraintsCheckerSweptVolume();
+	ConstraintsChecker *ccSweptVolume = new ConstraintsCheckerSweptVolume();
 	while (ros::ok())
 	{
 		//printf("input: neural net %s\n",argv[1]);

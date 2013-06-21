@@ -46,6 +46,7 @@ struct Environment13HumanoidsReal: public Environment{
 	void setGoalObject();
 	void setStartObject();
 	virtual void setDecorations();
+	void createApproxObj(const char* name, double x, double y, double yaw);
 };
 struct Environment13Humanoids: public Environment{
 	Environment13Humanoids(): Environment(){ }
