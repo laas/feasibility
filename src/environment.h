@@ -29,6 +29,7 @@ public:
 	static uint Nobjects;
 	static void resetInstance();
 	static Environment* getSalleBauzil();
+	static Environment* getTestBed();
 	static Environment* get13Humanoids();
 	static Environment* get13HumanoidsReal();
 	void init();
@@ -40,6 +41,13 @@ public:
 	ros::Geometry getStart();
 };
 
+struct EnvironmentFeasibilityTest: public Environment{
+	EnvironmentFeasibilityTest(): Environment(){ }
+	void setObjects();
+	void setGoalObject();
+	void setStartObject();
+	virtual void setDecorations();
+};
 struct Environment13HumanoidsReal: public Environment{
 	Environment13HumanoidsReal(): Environment(){ }
 	void setObjects();

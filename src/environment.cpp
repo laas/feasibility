@@ -15,6 +15,9 @@ Environment* Environment::get13Humanoids(){
 Environment* Environment::getSalleBauzil(){
 	return getInstance("SalleBauzil");
 }
+Environment* Environment::getTestBed(){
+	return getInstance("TestBed");
+}
 Environment* Environment::getInstance(const char* iname){
 	if(singleton==NULL){
 		if(strcmp("13humanoidsReal", iname)==0){
@@ -23,6 +26,8 @@ Environment* Environment::getInstance(const char* iname){
 			singleton = new Environment13Humanoids();
 		}else if(strcmp("SalleBauzil", iname)==0){
 			singleton = new EnvironmentSalleBauzil();
+		}else if(strcmp("TestBed", iname)==0){
+			singleton = new EnvironmentFeasibilityTest();
 		}else{
 			PRINT("No class for name " << iname );
 			ABORT("No class error");

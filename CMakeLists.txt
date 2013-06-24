@@ -103,6 +103,7 @@ set(SOURCE
 	src/environment_sallebauzil.cpp
 	src/environment_13humanoids.cpp
 	src/environment_13humanoids_real.cpp
+	src/environment_testbed.cpp
 	src/planner/motionplanner.h
 	src/planner/motionplanner_astar.h
 	src/planner/constraints_checker.h 
@@ -111,6 +112,8 @@ set(SOURCE
 	src/planner/constraints_checker_hyperplanar.h 
 	src/planner/constraints_checker_swept_volumer.h
 	src/planner/constraints_checker_swept_volumer.cpp
+	src/planner/constraints_checker_naive.h
+	src/planner/constraints_checker_naive.cpp
 	src/planner/constraints_checker_wallconstraints_decorator.h 
 	src/planner/constraints_checker_wallconstraints_decorator.cpp
 	src/planner/contact_transition.h 
@@ -178,6 +181,8 @@ target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlan
 rosbuild_add_executable(13HumanoidsPlannerEndless test/13humanoids_planner_endless.cpp )
 target_link_libraries(13HumanoidsPlannerEndless ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 
+rosbuild_add_executable(FeasibilityChecker test/feasibility_test.cpp )
+target_link_libraries(FeasibilityChecker ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 #rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
 #target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 #rosbuild_add_executable(13HumanoidsPlannerExpNoSV test/13humanoids_planner_experiment_nosweptvolume.cpp )

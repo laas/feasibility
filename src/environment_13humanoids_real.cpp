@@ -20,7 +20,7 @@ void Environment13HumanoidsReal::setDecorations(){
 	//c->setRPYRadian(M_PI/2,0,0);
 	//decorations.push_back(c);
 	c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
-	c->setXYZ(1.5,-1.0,-0.01);
+	c->setXYZ(1.5,-1.2,-0.01);
 	c->setRPYRadian(0,0,M_PI);
 	decorations.push_back(c);
 }
@@ -54,13 +54,12 @@ void Environment13HumanoidsReal::setObjects(){
 	// otherwise the MLP function is undefined
 	seed(Nobjects);
 	for(uint i=0;i<Nobjects;i++){
-		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-0.8,0.8), rand(0.01,0.03), rand(0.01,0.1));
+		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-0.8,0.8), rand(0.03,0.04), rand(0.03,0.05));
 		c->set_color(0,0.8,0,0.8);
 		//c->set_color(0.1,0.1,0.1,1.0);
-		if(c->g.getRadius() > 0.05) c->make_interactive();
 		objects.push_back(c);
 	}
-	for(uint i=0;i< std::min((int)objects.size(),10);i++){
+	for(uint i=0;i< std::min((int)objects.size(),5);i++){
 		objects.at(i)->make_interactive();
 	}
 

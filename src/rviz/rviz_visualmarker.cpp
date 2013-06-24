@@ -1,7 +1,7 @@
 #include "rviz_visualmarker.h"
 
 #define DEBUG(x) x
-#define THREAD_DEBUG(x)
+#define THREAD_DEBUG(x) 
 namespace ros{
 	boost::shared_ptr<interactive_markers::InteractiveMarkerServer> RVIZVisualMarker::server;
 	RVIZVisualMarker::RVIZVisualMarker(){
@@ -54,7 +54,7 @@ namespace ros{
 	}
 
 	void RVIZVisualMarker::thread_interactive_marker_start(){
-		static bool server_init= false;
+		static bool server_init = false;
 		if(!server_init){
 			THREAD_DEBUG(ROS_INFO("init interactive marker server"));
 			//server = new interactive_markers::InteractiveMarkerServer("interactive_markers");
@@ -73,8 +73,6 @@ namespace ros{
 		boost::function<void (const visualization_msgs::InteractiveMarkerFeedbackConstPtr&)> bindedLoop =
 			bind(&RVIZVisualMarker::interactiveMarkerFeedbackLoop, this, _1);
 
-
-		//server->insert(active_marker, &RVIZVisualMarker::interactiveMarkerFeedbackLoop);
 		server->insert(active_marker, bindedLoop );
 		server->applyChanges();
 
@@ -98,8 +96,7 @@ namespace ros{
 
 		active_marker.header.frame_id = "/base_link";
 		active_marker.name = imarker_name.c_str();
-//		active_marker.description = "";
-		active_marker.description = "";
+		active_marker.description = "Interactive";
 
 		tf::Vector3 position(this->g.x, this->g.y, this->g.z);
 		tf::pointTFToMsg(position, active_marker.pose.position);
@@ -112,7 +109,7 @@ namespace ros{
 		control.orientation.x = 0;
 		control.orientation.y = 1;
 		control.orientation.z = 0;
-		control.always_visible = false;
+		control.always_visible = true;
 		control.name = "move_xy";
 		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_PLANE;
 		active_marker.controls.push_back(control);
