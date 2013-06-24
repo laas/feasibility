@@ -44,19 +44,24 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 		double ff_rel_x, double ff_rel_y, double ff_rel_yaw,
 		char sf_foot){
 	//absolute position of next pos of FF
-	double ff_abs_x = sf_abs_x + cos(sf_abs_yaw)*ff_rel_x - sin(sf_abs_yaw)*ff_rel_y;
-	double ff_abs_y = sf_abs_y + sin(sf_abs_yaw)*ff_rel_x + cos(sf_abs_yaw)*ff_rel_y;
-	double ff_abs_yaw = ff_rel_yaw + sf_abs_yaw;
+	//double ff_abs_x = sf_abs_x + cos(sf_abs_yaw)*ff_rel_x - sin(sf_abs_yaw)*ff_rel_y;
+	//double ff_abs_y = sf_abs_y + sin(sf_abs_yaw)*ff_rel_x + cos(sf_abs_yaw)*ff_rel_y;
+	//double ff_abs_yaw = ff_rel_yaw + sf_abs_yaw;
+	double ff_abs_x, ff_abs_y, ff_abs_yaw;
 
 	if(sf_foot == 'R'){
+		ff_abs_x = sf_abs_x + cos(sf_abs_yaw)*ff_rel_x - sin(sf_abs_yaw)*ff_rel_y;
+		ff_abs_y = sf_abs_y + sin(sf_abs_yaw)*ff_rel_x + cos(sf_abs_yaw)*ff_rel_y;
+		ff_abs_yaw = ff_rel_yaw + sf_abs_yaw;
+	}else{
 		//reflection at x-axis [1 0,0 -1], following rotation around z and
 		//translation to x,y
 		ff_abs_x = sf_abs_x + cos(sf_abs_yaw)*ff_rel_x + sin(sf_abs_yaw)*ff_rel_y;
 		ff_abs_y = sf_abs_y + sin(sf_abs_yaw)*ff_rel_x - cos(sf_abs_yaw)*ff_rel_y;
 		ff_abs_yaw = -(ff_rel_yaw - sf_abs_yaw);
 	}
-	while(ff_abs_yaw>M_PI) ff_abs_yaw-=2*M_PI;
-	while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
+	//while(ff_abs_yaw>M_PI) ff_abs_yaw-=2*M_PI;
+	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
 
 	ros::Geometry ff_abs;
 	ff_abs.x = ff_abs_x;
@@ -64,6 +69,72 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	ff_abs.setRPYRadian(0,0,ff_abs_yaw);
 
 	return ff_abs;
+}
+void ContactTransition::feasibilityVisualizer(){
+
+	char foot='L';
+
+	double sf_abs_x = 0.0;
+	double sf_abs_y = 0.0;
+	double sf_abs_yaw = 0.0;
+	//get the relative position of the starting free foot (FF)
+	double ff_rel_x = 0.0;
+	double ff_rel_y = -0.2;
+	double ff_rel_yaw = 0.0;
+
+	for(uint i=0;i<2;i++)
+	{
+		if(i==0){
+			foot='L';
+			sf_abs_x = 0.0;
+			sf_abs_y = 0.0;
+			sf_abs_yaw = 0.0;
+			ff_rel_x = 0.0;
+			ff_rel_y = -0.2;
+			ff_rel_yaw = 0.0;
+		}else{
+			foot='R';
+			sf_abs_x = 0.0;
+			sf_abs_y = -0.2;
+			sf_abs_yaw = 0.0;
+			ff_rel_x = 0.0;
+			ff_rel_y = 0.0;
+			ff_rel_yaw = 0.0;
+		}
+		std::vector< std::vector<double> > obj = 
+			constraints->prepareObjectPosition(objects, sf_abs_x, sf_abs_y, sf_abs_yaw, foot);
+
+
+		std::vector<double> ff_rel = vecD(ff_rel_x, ff_rel_y, ff_rel_yaw);
+		double ff_hash = hashit<double>(ff_rel);
+
+		bool ff_start_feasible = true;
+		if(constraints->actionSpace.find(ff_hash)!=constraints->actionSpace.end()){
+			std::vector<double> ff_rel_table = constraints->actionSpace.find(ff_hash)->second;
+			ff_start_feasible = constraints->isFeasible(ff_rel_table, obj);
+		}
+
+		if(ff_start_feasible){
+			ActionSpace::const_iterator it;
+			for(  it = constraints->actionSpace.begin(); it != constraints->actionSpace.end(); ++it ){
+
+				if(constraints->isFeasible( it->second, obj)){
+
+					double next_ff_rel_x = it->second.at(0);
+					double next_ff_rel_y = it->second.at(1);
+					double next_ff_rel_yaw = it->second.at(2);
+					ros::Geometry ng = this->computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, foot);
+					if(foot=='L'){
+						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "green");
+						rp.publish();
+					}else{
+						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "red");
+						rp.publish();
+					}
+				}
+			}//foreach action
+		}
+	}
 }
 	
 bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsearch, ContactTransition *parent_node ){
@@ -92,7 +163,6 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	double ff_rel_y = parent->rel_y_parent;
 	double ff_rel_yaw = parent->rel_yaw_parent;
 
-
 	std::vector<double> ff_rel = vecD(ff_rel_x, ff_rel_y, ff_rel_yaw);
 	double ff_hash = hashit<double>(ff_rel);
 
@@ -114,10 +184,9 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 	if(ff_start_feasible){
 		DEBUG(
-			//sleep(1);
 			if(foot=='L'){
 				ros::ColorFootMarker rp(parent->g.x, parent->g.y, parent->g.getYawRadian(),"white");
-				rp.reset();
+				//rp.reset();
 				rp.publish();
 			}
 
@@ -134,8 +203,8 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 				double next_ff_rel_x = it->second.at(0);
 				double next_ff_rel_y = it->second.at(1);
-				double next_ff_rel_yaw = toRad(it->second.at(2)/100.0);
-				ros::Geometry ng = computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, L_or_R);
+				double next_ff_rel_yaw = it->second.at(2);//toRad(it->second.at(2)*100.0);
+				ros::Geometry ng = computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, foot);
 
 				ContactTransition next(ng);
 				next.L_or_R = foot;

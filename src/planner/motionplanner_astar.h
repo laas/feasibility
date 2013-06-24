@@ -46,6 +46,12 @@ struct MotionPlannerAStar: public MotionPlanner{
 		this->start.L_or_R = 'L'; //start foot
 	}
 
+	void feasibilityChecker(){
+		ros::FootMarker m(0,0,0);
+		m.reset();
+		this->start.feasibilityVisualizer();
+	}
+
 	void start_planner(){
 
 		astarsearch->SetStartAndGoalStates( start, goal );
@@ -118,7 +124,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 			for( ;; )
 			{
-				DEBUG(ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, node->g.getYawRadian());)
+				DEBUG(ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, toDeg(node->g.getYawRadian()));)
 				node = astarsearch->GetSolutionNext();
 				if( !node ) break;
 

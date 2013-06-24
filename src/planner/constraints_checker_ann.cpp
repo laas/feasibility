@@ -1,7 +1,8 @@
 #include <dirent.h>
 #include "constraints_checker_ann.h"
 
-#define DEBUG(x) 
+#define DEBUG(x)
+#define DEBUGOBJ(x)
 
 DEBUG(Logger logger;)
 bool ConstraintsCheckerANN::isFeasible(  const std::vector<double> &p, 
@@ -28,16 +29,18 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 	std::vector<ros::RVIZVisualMarker*>::const_iterator oit;
 	uint c=0;
 	for(  oit = objects.begin(); oit != objects.end(); ++oit ){
-		double x = (*oit)->g.x;
-		double y = (*oit)->g.y;
+		double obj_x = (*oit)->g.x;
+		double obj_y = (*oit)->g.y;
+		DEBUGOBJ(ROS_INFO("object at %f %f", obj_x, obj_y);)
+		DEBUGOBJ(ROS_INFO("pos foot at %f %f %f", sf_x, sf_y, toDeg(sf_yaw));)
 
 		//translate object, so that origin and sf origin conincide
-		double tx = x - sf_x;
-		double ty = y - sf_y;
+		double tx = obj_x - sf_x;
+		double ty = obj_y - sf_y;
 		//rotate object around origin, such that object is aligned with
 		//sf
-		double rx = cos(sf_yaw)*tx - sin(sf_yaw)*ty;
-		double ry = sin(sf_yaw)*tx + cos(sf_yaw)*ty;
+		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
+		double ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
 
 		std::vector<double> d(4);
 		//X,Y,R,H
@@ -47,7 +50,7 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 		d.at(3)=(*oit)->g.getHeight();
 
 		double dist = sqrtf(rx*rx+ry*ry);
-		DEBUG(ROS_INFO("object %d/%d at %f %f (dist %f)", c++, objects.size(), rx, ry, dist);)
+		DEBUGOBJ(ROS_INFO("object %d/%d at %f %f (dist %f)", c++, objects.size(), rx, ry, dist);)
 		if(dist<MAX_SWEPT_VOLUME_LIMIT){
 			v.push_back(d);
 		}
@@ -112,7 +115,8 @@ void ConstraintsCheckerANN::loadNNParameters(const char *path, uint Hneurons){
 				std::vector<double> v = extract_num_from_string(file);
 				v.at(0)/=100.0;
 				v.at(1)/=100.0;
-				v.at(2)/=100.0;
+				//v.at(2)/=100.0;
+				v.at(2)=toRad(v.at(2));
 
 				//compute hash from v (position of free foot)
 				uint hash = hashit<double>(v);

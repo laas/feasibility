@@ -37,6 +37,7 @@ struct ContactTransition
 	double GetCost( ContactTransition &successor );
 	bool IsSameState( ContactTransition &rhs );
 	void showSuccessors( double x, double y, double t, char L_or_R);
+	void feasibilityVisualizer();
 	static void setConstraintsChecker( ConstraintsChecker *c );
 
 	ros::Geometry computeAbsFFfromRelFF(

@@ -116,7 +116,7 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 				std::vector<double> v = extract_num_from_string(file);
 				v.at(0)/=100.0;
 				v.at(1)/=100.0;
-				v.at(2)/=100.0;
+				v.at(2)=toRad(v.at(2));
 
 				//compute hash from v (position of free foot)
 				uint hash = hashit<double>(v);
@@ -136,8 +136,7 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 				g.x = v.at(0);
 				g.y = v.at(1);
 				g.z = 0.0;
-				double yawDegree = v.at(2)*100.0;
-				g.setRPYRadian(0,0, toRad(yawDegree) );
+				g.setRPYRadian(0,0, v.at(2) );
 				ros::SweptVolumeObject* sv = new ros::SweptVolumeObject(rel_file_path.c_str(), g);
 
 				sweptvolumeMap[hash] = sv;
