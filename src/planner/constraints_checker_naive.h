@@ -3,6 +3,8 @@
 
 class ConstraintsCheckerNaive: public ConstraintsChecker{
 private:
+	void loadActionSpace(const char *path);
+
 public:
 	ConstraintsCheckerNaive();
 	~ConstraintsCheckerNaive();

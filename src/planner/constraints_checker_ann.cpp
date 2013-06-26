@@ -8,11 +8,26 @@ DEBUG(Logger logger;)
 bool ConstraintsCheckerANN::isFeasible(  const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){
 
+	if(fabs(p.at(2))>toRad(16)) return false;
+
 	double continuous_feasibility = this->computeNNOutput( p, obj);
 	DEBUG(logger("%f %f %f %f\n", p.at(0), p.at(1), p.at(2), continuous_feasibility);)
 	if(continuous_feasibility<=0){
 		return false;
 	}else{
+		//prune also footsteps, which are too close to obstacles
+		std::vector<std::vector<double> > v;
+		double x=p.at(0);
+		double y=p.at(1);
+		std::vector< std::vector<double> >::const_iterator oit;
+		for(  oit = obj.begin(); oit != obj.end(); ++oit ){
+			double ox = (*oit).at(0);
+			double oy = (*oit).at(1);
+			double radius = (*oit).at(2);
+			if( norml2(ox,x,oy,y) < (radius+0.132) ){ //0.132m radius of foot
+				return false;
+			}
+		}
 		return true;
 	}
 }
@@ -22,7 +37,7 @@ bool ConstraintsCheckerANN::isFeasible(  const std::vector<double> &p,
 //which are too far away
 std::vector< std::vector<double> > 
 ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*> &objects, 
-		double sf_x, double sf_y, double sf_yaw, char foot){
+		double sf_x, double sf_y, double sf_yaw, char sf_foot){
 
 	std::vector< std::vector<double> > v;
 	std::vector< std::vector<double> >::const_iterator vit;
@@ -31,8 +46,6 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 	for(  oit = objects.begin(); oit != objects.end(); ++oit ){
 		double obj_x = (*oit)->g.x;
 		double obj_y = (*oit)->g.y;
-		DEBUGOBJ(ROS_INFO("object at %f %f", obj_x, obj_y);)
-		DEBUGOBJ(ROS_INFO("pos foot at %f %f %f", sf_x, sf_y, toDeg(sf_yaw));)
 
 		//translate object, so that origin and sf origin conincide
 		double tx = obj_x - sf_x;
@@ -42,15 +55,20 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
 		double ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
 
+		if(sf_foot == 'R'){
+		}else{
+			ry = -ry;
+		}
+
 		std::vector<double> d(4);
 		//X,Y,R,H
 		d.at(0)=rx;
-		d.at(1)=(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
+		d.at(1)=ry;//(sf_foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
 		d.at(2)=(*oit)->g.getRadius();
 		d.at(3)=(*oit)->g.getHeight();
 
 		double dist = sqrtf(rx*rx+ry*ry);
-		DEBUGOBJ(ROS_INFO("object %d/%d at %f %f (dist %f)", c++, objects.size(), rx, ry, dist);)
+		DEBUGOBJ(ROS_INFO("object (%f,%f) -> (%f,%f)", obj_x, obj_y, d.at(0), d.at(1));)
 		if(dist<MAX_SWEPT_VOLUME_LIMIT){
 			v.push_back(d);
 		}
@@ -115,7 +133,6 @@ void ConstraintsCheckerANN::loadNNParameters(const char *path, uint Hneurons){
 				std::vector<double> v = extract_num_from_string(file);
 				v.at(0)/=100.0;
 				v.at(1)/=100.0;
-				//v.at(2)/=100.0;
 				v.at(2)=toRad(v.at(2));
 
 				//compute hash from v (position of free foot)

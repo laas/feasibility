@@ -4,7 +4,7 @@ namespace ros{
 		this->g.x = x;
 		this->g.y = y;
 		this->g.setRPYRadian(0,0,yaw);
-		this->g.sx=0.23;
+		this->g.sx=0.22;
 		this->g.sy=0.13;
 		this->g.sz=0.03;
 		set_color(0.9,0.9,0.9,0.8);

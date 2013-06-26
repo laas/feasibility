@@ -100,7 +100,7 @@ namespace ros{
 
 		tf::Vector3 position(this->g.x, this->g.y, this->g.z);
 		tf::pointTFToMsg(position, active_marker.pose.position);
-		active_marker.scale = 0.1;//sqrtf(g.sx*g.sx + g.sy*g.sy);
+		active_marker.scale = std::max(0.1, g.getRadius());//sqrtf(g.sx*g.sx + g.sy*g.sy);
 
 		visualization_msgs::InteractiveMarkerControl control;
 		control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;

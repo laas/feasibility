@@ -61,6 +61,7 @@ struct Environment13Humanoids: public Environment{
 	void setObjects();
 	void setGoalObject();
 	void setStartObject();
+	virtual void setDecorations();
 };
 struct EnvironmentSalleBauzil: public Environment{
 	EnvironmentSalleBauzil(): Environment(){ }

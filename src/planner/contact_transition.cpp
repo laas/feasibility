@@ -52,7 +52,7 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	if(sf_foot == 'R'){
 		ff_abs_x = sf_abs_x + cos(sf_abs_yaw)*ff_rel_x - sin(sf_abs_yaw)*ff_rel_y;
 		ff_abs_y = sf_abs_y + sin(sf_abs_yaw)*ff_rel_x + cos(sf_abs_yaw)*ff_rel_y;
-		ff_abs_yaw = ff_rel_yaw + sf_abs_yaw;
+		ff_abs_yaw = (ff_rel_yaw + sf_abs_yaw);
 	}else{
 		//reflection at x-axis [1 0,0 -1], following rotation around z and
 		//translation to x,y
@@ -72,7 +72,7 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 }
 void ContactTransition::feasibilityVisualizer(){
 
-	char foot='L';
+	char sf_foot='L';
 
 	double sf_abs_x = 0.0;
 	double sf_abs_y = 0.0;
@@ -82,27 +82,28 @@ void ContactTransition::feasibilityVisualizer(){
 	double ff_rel_y = -0.2;
 	double ff_rel_yaw = 0.0;
 
+	ROS_INFO("FEASIVIBLITY HCEKCER");
 	for(uint i=0;i<2;i++)
 	{
 		if(i==0){
-			foot='L';
-			sf_abs_x = 0.0;
-			sf_abs_y = 0.0;
-			sf_abs_yaw = 0.0;
+			sf_foot='L';
+			sf_abs_x = 1.0;
+			sf_abs_y = -0.3;
+			sf_abs_yaw = toRad(-50);
 			ff_rel_x = 0.0;
 			ff_rel_y = -0.2;
 			ff_rel_yaw = 0.0;
 		}else{
-			foot='R';
-			sf_abs_x = 0.0;
-			sf_abs_y = -0.2;
-			sf_abs_yaw = 0.0;
+			sf_foot='R';
+			sf_abs_x = 1.0;
+			sf_abs_y = -0.3;
+			sf_abs_yaw = toRad(-50);
 			ff_rel_x = 0.0;
 			ff_rel_y = 0.0;
 			ff_rel_yaw = 0.0;
 		}
 		std::vector< std::vector<double> > obj = 
-			constraints->prepareObjectPosition(objects, sf_abs_x, sf_abs_y, sf_abs_yaw, foot);
+			constraints->prepareObjectPosition(objects, sf_abs_x, sf_abs_y, sf_abs_yaw, sf_foot);
 
 
 		std::vector<double> ff_rel = vecD(ff_rel_x, ff_rel_y, ff_rel_yaw);
@@ -115,6 +116,7 @@ void ContactTransition::feasibilityVisualizer(){
 		}
 
 		if(ff_start_feasible){
+			int c=0;
 			ActionSpace::const_iterator it;
 			for(  it = constraints->actionSpace.begin(); it != constraints->actionSpace.end(); ++it ){
 
@@ -123,8 +125,8 @@ void ContactTransition::feasibilityVisualizer(){
 					double next_ff_rel_x = it->second.at(0);
 					double next_ff_rel_y = it->second.at(1);
 					double next_ff_rel_yaw = it->second.at(2);
-					ros::Geometry ng = this->computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, foot);
-					if(foot=='L'){
+					ros::Geometry ng = this->computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, sf_foot);
+					if(sf_foot=='L'){
 						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "green");
 						rp.publish();
 					}else{

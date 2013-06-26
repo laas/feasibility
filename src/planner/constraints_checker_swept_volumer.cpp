@@ -10,6 +10,7 @@ bool ConstraintsCheckerSweptVolume::isFeasible(
 		const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){
 
+	if(fabs(p.at(2))>toRad(16)) return false;
 	double continuous_feasibility = this->computeSVOutput( p, obj);
 	if(continuous_feasibility<=0){
 		return false;
@@ -44,7 +45,7 @@ double ConstraintsCheckerSweptVolume::computeSVOutput(
 
 std::vector< std::vector<double> > 
 ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*> &obj, 
-		double sf_x, double sf_y, double sf_yaw, char foot){
+		double sf_x, double sf_y, double sf_yaw, char sf_foot){
 	std::vector<std::vector<double> > v;
 	std::vector<ros::RVIZVisualMarker*>::iterator oit;
 	_objects.clear();
@@ -58,9 +59,15 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 		double ty = y - sf_y;
 		//rotate object around origin, such that object is aligned with
 		//sf
-		double rx = cos(sf_yaw)*tx - sin(sf_yaw)*ty;
-		double ry = sin(sf_yaw)*tx + cos(sf_yaw)*ty;
+		//sf
+		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
+		double ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
 		double ryaw = yaw - sf_yaw;
+
+		if(sf_foot == 'R'){
+		}else{
+			ry = -ry;
+		}
 
 		//swept vlumes are always tested on the right side
 		while(ryaw>M_PI) ryaw-=2*M_PI;
@@ -88,8 +95,7 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 			o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
 
 			o->g.x = rx;
-			o->g.y=(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-			o->g.setRPYRadian(0,0, ryaw );
+			o->g.y=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
 			_objects.push_back(o);
 		}
 	}

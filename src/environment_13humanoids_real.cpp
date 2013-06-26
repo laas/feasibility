@@ -20,7 +20,7 @@ void Environment13HumanoidsReal::setDecorations(){
 	//c->setRPYRadian(M_PI/2,0,0);
 	//decorations.push_back(c);
 	c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
-	c->setXYZ(1.5,-1.2,-0.01);
+	c->setXYZ(1.5,-1.5,-0.01);
 	c->setRPYRadian(0,0,M_PI);
 	decorations.push_back(c);
 }
@@ -52,9 +52,10 @@ void Environment13HumanoidsReal::setObjects(){
 	//RADIUS \elem [0.01, 0.1]
 	//HEIGHT \elem [0.01, 0.5]
 	// otherwise the MLP function is undefined
-	seed(Nobjects);
+	//seed(Nobjects);
 	for(uint i=0;i<Nobjects;i++){
-		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-0.8,0.8), rand(0.03,0.04), rand(0.03,0.05));
+		//c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-0.8,0.8), rand(0.03,0.04), rand(0.03,0.05));
+		c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-0.8,0.8), rand(0.03,0.05), rand(0.03,0.05));
 		c->set_color(0,0.8,0,0.8);
 		//c->set_color(0.1,0.1,0.1,1.0);
 		objects.push_back(c);
@@ -67,13 +68,13 @@ void Environment13HumanoidsReal::setObjects(){
 	//createApproxObj("package://feasibility/data/objects/oildrum.obj",2.5,1.5,rand(M_PI/2-0.2,M_PI/2+0.2));
 	//createApproxObj("package://feasibility/data/objects/humanoid_tri.obj",1.8,-0.5,rand(M_PI/2-0.2,M_PI/2+0.2));
 	//createApproxObj("package://feasibility/data/objects/cactus/cactus.obj",1.8,-0.9,rand(M_PI-0.2,M_PI+0.2));
-	//createApproxObj("package://feasibility/data/AluminumChair.dae",1.8,-0.9,rand(M_PI-0.2,M_PI+0.2));
-	//createApproxObj("package://feasibility/data/AluminumChair.dae",0,0.5,rand(M_PI/2-0.2,M_PI/2+0.2));
+	createApproxObj("package://feasibility/data/AluminumChair.dae",1.8,-0.9,rand(M_PI-0.2,M_PI+0.2));
+	createApproxObj("package://feasibility/data/AluminumChair.dae",0,0.5,rand(M_PI/2-0.2,M_PI/2+0.2));
 
 
 }
 void Environment13HumanoidsReal::setGoalObject(){
-	goal = new ros::SphereMarker(3.0, 0.0, 0.2, 0.0);
+	goal = new ros::SphereMarker(2.2, 0.0, 0.2, 0.0);
 	goal->addText("goal");
 	goal->subscribeToEvart("/evart/helmet2/PO");
 }
