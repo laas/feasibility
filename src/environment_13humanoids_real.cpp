@@ -61,7 +61,7 @@ void Environment13HumanoidsReal::setObjects(){
 		objects.push_back(c);
 	}
 	for(uint i=0;i< std::min((int)objects.size(),5);i++){
-		objects.at(i)->make_interactive();
+		//objects.at(i)->make_interactive();
 	}
 
 
@@ -74,8 +74,9 @@ void Environment13HumanoidsReal::setObjects(){
 
 }
 void Environment13HumanoidsReal::setGoalObject(){
-	goal = new ros::SphereMarker(2.2, 0.0, 0.2, 0.0);
+	goal = new ros::SphereMarker(2.2, 0.0, 0.1, 0.0);
 	goal->addText("goal");
+	goal->make_interactive();
 	goal->subscribeToEvart("/evart/helmet2/PO");
 }
 void Environment13HumanoidsReal::setStartObject(){

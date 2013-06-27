@@ -4,6 +4,7 @@
 #include "rviz/rviz_visualmarker.h"
 
 typedef std::unordered_map< int, struct fann*> NeuralHashMap; 
+typedef std::unordered_map< int, std::string> ActionSpaceSweptVolumeFileNames; 
 typedef std::unordered_map< int, std::vector<double>> ActionSpace; 
 typedef std::unordered_map< int, ros::SweptVolumeObject*> SweptVolumeHashMap; 
 
@@ -15,10 +16,14 @@ const double MAX_SWEPT_VOLUME_LIMIT = 1.1;
 class ConstraintsChecker{
 public:
 	ActionSpace actionSpace;
-	ConstraintsChecker(){};
+	ActionSpaceSweptVolumeFileNames sweptvolumes_file_names;
+
+	ConstraintsChecker();
 	~ConstraintsChecker(){
 		actionSpace.clear();
 	}
+	void loadSweptVolumeFileNames(const char *path);
+
 	virtual 
 	bool isFeasible(  const std::vector<double> &p, 
 			const std::vector< std::vector<double> > &obj)=0;

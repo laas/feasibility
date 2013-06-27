@@ -8,7 +8,7 @@ DEBUG(Logger logger;)
 bool ConstraintsCheckerANN::isFeasible(  const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){
 
-	if(fabs(p.at(2))>toRad(16)) return false;
+	//if(fabs(p.at(2))>toRad(16)) return false;
 
 	double continuous_feasibility = this->computeNNOutput( p, obj);
 	DEBUG(logger("%f %f %f %f\n", p.at(0), p.at(1), p.at(2), continuous_feasibility);)
@@ -149,7 +149,6 @@ void ConstraintsCheckerANN::loadNNParameters(const char *path, uint Hneurons){
 				//load d_name into fann structure
 				std::string rel_file_path = path;
 				rel_file_path += file.c_str();
-
 				struct fann *ann = fann_create_from_file(rel_file_path.c_str());
 				neuralMap[hash] = ann;
 				actionSpace[hash] = v;

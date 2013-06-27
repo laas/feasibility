@@ -18,6 +18,7 @@ bool ConstraintsCheckerSweptVolume::isFeasible(
 		return true;
 	}
 }
+
 double ConstraintsCheckerSweptVolume::computeSVOutput( 
 		const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){

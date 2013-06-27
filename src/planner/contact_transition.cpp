@@ -1,11 +1,12 @@
 #include <unordered_map>
 #include <algorithm> //lowerbound, sort, max_element
 #include <vector> //max_element
+#include <dirent.h>
+#include <Eigen/Geometry>
+#include <Eigen/Core>
 #include "contact_transition.h"
 #include "util.h"
 #include "rviz/rviz_visualmarker.h"
-#include <Eigen/Geometry>
-#include <Eigen/Core>
 
 #define DEBUG(x)
 #define TIMER_DEBUG(x) x
@@ -39,6 +40,40 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.3;
 }
 
+//
+ros::Geometry ContactTransition::computeRelFFfromAbsFF(
+		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
+		double ff_abs_x, double ff_abs_y, double ff_abs_yaw,
+		char sf_foot){
+	NYI("");
+	double ff_rel_x, ff_rel_y, ff_rel_yaw;
+	ROS_INFO("sf_abs %f %f %f", sf_abs_x, sf_abs_y, sf_abs_yaw);
+	ROS_INFO("ff_abs %f %f %f", ff_abs_x, ff_abs_y, ff_abs_yaw);
+
+	double rx = ff_abs_x - sf_abs_x;
+	double ry = ff_abs_y - sf_abs_y;
+	double t = sf_abs_yaw;
+	if(sf_foot == 'L'){
+
+		ff_rel_x = cos(t)*rx - sin(t)*ry;
+		ff_rel_y = cos(t)*rx + sin(t)*ry;
+		ff_rel_yaw = ff_abs_yaw + sf_abs_yaw;
+
+	}else{
+		ff_rel_x = cos(t)*rx + sin(t)*ry;
+		ff_rel_y = cos(t)*rx - sin(t)*ry;
+		ff_rel_yaw = ff_abs_yaw - sf_abs_yaw;
+	}
+	//while(ff_abs_yaw>M_PI) ff_abs_yaw-=2*M_PI;
+	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
+
+	ros::Geometry ff_rel;
+	ff_rel.x = ff_rel_x;
+	ff_rel.y = ff_rel_y;
+	ff_rel.setRPYRadian(0,0,ff_rel_yaw);
+
+	return ff_rel;
+}
 ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
 		double ff_rel_x, double ff_rel_y, double ff_rel_yaw,
@@ -70,6 +105,14 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 
 	return ff_abs;
 }
+
+
+std::string ContactTransition::get_swept_volume_file_name( uint hash ){
+	if(constraints->sweptvolumes_file_names.find(hash)!=constraints->sweptvolumes_file_names.end()){
+		return constraints->sweptvolumes_file_names.find(hash)->second;
+	}
+	return "NOT_FOUND_EXCEPTION";
+}
 void ContactTransition::feasibilityVisualizer(){
 
 	char sf_foot='L';
@@ -82,7 +125,6 @@ void ContactTransition::feasibilityVisualizer(){
 	double ff_rel_y = -0.2;
 	double ff_rel_yaw = 0.0;
 
-	ROS_INFO("FEASIVIBLITY HCEKCER");
 	for(uint i=0;i<2;i++)
 	{
 		if(i==0){

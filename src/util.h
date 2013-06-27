@@ -10,6 +10,7 @@
 #define PRINT(msg) std::cout << CUR_LOCATION << " >> " << msg << std::endl
 #define ABORT(msg) PRINT(msg); throw msg;
 #define HALT(msg) PRINT(msg); exit(1);
+#define NYI(msg) PRINT(msg); exit(1);
 #define COUT(msg) PRINT(msg);
 #define CHECK(cond, str) if(!(cond)){ PRINT(str); throw(str); }
 

@@ -7,9 +7,9 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 #  Release        : w/o debug symbols, w/ optimization
 #  RelWithDebInfo : w/ debug symbols, w/ optimization
 #  MinSizeRel     : w/o debug symbols, w/ optimization, stripped binaries
-set(ROS_BUILD_TYPE Release)
-set(ROS_COMPILE_FLAGS "-O3 -Wextra")
-#set(ROS_BUILD_TYPE Debug)
+#set(ROS_BUILD_TYPE Release)
+#set(ROS_COMPILE_FLAGS "-O3 -Wextra")
+set(ROS_BUILD_TYPE Debug)
 rosbuild_init()
 
 #set the default path for built executables to the "bin" directory
@@ -107,6 +107,7 @@ set(SOURCE
 	src/planner/motionplanner.h
 	src/planner/motionplanner_astar.h
 	src/planner/constraints_checker.h 
+	src/planner/constraints_checker.cpp
 	src/planner/constraints_checker_ann.h 
 	src/planner/constraints_checker_ann.cpp
 	src/planner/constraints_checker_hyperplanar.h 

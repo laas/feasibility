@@ -63,7 +63,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 		{
 			SearchState = astarsearch->SearchStep();
 			SearchSteps++;
-			if(SearchSteps > 1000){
+			if(SearchSteps > 40){
 				astarsearch->CancelSearch();
 				break;
 			}
@@ -106,8 +106,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ros::FootMarker m(0,0,0);
 		m.reset();
 	}
-	void publish(const char *colorLeft, const char *colorRight){
-
+	void publish(const char *colorLeft, const char *colorRight, bool sv=false){
 		uint SearchState = astarsearch->SearchStep();
 		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
 		{
@@ -115,6 +114,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 			int steps = 0;
 			double oldX = node->g.x;
 			double oldY = node->g.y-0.2;
+			double oldT = node->g.getYawRadian();
 
 			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
 			l.publish();
@@ -132,12 +132,31 @@ struct MotionPlannerAStar: public MotionPlanner{
 					ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
 					m.publish();
 					m.drawLine(oldX, oldY);
-					oldX = node->g.x;oldY = node->g.y;
+
+					/*
+					if(sv){
+						ros::Geometry rel = node->computeRelFFfromAbsFF( oldX, oldY, oldT,
+								node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
+
+						uint hash = hashit<double>(vecD(rel.x, rel.y, rel.getYawRadian()));
+						std::string robot_file = node->get_swept_volume_file_name( hash );
+
+						ROS_INFO("try loading %f %f %f", rel.x, rel.y, rel.getYawRadian());
+						ROS_INFO("loading swept vlume %s",robot_file.c_str());
+
+						ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), rel);
+						robot->set_color(0.6,0.0,0.6,0.3);
+						robot->publish();
+					}
+					*/
+
+
+					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
 				}else{
 					ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorRight);
 					m.publish();
 					m.drawLine(oldX, oldY);
-					oldX = node->g.x;oldY = node->g.y;
+					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
 				}
 				steps++;
 			};

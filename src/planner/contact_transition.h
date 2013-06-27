@@ -27,6 +27,7 @@ struct ContactTransition
 	ContactTransition();
 	void print();
 	static void cleanStatic();
+	std::string get_swept_volume_file_name( uint action_hash );
 
 	/// package of functions, neccessary for A* star algorithm --> see
 	//stlastar.h
@@ -43,6 +44,10 @@ struct ContactTransition
 	ros::Geometry computeAbsFFfromRelFF(
 		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
 		double ff_rel_x, double ff_rel_y, double ff_rel_t, 
+		char sf_foot);
+	ros::Geometry computeRelFFfromAbsFF(
+		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
+		double ff_abs_x, double ff_abs_y, double ff_abs_yaw,
 		char sf_foot);
 
 };//contactTransition
