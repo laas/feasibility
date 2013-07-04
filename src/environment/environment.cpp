@@ -1,6 +1,6 @@
 #include <string>
 #include <rviz/rviz_visualmarker.h>
-#include "environment.h"
+#include "environment/environment.h"
 #include "util.h"
 
 Environment* Environment::singleton = NULL;
@@ -111,7 +111,7 @@ void Environment::resetInstance()
 }
 
 Environment::Environment(){
-	DEBUG(ROS_INFO("***** NEW ENVIRONMENT CREATED *****");)
+	DEBUG(ROS_INFO("***** NEW environment/environment.hIRONMENT CREATED *****");)
 	changedEnv = true;
 }
 

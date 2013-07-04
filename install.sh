@@ -18,6 +18,13 @@ GIT_DIR=/home/${USERNAME_SYS}/git
 #########################################################################
 export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${LIB_DIR}/lib/pkgconfig:${INSTALL_DIR}/openrobots/lib/pkgconfig
 
+### install all packages from repositories
+
+## OMPL prerequisites
+sudo apt-get install libboost-all-dev cmake curl python-dev python-qt4-dev \
+python-qt4-gl python-opengl freeglut3-dev
+sudo apt-get install doxygen graphviz libode-dev
+
 ##### reload robotpkg.conf
 rm -rf ${INSTALL_DIR}/openrobots/etc/robotpkg.conf
 echo "ACCEPTABLE_LICENSES+=pqp-license" >> ${INSTALL_DIR}/openrobots/etc/robotpkg.conf

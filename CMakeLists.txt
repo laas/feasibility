@@ -82,6 +82,8 @@ pkg_check_modules(EIGEN eigen3)
 include_directories(${EIGEN_INCLUDE_DIRS})
 link_directories(${EIGEN_LIBRARY_DIRS})
 if(${EIGEN_FOUND})
+	add_definitions("-DEIGEN_FOUND")
+	message(STATUS "------------------- ")
 else()
 	message(STATUS "Compilation without EIGEN libary")
 endif()
@@ -98,12 +100,12 @@ set(MAIN_EXE FootStepPlanner)
 #COMMENT "execute main project"
 #)
 set(SOURCE
-	src/environment.h
-	src/environment.cpp
-	src/environment_sallebauzil.cpp
-	src/environment_13humanoids.cpp
-	src/environment_13humanoids_real.cpp
-	src/environment_testbed.cpp
+	src/environment/environment.h
+	src/environment/environment.cpp
+	src/environment/environment_sallebauzil.cpp
+	src/environment/environment_13humanoids.cpp
+	src/environment/environment_13humanoids_real.cpp
+	src/environment/environment_testbed.cpp
 	src/planner/motionplanner.h
 	src/planner/motionplanner_astar.h
 	src/planner/constraints_checker.h 

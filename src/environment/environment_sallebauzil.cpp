@@ -1,4 +1,4 @@
-#include "environment.h"
+#include "environment/environment.h"
 
 void EnvironmentSalleBauzil::setObjects(){
 	ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(0.8, 0.5, "chairLabo.tris", "/evart/chair2/PO");

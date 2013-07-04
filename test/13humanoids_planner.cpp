@@ -13,7 +13,7 @@
 
 #include "rviz/rviz_visualmarker.h"
 #include "util.h"
-#include "environment.h"
+#include "environment/environment.h"
 #include "planner/motionplanner_astar.h"
 #include "planner/constraints_checker_ann.h"
 #include "planner/constraints_checker_swept_volumer.h"

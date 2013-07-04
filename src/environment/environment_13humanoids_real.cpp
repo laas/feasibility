@@ -1,5 +1,5 @@
 #include <algorithm>    // std::min
-#include "environment.h"
+#include "environment/environment.h"
 
 void Environment13HumanoidsReal::createApproxObj(const char* name, double x, double y, double yaw){
 	ros::RVIZVisualMarker *c, *d;

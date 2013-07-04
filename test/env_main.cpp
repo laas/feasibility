@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <ros/time.h>
-#include "environment.h"
+#include "environment/environment.h"
 
 #include "planner/motionplannerhyperplanar.h"
 #include "planner/motionplannerperrin.h"
