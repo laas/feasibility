@@ -1,6 +1,8 @@
 #pragma once
 #include <ostream>
 #include <vector>
+#include "util_timer.h"
+#include "util_eigen.h"
 
 #define CUR_LOCATION "@" << __FILE__ << ":" << __FUNCTION__ << ":" << __LINE__ << ">>"
 
@@ -108,6 +110,5 @@ public:
 	std::vector< std::vector<double> > getVV(uint numbers_per_line);
 	~CSVReader();
 };
-
 
 #include "util_template.cpp"

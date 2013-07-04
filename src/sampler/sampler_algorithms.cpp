@@ -1,5 +1,5 @@
 #include "sampler.h"
-#include "util_eigen.h"
+#include "util/util_eigen.h"
 #include <math.h>
 #include <Eigen/Core>
 #define DEBUG(x) x

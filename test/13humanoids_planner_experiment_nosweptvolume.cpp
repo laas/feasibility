@@ -12,7 +12,7 @@
 #include <fann.h>
 
 #include "rviz/rviz_visualmarker.h"
-#include "util.h"
+#include "util/util.h"
 #include "environment/environment.h"
 #include "planner/motionplanner_astar.h"
 #include "planner/constraints_checker_ann.h"

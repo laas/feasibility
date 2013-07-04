@@ -1,7 +1,7 @@
 #include "planner/motionplanner.h"
 #include "../extern/astar/stlastar.h"
 #include "planner/contact_transition.h"
-#include "util_timer.h"
+#include "util/util_timer.h"
 
 #define DEBUG(x) x
 struct MotionPlannerAStar: public MotionPlanner{

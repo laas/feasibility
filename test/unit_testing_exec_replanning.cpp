@@ -2,7 +2,7 @@
 #include <vector>
 #include <fast-replanning/fast-replanning-interface.hh>
 
-#include "util.h"
+#include "util/util.h"
 int main (int argc, char *argv[])
 {
 	std::string path = get_data_path();

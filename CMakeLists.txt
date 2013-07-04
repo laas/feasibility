@@ -133,12 +133,12 @@ set(SOURCE
 	src/rviz/visualmarker_decorator.cpp
 	src/rviz/rviz_visualmarker_common.cpp
 	src/rviz/cylindermarkertriangles.cpp
-	src/util.h 
-	src/util.cpp
-	src/util_eigen.h 
-	src/util_eigen.cpp
-	src/util_timer.h 
-	src/util_timer.cpp
+	src/util/util.h 
+	src/util/util.cpp
+	src/util/util_eigen.h 
+	src/util/util_eigen.cpp
+	src/util/util_timer.h 
+	src/util/util_timer.cpp
 	src/sampler/sampler.h
 	src/sampler/sampler_algorithms.cpp
 	src/sampler/sampler_algorithms_uniform.cpp

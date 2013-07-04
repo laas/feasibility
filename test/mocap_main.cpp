@@ -2,7 +2,7 @@
 #include <ros/time.h>
 #include <iostream>
 #include "rviz/rviz_visualmarker.h"
-#include "util.h"
+#include "util/util.h"
 
 using namespace ros;
 int main( int argc, char** argv )

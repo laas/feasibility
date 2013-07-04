@@ -12,7 +12,7 @@
 #include <fast-replanning/fast-replanning-interface.hh>
 
 #include "rviz/rviz_visualmarker.h"
-#include "util.h"
+#include "util/util.h"
 
 int main( int argc, char** argv )
 {

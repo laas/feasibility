@@ -11,7 +11,7 @@
 //bounding vertex hierarchy
 
 #include "rviz/rviz_visualmarker.h"
-#include "util.h"
+#include "util/util.h"
 #include "sampler/sampler.h"
 
 using namespace ros;

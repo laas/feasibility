@@ -11,6 +11,9 @@ points in configuration space</p>
 <h2> Dependencies </h2>
 <p> Fast Replanner -- ssh://<name>@trac.laas.fr/git/jrl/rblink/fast-replanning</p>
 <p> FCL lib -- git://github.com/flexible-collision-library/fcl.git</p>
+<p> Eigen </p>
+<p> Boost 1.44+ </p>
+<p> Fann http://leenissen.dk/fann/wp/ </p>
 
 <p>The usual path to a fresh build:</p>
 

@@ -1,5 +1,5 @@
 #include "sampler_problem_abstract.h"
-#include "util.h"
+#include "util/util.h"
 #include "rviz/rviz_visualmarker.h"
 
 #define DEBUG(x)

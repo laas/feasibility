@@ -1,5 +1,5 @@
 #include "sampler_problem_abstract.h"
-#include "util.h"
+#include "util/util.h"
 
 Eigen::VectorXd Proposal::operator()( Eigen::VectorXd &x ){
 	Eigen::VectorXd q(x.size());

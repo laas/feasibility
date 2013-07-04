@@ -1,7 +1,7 @@
 #include <string>
 #include <rviz/rviz_visualmarker.h>
 #include "environment/environment.h"
-#include "util.h"
+#include "util/util.h"
 
 Environment* Environment::singleton = NULL;
 uint Environment::Nobjects = 10;

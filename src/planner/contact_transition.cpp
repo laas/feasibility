@@ -5,7 +5,7 @@
 #include <Eigen/Geometry>
 #include <Eigen/Core>
 #include "contact_transition.h"
-#include "util.h"
+#include "util/util.h"
 #include "rviz/rviz_visualmarker.h"
 
 #define DEBUG(x)

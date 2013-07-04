@@ -29,7 +29,7 @@
 #include <pqp/PQP.h>
 #endif
 
-#include "util.h"
+#include "util/util.h"
 
 struct FCLInterface;
 

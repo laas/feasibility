@@ -1,7 +1,7 @@
 #pragma once
 #include <Eigen/Core>
 #include "rviz/rviz_visualmarker.h"
-#include "util.h"
+#include "util/util.h"
 #include "sampler_problem_abstract.h"
 
 //doing mcmc or hmc for your convenience
