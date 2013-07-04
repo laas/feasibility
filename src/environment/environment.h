@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
 #include <boost/thread.hpp>
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 struct Environment{
 private:

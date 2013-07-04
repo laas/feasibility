@@ -2,7 +2,8 @@
 #include <unordered_map>
 #include <vector>
 #include "../extern/astar/stlastar.h"
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include "util/util_timer.h"
 #include "planner/constraints_checker.h"
 

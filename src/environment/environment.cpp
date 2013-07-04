@@ -1,5 +1,6 @@
 #include <string>
-#include <rviz/rviz_visualmarker.h>
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include "environment/environment.h"
 #include "util/util.h"
 

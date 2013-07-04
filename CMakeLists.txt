@@ -121,17 +121,17 @@ set(SOURCE
 	src/planner/constraints_checker_wallconstraints_decorator.cpp
 	src/planner/contact_transition.h 
 	src/planner/contact_transition.cpp 
-	src/rviz/rviz_visualmarker.h
-	src/rviz/rviz_visualmarker.cpp
-	src/rviz/rviz_geometry.cpp
-	src/rviz/rviz_visualmarker_interface.cpp
-	src/rviz/rviz_visualmarker_triangleobject.cpp
-	src/rviz/rviz_visualmarker_tristriangleobject.cpp
-	src/rviz/rviz_visualmarker_footmarker.cpp
-	src/rviz/rviz_visualmarker_collada.cpp
-	src/rviz/rviz_visualmarker_mesh.cpp
+	src/rviz/visualmarker.h
+	src/rviz/visualmarker.cpp
+	src/rviz/geometry.cpp
+	src/rviz/visualmarker_interface.cpp
+	src/rviz/visualmarker_triangleobject.cpp
+	src/rviz/visualmarker_tristriangleobject.cpp
+	src/rviz/visualmarker_footmarker.cpp
+	src/rviz/visualmarker_collada.cpp
+	src/rviz/visualmarker_mesh.cpp
 	src/rviz/visualmarker_decorator.cpp
-	src/rviz/rviz_visualmarker_common.cpp
+	src/rviz/visualmarker_common.cpp
 	src/rviz/cylindermarkertriangles.cpp
 	src/util/util.h 
 	src/util/util.cpp

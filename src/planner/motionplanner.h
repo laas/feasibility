@@ -3,7 +3,8 @@
 #ifdef PQP_COLLISION_CHECKING
 #include <pqp/PQP.h>
 #endif
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 struct MResults{
 	uint iterations;

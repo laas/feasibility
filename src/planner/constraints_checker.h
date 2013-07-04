@@ -1,7 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include <vector>
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 typedef std::unordered_map< int, struct fann*> NeuralHashMap; 
 typedef std::unordered_map< int, std::string> ActionSpaceSweptVolumeFileNames; 

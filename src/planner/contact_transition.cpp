@@ -6,7 +6,8 @@
 #include <Eigen/Core>
 #include "contact_transition.h"
 #include "util/util.h"
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 #define DEBUG(x)
 #define TIMER_DEBUG(x) x

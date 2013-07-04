@@ -1,6 +1,7 @@
 #pragma once
 #include <Eigen/Core>
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include "util/util.h"
 #include "sampler_problem_abstract.h"
 

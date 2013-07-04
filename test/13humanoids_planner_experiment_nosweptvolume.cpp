@@ -11,7 +11,8 @@
 //bounding vertex hierarchy
 #include <fann.h>
 
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include "util/util.h"
 #include "environment/environment.h"
 #include "planner/motionplanner_astar.h"

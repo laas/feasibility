@@ -1,5 +1,6 @@
 #include <tf/tf.h>
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include "util/util.h"
 
 namespace ros{

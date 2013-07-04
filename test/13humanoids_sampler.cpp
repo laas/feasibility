@@ -10,7 +10,8 @@
 #include <fcl/BVH/BVH_model.h>
 //bounding vertex hierarchy
 
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include "util/util.h"
 #include "sampler/sampler.h"
 

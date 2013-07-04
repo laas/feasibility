@@ -4,7 +4,8 @@
 #include "fcl/traversal/traversal_node_setup.h"
 #include "fcl/collision_node.h"
 #endif
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 #include <Eigen/Core>
 
 #define DEBUG(x)

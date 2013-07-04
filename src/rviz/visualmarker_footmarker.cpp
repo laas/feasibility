@@ -1,4 +1,5 @@
-#include "rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 namespace ros{
 	FootMarker::FootMarker(double x, double y, double yaw): RVIZVisualMarker(){
 		this->g.x = x;

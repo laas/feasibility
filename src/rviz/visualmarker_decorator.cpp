@@ -1,4 +1,5 @@
-#include "rviz/rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 #define DEBUG(x) x
 namespace ros{

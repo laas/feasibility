@@ -1,4 +1,5 @@
-#include "rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 #define DEBUG(x) x
 #define THREAD_DEBUG(x) 

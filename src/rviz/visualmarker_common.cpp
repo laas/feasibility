@@ -1,4 +1,5 @@
-#include "rviz_visualmarker.h"
+#include "rviz/visualmarker.h"
+#include "rviz/visualmarker.h"
 
 namespace ros{
 	Text::Text(double x, double y, double z, char *c): RVIZVisualMarker(){

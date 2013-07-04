@@ -14,12 +14,10 @@ struct ProposalCylinder: public Proposal{
 		q_stddev=m;
 
 		Eigen::VectorXd ql(4);
-		//ql << -0.5, -0.5, 0.01, h;
 		ql << -1.5, -1.5, 0.01, 0.01;
 		q_constraints_low = ql;
 
 		Eigen::VectorXd qh(4);
-		//qh << 0.7, 0.3, 0.1, h;
 		qh << 1.5, 1.5, 0.5,/*log(90.0),*/ 0.5;
 		q_constraints_high = qh;
 	}
@@ -30,8 +28,7 @@ struct ProbabilityDistributionCylinder: public ProbabilityDistribution{
 		this->mean = m;
 	}
 	double operator()(double d){
-		//return normpdf(d, mean, 0.05);
-		return exp(- 100*d*d);
+		return 0;
 	}
 private:
 	double mean;
@@ -110,3 +107,4 @@ Proposal* SamplingCTOCylinder::getProposal(double h){
 	q = new ProposalCylinder(h);
 	return q;
 }
+
