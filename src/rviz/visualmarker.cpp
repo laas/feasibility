@@ -100,6 +100,9 @@ namespace ros{
 	}
 
 	void RVIZVisualMarker::make_interactive(){
+		make_interactive(0.1);
+	}
+	void RVIZVisualMarker::make_interactive(double interaction_radius){
 		std::string imarker_name = this->name();
 		imarker_name+=boost::lexical_cast<std::string>(this->id);
 		string_validate_chars( imarker_name );
@@ -110,7 +113,7 @@ namespace ros{
 
 		tf::Vector3 position(this->g.x, this->g.y, this->g.z);
 		tf::pointTFToMsg(position, active_marker.pose.position);
-		active_marker.scale = std::max(0.1, g.getRadius());//sqrtf(g.sx*g.sx + g.sy*g.sy);
+		active_marker.scale = std::max(interaction_radius, g.getRadius());//sqrtf(g.sx*g.sx + g.sy*g.sy);
 
 		visualization_msgs::InteractiveMarkerControl control;
 		control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;

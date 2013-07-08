@@ -22,7 +22,6 @@ protected:
 	ros::Geometry goal;
 	MResults results;
 	
-
 public:
 	MotionPlanner(Environment *env){
 		if(environment!=NULL){

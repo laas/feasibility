@@ -69,5 +69,6 @@ struct EnvironmentSalleBauzil: public Environment{
 	void setObjects();
 	void setGoalObject();
 	void setStartObject();
+	virtual void setDecorations();
 };
 

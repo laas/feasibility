@@ -5,23 +5,30 @@
 struct MotionPlannerPerrin: public MotionPlanner{
 	fastreplanning::FastReplanningInterface *planner;
 
-	MotionPlannerPerrin(Environment &env, int &argc, char** &argv): MotionPlanner(env){
+	MotionPlannerPerrin(Environment *env, int &argc, char** &argv): MotionPlanner(env){
 		std::string prefix = get_data_path();
-
+		ROS_INFO("%s", prefix.c_str());
 		planner = fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
 		planner->setVerboseLevel(0); //0 5 15
-		planner->mainLoop(); //init
+		planner->initStep(); //init
 	}
 
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
 		ros::Geometry *g = m->getGeometry();
 		ros::TriangleObject *t = static_cast<ros::TriangleObject*>( m );
 		//the z-value has to be >0.05 --- otherwise the planner does not find a solution
-		planner->addAGenericPQPModel(t->pqp_margin, g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
+		planner->addAGenericPQPModel(t->get_pqp_ptr(), g->x, g->y, 0.05, 0.0, 0.0, 0.0); 
+	}
+	virtual void cleanObjects(){
+		//only pointer was send to planner, so we can ignore it for now
 	}
 
 	void start_planner(){
-		planner->mainLoop();
+		planner->replanStep();
+		ROS_INFO("replan");
+		std::vector<fastreplanning::footStepInterface> fsi;
+		planner->getInterfaceSteps(fsi);
+		results.steps = fsi.size();
 	}
 
 	void setStart( ros::Geometry &pos ){
@@ -47,9 +54,28 @@ struct MotionPlannerPerrin: public MotionPlanner{
 	void publish(){
 		std::vector<double> q = planner->getArticulatedValues();
 		ROS_INFO("Articulated values: %d", q.size());
+		//
+		// q vector is filled like this:
+		//
+		//q[0]=ID
+		//q[1]=end of trajectory
+		//q[2]=time start
+		//q[3]=time end
+		//--- 17 values per frame:
+		//q[4:15]=q values (12 values)
+		//q[16]=comX
+		//q[17]=comY
+		//q[18]=waistOrient in radian
+		//q[19]=zmpX
+		//q[20]=zmpY
+		//
+		//the next starting points for frames i=1:T
+		//-> q[4 + i*17 + k], k=0:16;
+
 		if(q.size()>0){
+			ROS_INFO("Configuration frames: %d", (q.size()-4)/17);
 			for(uint i=0;i<q.size();i++){
-				ROS_INFO("%f", q.at(i));
+				//ROS_INFO("%f", q.at(i));
 			}
 		}
 

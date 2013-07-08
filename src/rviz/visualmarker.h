@@ -126,6 +126,7 @@ namespace ros{
 		void setXYT(double x, double y, double yaw_rad);
 		void setRPYRadian(double roll, double pitch, double yaw);
 		void make_interactive();
+		void make_interactive(double);
 
 		void print();
 		RVIZVisualMarker();

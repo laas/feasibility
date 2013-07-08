@@ -183,36 +183,9 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-#rosbuild_add_executable(MCMCSampler test/mcmc_main.cpp )
-#target_link_libraries(MCMCSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
-#rosbuild_add_executable(13HumanoidsSampler test/13humanoids_sampler.cpp )
-#target_link_libraries(13HumanoidsSampler ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
 
-rosbuild_add_executable(13HumanoidsPlanner test/13humanoids_planner.cpp )
-target_link_libraries(13HumanoidsPlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-rosbuild_add_executable(13HumanoidsPlannerEndless test/13humanoids_planner_endless.cpp )
-target_link_libraries(13HumanoidsPlannerEndless ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-
-rosbuild_add_executable(FeasibilityChecker test/feasibility_test.cpp )
-target_link_libraries(FeasibilityChecker ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-
-#rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
-#target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-#rosbuild_add_executable(13HumanoidsPlannerExpNoSV test/13humanoids_planner_experiment_nosweptvolume.cpp )
-#target_link_libraries(13HumanoidsPlannerExpNoSV ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-#
-#rosbuild_add_executable(PublishHrp2 test/publish_hrp2.cpp )
-#target_link_libraries(PublishHrp2 ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
-
-rosbuild_add_executable(TestInteractiveMarker test/test_imarker.cpp )
-#rosbuild_add_executable(MOCAPTester src/mocap_main.cpp )
-#target_link_libraries(MOCAPTester ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
-
-#rosbuild_add_executable(ENVTester test/env_main.cpp )
-#target_link_libraries(ENVTester ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES})
-
-#rosbuild_add_executable(VisSteps src/vis_steps.cpp )
-#target_link_libraries(VisSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
+target_link_libraries(FastRePlanner ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #################################################################################
 ###### UNIT TESTING #####################
 #################################################################################

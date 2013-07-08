@@ -112,7 +112,7 @@ void Environment::resetInstance()
 }
 
 Environment::Environment(){
-	DEBUG(ROS_INFO("***** NEW environment/environment.hIRONMENT CREATED *****");)
+	DEBUG(ROS_INFO("***** NEW ENVIRONMENT CREATED *****");)
 	changedEnv = true;
 }
 
