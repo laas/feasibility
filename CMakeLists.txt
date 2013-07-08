@@ -21,6 +21,14 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/usr/local/include")
+SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/local/lib")
+
+FIND_PACKAGE(Boost)
+IF (Boost_FOUND)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+    ADD_DEFINITIONS( "-DHAS_BOOST" )
+ENDIF()
 
 include(CheckFunctionExists)
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
@@ -124,7 +132,8 @@ set(SOURCE
 	src/rviz/visualmarker.h
 	src/rviz/visualmarker.cpp
 	src/rviz/geometry.cpp
-	src/rviz/visualmarker_interface.cpp
+	src/rviz/rviz_interface.h
+	src/rviz/rviz_interface.cpp
 	src/rviz/visualmarker_triangleobject.cpp
 	src/rviz/visualmarker_tristriangleobject.cpp
 	src/rviz/visualmarker_footmarker.cpp
@@ -186,6 +195,7 @@ target_link_libraries(13HumanoidsPlannerEndless ${UTIL_LIB} ${FCLLIB_LIBRARIES} 
 
 rosbuild_add_executable(FeasibilityChecker test/feasibility_test.cpp )
 target_link_libraries(FeasibilityChecker ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
+
 #rosbuild_add_executable(13HumanoidsPlannerExp test/13humanoids_planner_experiment.cpp )
 #target_link_libraries(13HumanoidsPlannerExp ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${FPlanner_LIBRARIES} ${LibFann})
 #rosbuild_add_executable(13HumanoidsPlannerExpNoSV test/13humanoids_planner_experiment_nosweptvolume.cpp )

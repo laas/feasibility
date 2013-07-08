@@ -5,6 +5,15 @@
 #define THREAD_DEBUG(x) 
 namespace ros{
 	boost::shared_ptr<interactive_markers::InteractiveMarkerServer> RVIZVisualMarker::server;
+	Color::Color(){
+		r=1;g=0;b=0;a=1;
+	}
+	Color::Color(const Color& c){
+		r=c.r;g=c.g;b=c.b;a=c.a;
+	}
+	Color::Color(double r, double g, double b, double a){
+		this->r = r;this->g=g;this->b=b;this->a=a;
+	}
 	RVIZVisualMarker::RVIZVisualMarker(){
 		id=global_id;
 		textHover = false;
@@ -402,5 +411,8 @@ namespace ros{
 	void RVIZVisualMarker::subscribeToEvart(std::string &topic){
 		geometry_subscribe_topic = topic;
 		thread_start();
+	}
+	double RVIZVisualMarker::getTextZ(){
+		return g.z+g.sz/2+0.1;
 	}
 }

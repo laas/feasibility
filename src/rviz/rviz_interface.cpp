@@ -1,20 +1,10 @@
 #include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
 
 #define DEBUG(x)
 namespace ros{
 	RVIZInterface *RVIZVisualMarker::rviz = NULL;
 	uint RVIZVisualMarker::global_id = 0;
 
-	Color::Color(){
-		r=1;g=0;b=0;a=1;
-	}
-	Color::Color(const Color& c){
-		r=c.r;g=c.g;b=c.b;a=c.a;
-	}
-	Color::Color(double r, double g, double b, double a){
-		this->r = r;this->g=g;this->b=b;this->a=a;
-	}
 	RVIZInterface::RVIZInterface(){
 		std::string topic_name = "visualization_marker";
 		ROS_INFO("started RVIZ interface");
@@ -32,6 +22,7 @@ namespace ros{
 		m.header.stamp = ros::Time();//ros::Time::now();
 		publisher.publish(m);
 	}
+		std::vector<visualization_msgs::Marker*> evart_enabled_marker;
 
 	bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 	{

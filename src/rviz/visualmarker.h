@@ -30,6 +30,7 @@
 #endif
 
 #include "util/util.h"
+#include "rviz/rviz_interface.h"
 
 struct FCLInterface;
 
@@ -84,18 +85,6 @@ namespace ros{
 	//static Color TEXT_COLOR(0.9,0.9,0.9,1.0);
 	static Color TEXT_COLOR(0.1,0.1,0.1,1.0);
 
-	struct RVIZInterface{
-	private:
-		std::vector<visualization_msgs::Marker> marker_list;
-	public:
-		ros::Publisher publisher;
-		ros::NodeHandle n;
-		RVIZInterface();
-		bool waitForSubscribers(ros::Duration timeout);
-		void reset();
-		void publish(visualization_msgs::Marker &m, bool save=false);
-	};
-
 	class RVIZVisualMarker{
 	protected:
 		static RVIZInterface *rviz; 
@@ -129,9 +118,9 @@ namespace ros{
 		void thread_interactive_marker_main();
 		void thread_interactive_marker_start();
 		void thread_interactive_marker_stop();
+		Geometry g_old;
 	public:
 		Geometry g;
-		Geometry g_old;
 		void setScale(double sx, double sy, double sz);
 		void setXYZ(double x, double y, double z);
 		void setXYT(double x, double y, double yaw_rad);
@@ -165,9 +154,7 @@ namespace ros{
 		virtual std::string name() = 0;
 		virtual uint32_t get_shape() = 0;
 
-		virtual double getTextZ(){
-			return g.z+g.sz/2+0.1;
-		}
+		virtual double getTextZ();
 	};
 	struct ColladaObject: public RVIZVisualMarker{
 		std::string filename;
