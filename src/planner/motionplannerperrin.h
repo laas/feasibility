@@ -1,16 +1,23 @@
 #include <fast-replanning/fast-replanning-interface.hh>
 #include "motionplanner.h"
+#include "trajectory_visualizer.h"
 
 //Wrapper around fastReplanning library
 struct MotionPlannerPerrin: public MotionPlanner{
 	fastreplanning::FastReplanningInterface *planner;
+	TrajectoryVisualizer *tv;
 
 	MotionPlannerPerrin(Environment *env, int &argc, char** &argv): MotionPlanner(env){
+		ros::Geometry g = env->getStart();
+
+		tv = new TrajectoryVisualizer(g.x, g.y);
+
 		std::string prefix = get_data_path();
 		ROS_INFO("%s", prefix.c_str());
 		planner = fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
 		planner->setVerboseLevel(0); //0 5 15
-		planner->initStep(); //init
+		//planner->initStep(); //init
+		planner->mainLoop();
 	}
 
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
@@ -24,7 +31,8 @@ struct MotionPlannerPerrin: public MotionPlanner{
 	}
 
 	void start_planner(){
-		planner->replanStep();
+		//planner->replanStep();
+		planner->mainLoop();
 		ROS_INFO("replan");
 		std::vector<fastreplanning::footStepInterface> fsi;
 		planner->getInterfaceSteps(fsi);
@@ -52,8 +60,7 @@ struct MotionPlannerPerrin: public MotionPlanner{
 	}
 
 	void publish(){
-		std::vector<double> q = planner->getArticulatedValues();
-		ROS_INFO("Articulated values: %d", q.size());
+
 		//
 		// q vector is filled like this:
 		//
@@ -72,12 +79,6 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		//the next starting points for frames i=1:T
 		//-> q[4 + i*17 + k], k=0:16;
 
-		if(q.size()>0){
-			ROS_INFO("Configuration frames: %d", (q.size()-4)/17);
-			for(uint i=0;i<q.size();i++){
-				//ROS_INFO("%f", q.at(i));
-			}
-		}
 
 		//obtain footsteps from planner
 		std::vector<fastreplanning::footStepInterface> fsi;
@@ -122,6 +123,19 @@ struct MotionPlannerPerrin: public MotionPlanner{
 
 				//ROS_INFO("new footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
 			}
+		}
+		std::vector<double> q = planner->getArticulatedValues();
+		ROS_INFO("Articulated values: %d", q.size());
+		if(q.size()>0){
+			//Replay trajectory
+
+			tv->init(q);
+			ros::Rate r(10);
+			while(tv->next()){
+				ros::spinOnce();
+				r.sleep();
+			}
+
 		}
 
 	}//publish

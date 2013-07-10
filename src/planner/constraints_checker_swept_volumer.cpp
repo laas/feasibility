@@ -2,6 +2,7 @@
 #include <dirent.h>
 
 #define DEBUG(x)
+#define LIGHT_DEBUG(x)
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
 	this->loadSweptVolumesToHashMap("../fastReplanningData/data/fullBodyApprox/");
 }
@@ -113,7 +114,7 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 		errno = 0;
 		uint number = 0;
 		while (( hFile = readdir( dpath )) != NULL ){
-			//if(number++>2) break;
+			LIGHT_DEBUG(if(number++>10) break;)
 			if( !strcmp( hFile->d_name, "."  )) continue;
 			if( !strcmp( hFile->d_name, ".." )) continue;
 			if( hFile->d_name[0] == '.' ) continue; //hidden files

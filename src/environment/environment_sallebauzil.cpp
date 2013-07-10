@@ -29,7 +29,7 @@ void EnvironmentSalleBauzil::setObjects(){
 	//}
 }
 void EnvironmentSalleBauzil::setGoalObject(){
-	goal = new ros::SphereMarker(1.5, 0.0, 0.2, 0.0);
+	goal = new ros::SphereMarker(2.5, 0.0, 0.2, 0.0);
 	goal->make_interactive(0.2);
 	goal->addText("goal");
 	goal->subscribeToEvart("/evart/helmet2/PO");

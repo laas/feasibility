@@ -129,6 +129,7 @@ set(SOURCE
 	src/planner/constraints_checker_wallconstraints_decorator.cpp
 	src/planner/contact_transition.h 
 	src/planner/contact_transition.cpp 
+	src/planner/trajectory_visualizer.h 
 	src/rviz/visualmarker.h
 	src/rviz/visualmarker.cpp
 	src/rviz/geometry.cpp
@@ -186,6 +187,9 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
 target_link_libraries(FastRePlanner ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+
+rosbuild_add_executable(PublishHRP2 test/publish_hrp2.cpp )
+target_link_libraries(PublishHRP2 ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #################################################################################
 ###### UNIT TESTING #####################
 #################################################################################
