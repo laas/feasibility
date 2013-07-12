@@ -11,13 +11,14 @@
 
 #include <fast-replanning/fast-replanning-interface.hh>
 
-#include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
 #include "util/util.h"
+#include "planner/trajectory_visualizer.h"
+#include "rviz/visualmarker.h"
 
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "footstep_visualizer");
+	using namespace ros;
+	ros::init(argc, argv, "footstep_visualizer2");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
@@ -25,25 +26,16 @@ int main( int argc, char** argv )
 	std::string chair_file = get_chair_str();
 	std::string robot_file = get_robot_str();
 
-
 	//######################################################
 	// set robot start
 	//######################################################
 	std::vector<double> start;
-	start.push_back(1.0);
-	start.push_back(-1.0);
 	start.push_back(0.0);
 	start.push_back(0.0);
-	start.push_back(0.0);
-	start.push_back(0.0);
-	SphereMarker ss(998, start.at(0), start.at(1), 0.05);
-	ss.rviz_publish();
 
 	double cx=0.49,cy=0.05,cz=0.0;
 	double rx=1.0,ry=0.00,rz=0.0;
 
-	TriangleObject chair(chair_file, cx, cy, cz);
-	chair.rviz_publish();
 	//######################################################
 	// fastPlanner
 	//######################################################
@@ -55,19 +47,33 @@ int main( int argc, char** argv )
 	// set goal 
 	//######################################################
 	std::vector<double> goal;
-	goal.push_back(1.6); goal.push_back(0.1); goal.push_back(0.0);
+	goal.push_back(2.5); goal.push_back(0.0); goal.push_back(0.0);
 
-	SphereMarker sm(999, goal.at(0), goal.at(1), 0.05);
-	sm.rviz_publish();
+	TrajectoryVisualizer *tv = new TrajectoryVisualizer();
+	CSVReader data_q("playback_q.dat");
+	std::vector<double> q = data_q.getV();
+	ROS_INFO("q size: %d", q.size());
 
+	r.sleep();
 
-	if (ros::ok())
+	while (ros::ok())
 	{
+		SphereMarker ss(start.at(0), start.at(1));
+		ss.publish();
+
+		SphereMarker sm(goal.at(0), goal.at(1));
+		sm.publish();
+
+		ros::RVIZVisualMarker *c;
+		c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
+		c->setXYZ(1.5,-2.5,-0.01);
+		c->setRPYRadian(0,0,M_PI);
+		c->publish();
 		
-		CSVReader f("steps2.dat");
+		CSVReader data_steps("playback_steps.dat");
 		
-		std::vector< std::vector<double> > fsi;
-		f.getVV(fsi);
+		std::vector<std::vector<double> > fsi;
+		fsi = data_steps.getVV(4);
 
 
 		double last_xL = 0;
@@ -83,6 +89,8 @@ int main( int argc, char** argv )
 		//xold = fsi.at(0).at(0);
 		//yold = fsi.at(0).at(1);
 		//told = fsi.at(0).at(2);
+
+
 		for(uint i=0;i<fsi.size();i++){
 			//half-foot-step-format v.3.0:
 			// 1: x
@@ -124,35 +132,45 @@ int main( int argc, char** argv )
 			double newX = abs_x + cos(abs_t)*x-sin(abs_t)*y;
 			double newY = abs_y + sin(abs_t)*x+cos(abs_t)*y;
 			double newT = abs_t + t;
-			FootStepObject f(i, newX,newY,newT);
+			FootMarker f(newX,newY,newT);
 			xold=newX;
 			yold=newY;
 			told=newT;
 
 			if(foot == 'R'){
-				f.changeColor(1,0,0);
+				f.set_color(1,0,0);
 				f.drawLine(last_xR,last_yR);
 				last_xR = x;
 				last_yR = y;
 			}else{
-				f.changeColor(0,1,0);
+				f.set_color(0,1,0);
 				f.drawLine(last_xL,last_yL);
 				last_xL = x;
 				last_yL = y;
 			}
 
 			if(i==0 || i==1){
-				f.changeColor(1,1,0);
+				f.set_color(1,1,0);
 			}
 			if(i==fsi.size()-1 || i==fsi.size()-2){
-				f.changeColor(1,0.6,0);
+				f.set_color(1,0.6,0);
 			}
 
-			f.rviz_publish();
-			ROS_INFO("new footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
+			f.publish();
+			ROS_INFO("published footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
 		}
 		//######################################################
 
+		if(q.size()>0){
+			//Replay trajectory
+			tv->init(q);
+			ros::Rate rq(500);
+			while(tv->next()){
+				ros::spinOnce();
+				rq.sleep();
+			}
+		}
 		r.sleep();
+
 	}
 }
