@@ -107,7 +107,7 @@ namespace ros{
 		imarker_name+=boost::lexical_cast<std::string>(this->id);
 		string_validate_chars( imarker_name );
 
-		active_marker.header.frame_id = "/base_link";
+		active_marker.header.frame_id = FRAME_NAME;
 		active_marker.name = imarker_name.c_str();
 		active_marker.description = "Interactive";
 
@@ -204,7 +204,7 @@ namespace ros{
 	void RVIZVisualMarker::publish(){
 		marker.header.frame_id = FRAME_NAME;
 		marker.lifetime = ros::Duration(ROS_DURATION);
-		rviz->publish(marker);
+		rviz->publish(marker,false);
 		if(textHover){
 			visualization_msgs::Marker cmarker = createTextMarker();
 			rviz->publish(cmarker);

@@ -15,7 +15,7 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		std::string prefix = get_data_path();
 		ROS_INFO("%s", prefix.c_str());
 		planner = fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
-		planner->setVerboseLevel(0); //0 5 15
+		planner->setVerboseLevel(10); //0 5 15
 		//planner->initStep(); //init
 		planner->mainLoop();
 	}
@@ -50,7 +50,7 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		std::vector<double> goal;
 		goal.push_back(pos.x); goal.push_back(pos.y); goal.push_back(pos.z);
 		planner->update3DGoalPositionProtected(goal);
-		//ROS_INFO("set GOAL TO  %f %f", pos.x , pos.y );
+		ROS_INFO("set GOAL TO  %f %f", pos.x , pos.y );
 	}
 
 	bool success(){
@@ -83,12 +83,17 @@ struct MotionPlannerPerrin: public MotionPlanner{
 		//obtain footsteps from planner
 		std::vector<fastreplanning::footStepInterface> fsi;
 		planner->getInterfaceSteps(fsi);
+
+		Logger log_steps("playback_steps.dat");
+		Logger log_q("playback_q.dat");
+
 		if(fsi.size()>0){
 			ROS_INFO("NUMBER OF FOOTSTEPS: %d", fsi.size());
 			double abs_x = 0.0;
 			double abs_y = 0.0;
 			double abs_t = 0.0;
 			for(uint i=0;i<fsi.size();i++){
+				log_steps(fsi.at(i).data);
 
 				//half-foot-step-format v.3.0:
 				// 1: x
@@ -103,8 +108,8 @@ struct MotionPlannerPerrin: public MotionPlanner{
 				double t = fsi.at(i).data.at(2);
 				char foot = fsi.at(i).data.at(3);
 
-				double newX = abs_x + cos(abs_t)*x-sin(abs_t)*y;
-				double newY = abs_y + sin(abs_t)*x+cos(abs_t)*y;
+				double newX = abs_x + cos(-abs_t)*x+sin(-abs_t)*y;
+				double newY = abs_y + sin(-abs_t)*x-cos(-abs_t)*y;
 				double newT = t - abs_t;
 
 				abs_x=newX;
@@ -112,7 +117,7 @@ struct MotionPlannerPerrin: public MotionPlanner{
 				abs_t=newT;
 
 				if(foot == 'R'){
-					ros::RightFootMarker f( newX, newY, newT);
+					ros::RightFootMarker f( newX, -newY, -newT);
 					if(i==0) f.reset(); //clear all previous footsteps
 					f.publish();
 				}else{
@@ -125,18 +130,20 @@ struct MotionPlannerPerrin: public MotionPlanner{
 			}
 		}
 		std::vector<double> q = planner->getArticulatedValues();
+		log_q(q, "\n");
 		ROS_INFO("Articulated values: %d", q.size());
 		if(q.size()>0){
 			//Replay trajectory
-
 			tv->init(q);
-			ros::Rate r(10);
+			ros::Rate r(500);
 			while(tv->next()){
 				ros::spinOnce();
 				r.sleep();
 			}
-
 		}
+		std::vector<double> newStart = tv->getFinalCoM();
+		planner->updateLocalizationProtected( newStart );
+		//ROS_INFO("set START TO  %f %f", pos.x , pos.y );
 
 	}//publish
 

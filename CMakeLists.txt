@@ -130,6 +130,7 @@ set(SOURCE
 	src/planner/contact_transition.h 
 	src/planner/contact_transition.cpp 
 	src/planner/trajectory_visualizer.h 
+	src/planner/trajectory_visualizer.cpp
 	src/rviz/visualmarker.h
 	src/rviz/visualmarker.cpp
 	src/rviz/geometry.cpp
@@ -190,6 +191,9 @@ target_link_libraries(FastRePlanner ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_L
 
 rosbuild_add_executable(PublishHRP2 test/publish_hrp2.cpp )
 target_link_libraries(PublishHRP2 ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+
+rosbuild_add_executable(VisualizeSteps test/vis_steps.cpp )
+target_link_libraries(VisualizeSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #################################################################################
 ###### UNIT TESTING #####################
 #################################################################################

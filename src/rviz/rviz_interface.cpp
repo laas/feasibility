@@ -14,7 +14,9 @@ namespace ros{
 	//bool save: stores the marker in an internal structure, such that we
 	//can reset it conveniently
 	void RVIZInterface::publish(visualization_msgs::Marker &m, bool save){
-		if(save) marker_list.push_back(m);
+		if(save){
+			marker_list.push_back(m);
+		}
 		DEBUG(ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id);)
 
 		//time 0 means, that the marker will be displayed, regardless of
@@ -22,7 +24,6 @@ namespace ros{
 		m.header.stamp = ros::Time();//ros::Time::now();
 		publisher.publish(m);
 	}
-		std::vector<visualization_msgs::Marker*> evart_enabled_marker;
 
 	bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 	{

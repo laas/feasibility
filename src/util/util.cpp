@@ -339,11 +339,12 @@ void Logger::operator()(std::string fmt, ...){
 	//fputc('\n', fp);
 	fclose(fp);
 }
-void Logger::operator()(std::vector<double> &v){
+void Logger::operator()(std::vector<double> &v, char* postfix){
 	fp = fopen(this->name.c_str(),"a");
 	std::vector<double>::iterator it;
 	for(it=v.begin();it!=v.end();it++){
 		fprintf(fp, "%f", *it);
+		fprintf(fp, "%s", postfix);
 	}
 	fputc('\n', fp);
 	fclose(fp);
@@ -351,6 +352,7 @@ void Logger::operator()(std::vector<double> &v){
 
 CSVReader::CSVReader(std::string name, char delimiter){
 	this->name = name;
+	this->delimiter = delimiter;
 	fp = fopen_s(name.c_str(), "r");
 }
 bool CSVReader::line(std::vector<double> &in){
@@ -370,6 +372,17 @@ bool CSVReader::line(std::vector<double> &in){
 		return true;
 	}
 }
+std::vector< double > CSVReader::getV(){
+	std::vector<double> in;
+	char line[50];
+	double x;
+	while( fgets( line, 50, fp ) )
+	{
+		sscanf( line, "%lg", &x);
+		in.push_back(x);
+	}
+	return in;
+}
 std::vector< std::vector<double> > CSVReader::getVV(uint numbers_per_line){
 	std::vector< std::vector<double> > in;
 	char line[300];
@@ -379,7 +392,7 @@ std::vector< std::vector<double> > CSVReader::getVV(uint numbers_per_line){
 		char *tmp = line;
 		char *old = line;
 		for(uint i=0;i<numbers_per_line;i++){
-			while(*tmp++ != ',');
+			while(*tmp++ != delimiter);
 			double x = 0;
 			sscanf( old, "%lg", &x);
 			old = tmp;
@@ -392,7 +405,6 @@ std::vector< std::vector<double> > CSVReader::getVV(uint numbers_per_line){
 CSVReader::~CSVReader(){
 	fclose(fp);
 }
-
 
 //##########################################################################
 #ifdef PQP_COLLISION_CHECKING

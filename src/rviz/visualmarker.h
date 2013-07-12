@@ -133,7 +133,7 @@ namespace ros{
 		virtual ~RVIZVisualMarker();
 		bool isChanged(double threshold=0.01);
 		void set_color(const Color& rhs);
-		void set_color(double r, double g, double b, double a);
+		void set_color(double r, double g, double b, double a=1.0);
 		Color get_color();
 		void addText( std::string s );
 		void subscribeToEvart(std::string &topic);

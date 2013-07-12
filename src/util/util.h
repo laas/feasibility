@@ -76,7 +76,7 @@ public:
 	Logger(std::string name = "log_output.tmp");
 	~Logger();
 	void operator()(std::string fmt, ...);
-	void operator()(std::vector<double> &v);
+	void operator()(std::vector<double> &v, char* postfix=" ");
 };
 //##########################################################################
 // COUT/STREAM FUNCTIONS
@@ -104,10 +104,12 @@ struct CSVReader{
 private:
 	FILE *fp;
 	std::string name;
+	char delimiter;
 public:
 	CSVReader(std::string name, char delimiter=' ');
 	bool line(std::vector<double> &in);
 	std::vector< std::vector<double> > getVV(uint numbers_per_line);
+	std::vector< double > getV();
 	~CSVReader();
 };
 
