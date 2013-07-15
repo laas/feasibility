@@ -20,22 +20,54 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	KDL::Tree tree("/base_link");
 	urdf::Model my_model;
 	ROS_INFO("searching for path of package 'feasibility' ...");
-	std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2.urdf";
+	std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2a.urdf";
 
 	if (!kdl_parser::treeFromFile(URDFFilename, tree))
 	{
 		ROS_ERROR("Failed to construct kdl tree");
 	}
+	this->setPlanarWorldBaseTransform(x,y,M_PI/8);
 	this->_rsp = new robot_state_publisher::RobotStatePublisher(tree);
 
-	tf::Transform transform;
-	transform.setOrigin( tf::Vector3(x,y,0.0) ); //in frame base_link
-	tf::Quaternion com_rot;
-	com_rot.setRPY(0,0,0);
-	transform.setRotation(com_rot);
-
-	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world_frame", "base_link"));
 	this->reset();
+}
+void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, double> &q ){
+	q["RARM_JOINT0"] = 0.0;
+	q["LARM_JOINT0"] = 0.0;
+	q["RARM_JOINT1"] = -0.1;
+	q["LARM_JOINT1"] = -0.1;
+	q["RARM_JOINT2"] = 0.0;
+	q["LARM_JOINT2"] = 0.0;
+	q["RARM_JOINT3"] = -1.0;
+	q["LARM_JOINT3"] = -1.0;
+	q["RARM_JOINT4"] = 0.0;
+	q["LARM_JOINT4"] = 0.0;
+	q["RARM_JOINT5"] = -0.3;
+	q["LARM_JOINT5"] = -0.3;
+	q["RARM_JOINT6"] = 0.0;
+	q["LARM_JOINT6"] = 0.0;
+
+	q["RHAND_JOINT0"] = 0.0;
+	q["RHAND_JOINT1"] = 0.0;
+	q["RHAND_JOINT2"] = 0.0;
+	q["RHAND_JOINT3"] = 0.0;
+	q["RHAND_JOINT4"] = 0.0;
+
+	q["LHAND_JOINT0"] = 0.0;
+	q["LHAND_JOINT1"] = 0.0;
+	q["LHAND_JOINT2"] = 0.0;
+	q["LHAND_JOINT3"] = 0.0;
+	q["LHAND_JOINT4"] = 0.0;
+
+
+	q["HEAD_JOINT0"] = 0.0;
+	q["HEAD_JOINT1"] = 0.3;
+
+	q["CHEST_JOINT0"] = 0.0;
+	q["CHEST_JOINT1"] = 0.0;
+
+	//setConstTransform("CHEST_LINK0", "torso");
+	//setTranslationTransform("torso", "RARM_LINK0", 0.008, -0.250, 0.181);
 }
 void TrajectoryVisualizer::reset(){
 	std::map<std::string, double> q;
@@ -53,12 +85,8 @@ void TrajectoryVisualizer::reset(){
 	q["LLEG_JOINT4"] = 0.0;
 	q["LLEG_JOINT5"] = 0.0;
 
-	q["RARM_JOINT1"] = -0.1;
-	q["LARM_JOINT1"] = -0.1;
-	q["RARM_JOINT3"] = -1.0;
-	q["LARM_JOINT3"] = -1.0;
-	q["RARM_JOINT5"] = -0.3;
-	q["LARM_JOINT5"] = -0.3;
+	setUpperBodyJointsDefault(q);
+
 	_rsp->publishFixedTransforms();
 	_rsp->publishTransforms(q, ros::Time::now());
 }
@@ -86,6 +114,8 @@ bool TrajectoryVisualizer::next(){
 	q["LLEG_JOINT4"] = _q->at(_offset + _ctrFrames*17 + 10);
 	q["LLEG_JOINT5"] = _q->at(_offset + _ctrFrames*17 + 11);
 
+	setUpperBodyJointsDefault(q);
+
 	_rsp->publishFixedTransforms();
 	_rsp->publishTransforms(q, ros::Time::now());
 
@@ -94,13 +124,7 @@ bool TrajectoryVisualizer::next(){
 	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13);
 	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14);
 
-	tf::Transform transform;
-	transform.setOrigin( tf::Vector3(CoM[0],CoM[1]+0.1,0.0) ); //in frame base_link
-	tf::Quaternion com_rot;
-	com_rot.setRPY(0,0,CoM[2]);
-	transform.setRotation(com_rot);
-
-	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world_frame", "base_link"));
+	this->setPlanarWorldBaseTransform(CoM[0], CoM[1], CoM[2]);
 	_ctrFrames++;
 	return true;
 }
@@ -112,3 +136,32 @@ std::vector<double> TrajectoryVisualizer::getFinalCoM(){
 	return CoM;
 }
 
+void TrajectoryVisualizer::setPlanarWorldBaseTransform(double x, double y, double yaw){
+	tf::Transform transform;
+	transform.setOrigin( tf::Vector3(x,y,-0.05) ); //in frame base_link
+	tf::Quaternion com_rot;
+	com_rot.setRPY(0,0,yaw);
+	transform.setRotation(com_rot);
+
+	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world_frame", "/base_link"));
+
+}
+
+void TrajectoryVisualizer::setTranslationTransform(const char* from, const char* to, double x, double y, double z){
+	tf::Transform transform;
+	transform.setOrigin( tf::Vector3(x,y,z) ); //in frame base_link
+	tf::Quaternion com_rot;
+	com_rot.setRPY(0,0,0);
+	transform.setRotation(com_rot);
+
+	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), from, to));
+}
+void TrajectoryVisualizer::setConstTransform(const char* from, const char* to){
+	tf::Transform transform;
+	transform.setOrigin( tf::Vector3(0,0,0) ); //in frame base_link
+	tf::Quaternion com_rot;
+	com_rot.setRPY(0,0,0);
+	transform.setRotation(com_rot);
+
+	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), from, to));
+}

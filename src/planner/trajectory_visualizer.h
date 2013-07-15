@@ -34,6 +34,11 @@ public:
 	void init(std::vector<double> &q);
 	TrajectoryVisualizer(double x=0, double y=0);
 	std::vector<double> getFinalCoM();
+	void setUpperBodyJointsDefault( std::map<std::string, double> &q );
+
+	void setConstTransform(const char* from, const char* to);
+	void setPlanarWorldBaseTransform(double x, double y, double yaw);
+	void setTranslationTransform(const char* from, const char* to, double x, double y, double z);
 	void reset();
 	void rewind();
 	bool next();

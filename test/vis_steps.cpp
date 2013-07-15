@@ -14,11 +14,12 @@
 #include "util/util.h"
 #include "planner/trajectory_visualizer.h"
 #include "rviz/visualmarker.h"
+#include "environment/environment.h"
 
 int main( int argc, char** argv )
 {
 	using namespace ros;
-	ros::init(argc, argv, "footstep_visualizer2");
+	ros::init(argc, argv, "footstep_visualizer");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
@@ -49,32 +50,36 @@ int main( int argc, char** argv )
 	std::vector<double> goal;
 	goal.push_back(2.5); goal.push_back(0.0); goal.push_back(0.0);
 
-	TrajectoryVisualizer *tv = new TrajectoryVisualizer();
+	TrajectoryVisualizer *tv = new TrajectoryVisualizer(0,0);
 	CSVReader data_q("playback_q.dat");
 	std::vector<double> q = data_q.getV();
 	ROS_INFO("q size: %d", q.size());
 
 	r.sleep();
+	FootMarker marker(0,0,0);
+
+	Environment* environment = Environment::getSalleBauzil();
 
 	while (ros::ok())
 	{
+		marker.reset();
 		SphereMarker ss(start.at(0), start.at(1));
 		ss.publish();
 
 		SphereMarker sm(goal.at(0), goal.at(1));
 		sm.publish();
 
-		ros::RVIZVisualMarker *c;
-		c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
-		c->setXYZ(1.5,-2.5,-0.01);
-		c->setRPYRadian(0,0,M_PI);
-		c->publish();
+		//ros::RVIZVisualMarker *c;
+		//c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
+		//c->setXYZ(1.5,-2.5,-0.01);
+		//c->setRPYRadian(0,0,M_PI);
+		//c->publish();
+
 		
 		CSVReader data_steps("playback_steps.dat");
 		
 		std::vector<std::vector<double> > fsi;
 		fsi = data_steps.getVV(4);
-
 
 		double last_xL = 0;
 		double last_yL = 0;
@@ -83,21 +88,17 @@ int main( int argc, char** argv )
 		double last_yR = 0;
 		double last_tR = 0;
 
-		double xold = 0;
-		double yold = 0;
-		double told = 0;
-		//xold = fsi.at(0).at(0);
-		//yold = fsi.at(0).at(1);
-		//told = fsi.at(0).at(2);
+		double xold = fsi.at(0).at(0);
+		double yold = fsi.at(0).at(1);
+		double told = fsi.at(0).at(2);
 
-
-		for(uint i=0;i<fsi.size();i++){
+		for(uint i=1;i<fsi.size();i++){
 			//half-foot-step-format v.3.0:
 			// 1: x
 			// 2: y
 			// 3: theta
 			// 4: ascii code for L or R
-			// 5-11: do not know
+			// 5-11: absolute x,y,theta?
 			printf("[%d] ", i);
 			for(uint j=0;j<fsi.at(i).size();j++){
 				printf("%f ",fsi.at(i).at(j));
@@ -106,32 +107,22 @@ int main( int argc, char** argv )
 			double scale=1;
 			double x,y,t;
 
-//double radV = -state_prev->x[2]*PI/180.0;
-//s.x = cos(radV)*(state_curr->x[0] - state_prev->x[0]) - 
-//  sin(radV)*(state_curr->x[1] - state_prev->x[1]);
-//s.y = sin(radV)*(state_curr->x[0] - state_prev->x[0]) + 
-//  cos(radV)*(state_curr->x[1] - state_prev->x[1]);
-//s.theta = (state_curr->x[2] - state_prev->x[2])*PI/180.0;
-//s.f = state_prev->x[3];
-//tempVector.at(i).abs_x = abs_x + cos(abs_theta)*x - sin(abs_theta)*y;        
-//tempVector.at(i).abs_y = abs_y + sin(abs_theta)*x + cos(abs_theta)*y;
-//tempVector.at(i).abs_theta = abs_theta + theta;
-
 			x = fsi.at(i).at(0);
 			y = fsi.at(i).at(1);
 			t = fsi.at(i).at(2);
+
 			double abs_x = xold;
 			double abs_y = yold;
 			double abs_t = told;
 			char foot = fsi.at(i).at(3);
-//			double radV = -told * M_PI  / 180.0;
-//			double newX = cos(radV)*(x-xold) - sin(radV)*(y-yold);
-//			double newY = sin(radV)*(x-xold) + cos(radV)*(y-yold);
-//			double newT = (t-told)*M_PI/180.0;
 
-			double newX = abs_x + cos(abs_t)*x-sin(abs_t)*y;
-			double newY = abs_y + sin(abs_t)*x+cos(abs_t)*y;
-			double newT = abs_t + t;
+			double newX = abs_x + cos(abs_t)*x - sin(abs_t)*y;
+			double newY = abs_y + sin(abs_t)*x + cos(abs_t)*y;
+			double newT = (abs_t + t);
+
+			while(newT<-M_PI) newT+=2*M_PI;
+			while(newT>M_PI)  newT-=2*M_PI;
+
 			FootMarker f(newX,newY,newT);
 			xold=newX;
 			yold=newY;
@@ -140,24 +131,18 @@ int main( int argc, char** argv )
 			if(foot == 'R'){
 				f.set_color(1,0,0);
 				f.drawLine(last_xR,last_yR);
-				last_xR = x;
-				last_yR = y;
+				last_xR = newX;
+				last_yR = newY;
 			}else{
 				f.set_color(0,1,0);
-				f.drawLine(last_xL,last_yL);
-				last_xL = x;
-				last_yL = y;
-			}
+				f.drawLine(last_xR,last_yR);
+				last_xR = newX;
+				last_yR = newY;
 
-			if(i==0 || i==1){
-				f.set_color(1,1,0);
 			}
-			if(i==fsi.size()-1 || i==fsi.size()-2){
-				f.set_color(1,0.6,0);
-			}
-
 			f.publish();
 			ROS_INFO("published footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
+
 		}
 		//######################################################
 
