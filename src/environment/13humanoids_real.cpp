@@ -60,7 +60,7 @@ void Environment13HumanoidsReal::setObjects(){
 		//c->set_color(0.1,0.1,0.1,1.0);
 		objects.push_back(c);
 	}
-	for(uint i=0;i< std::min((int)objects.size(),5);i++){
+	for(int i=0;i< std::min((int)objects.size(),5);i++){
 		//objects.at(i)->make_interactive();
 	}
 

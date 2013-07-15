@@ -38,13 +38,6 @@ int main( int argc, char** argv )
 	double rx=1.0,ry=0.00,rz=0.0;
 
 	//######################################################
-	// fastPlanner
-	//######################################################
-	//planner->addObstacleFromDatabase(CHAIR, cx, cy, cz, 1,1,1); 
-	//planner->addObstacleFromDatabase(BOX, 0.49, 0.21, 0, 1,1,1); 
-	//planner->updateLocalizationProtected(start);
-
-	//######################################################
 	// set goal 
 	//######################################################
 	std::vector<double> goal;
@@ -74,7 +67,6 @@ int main( int argc, char** argv )
 		//c->setXYZ(1.5,-2.5,-0.01);
 		//c->setRPYRadian(0,0,M_PI);
 		//c->publish();
-
 		
 		CSVReader data_steps("playback_steps.dat");
 		

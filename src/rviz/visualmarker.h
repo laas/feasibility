@@ -36,7 +36,6 @@ struct FCLInterface;
 
 namespace ros{
 	//predefined objects
-	//
 	typedef fcl::AABB BoundingVolume;
 	//typedef fcl::OBBRSS BoundingVolume;
 	struct TriangleObjectChair;

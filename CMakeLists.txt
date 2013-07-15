@@ -110,10 +110,10 @@ set(MAIN_EXE FootStepPlanner)
 set(SOURCE
 	src/environment/environment.h
 	src/environment/environment.cpp
-	src/environment/environment_sallebauzil.cpp
-	src/environment/environment_13humanoids.cpp
-	src/environment/environment_13humanoids_real.cpp
-	src/environment/environment_testbed.cpp
+	src/environment/sallebauzil.cpp
+	src/environment/13humanoids.cpp
+	src/environment/13humanoids_real.cpp
+	src/environment/testbed.cpp
 	src/planner/motionplanner.h
 	src/planner/motionplanner_astar.h
 	src/planner/constraints_checker.h 
@@ -158,7 +158,10 @@ set(SOURCE
 	src/sampler/sampler_problem_cylinder.cpp
 )
 if(${FPlanner_FOUND})
-	set(SOURCE ${SOURCE} src/planner/motionplannerperrin.h)
+	set(SOURCE ${SOURCE} 
+		src/planner/motionplanner_perrin.h
+		src/planner/motionplanner_perrin.cpp
+	)
 endif()
 set(LibFann_LIBRARIES
 	fann

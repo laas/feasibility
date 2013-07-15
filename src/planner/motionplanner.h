@@ -4,7 +4,7 @@
 #include <pqp/PQP.h>
 #endif
 #include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
+#include "environment/environment.h"
 
 struct MResults{
 	uint iterations;
@@ -21,6 +21,8 @@ protected:
 	static Environment *environment;
 	ros::Geometry goal;
 	MResults results;
+
+	double cur_sf_x, cur_sf_y, cur_sf_yaw;
 	
 public:
 	MotionPlanner(Environment *env){

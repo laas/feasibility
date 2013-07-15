@@ -10,9 +10,11 @@
 
 void TrajectoryVisualizer::init(std::vector<double> &q){
 	this->_q = &q;
-	this->_offset=4;
-	this->_Nframes = (this->_q->size()-this->_offset)/17.0; //12 joint valzues + 3 CoM (x,y,t) + 2 ZMP (x,y)
-	this->_ctrFrames = 0;
+	if(!this->_q->empty()){
+		this->_offset=4;
+		this->_Nframes = (this->_q->size()-this->_offset)/17.0; //12 joint values + 3 CoM (x,y,t) + 2 ZMP (x,y)
+		this->_ctrFrames = 0;
+	}
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	ros::Rate r(10);
@@ -26,7 +28,7 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	{
 		ROS_ERROR("Failed to construct kdl tree");
 	}
-	this->setPlanarWorldBaseTransform(x,y,M_PI/8);
+	this->setPlanarWorldBaseTransform(x,y,0);
 	this->_rsp = new robot_state_publisher::RobotStatePublisher(tree);
 
 	this->reset();
@@ -38,12 +40,12 @@ void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, doub
 	q["LARM_JOINT1"] = -0.1;
 	q["RARM_JOINT2"] = 0.0;
 	q["LARM_JOINT2"] = 0.0;
-	q["RARM_JOINT3"] = -1.0;
-	q["LARM_JOINT3"] = -1.0;
+	q["RARM_JOINT3"] = -0.8;
+	q["LARM_JOINT3"] = -0.8;
 	q["RARM_JOINT4"] = 0.0;
 	q["LARM_JOINT4"] = 0.0;
-	q["RARM_JOINT5"] = -0.3;
-	q["LARM_JOINT5"] = -0.3;
+	q["RARM_JOINT5"] = -0.2;
+	q["LARM_JOINT5"] = -0.2;
 	q["RARM_JOINT6"] = 0.0;
 	q["LARM_JOINT6"] = 0.0;
 
@@ -59,15 +61,11 @@ void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, doub
 	q["LHAND_JOINT3"] = 0.0;
 	q["LHAND_JOINT4"] = 0.0;
 
-
 	q["HEAD_JOINT0"] = 0.0;
-	q["HEAD_JOINT1"] = 0.3;
+	q["HEAD_JOINT1"] = 0.1;
 
 	q["CHEST_JOINT0"] = 0.0;
 	q["CHEST_JOINT1"] = 0.0;
-
-	//setConstTransform("CHEST_LINK0", "torso");
-	//setTranslationTransform("torso", "RARM_LINK0", 0.008, -0.250, 0.181);
 }
 void TrajectoryVisualizer::reset(){
 	std::map<std::string, double> q;
@@ -94,10 +92,12 @@ void TrajectoryVisualizer::rewind(){
 	_ctrFrames = 0;
 }
 bool TrajectoryVisualizer::next(){
+	if(this->_q->empty()){
+		return false;
+	}
 	if(_ctrFrames >= _Nframes){
 		return false;
 	}
-
 	std::map<std::string, double> q;
 
 	q["RLEG_JOINT0"] = _q->at(_offset + _ctrFrames*17 + 0);
@@ -129,6 +129,10 @@ bool TrajectoryVisualizer::next(){
 	return true;
 }
 std::vector<double> TrajectoryVisualizer::getFinalCoM(){
+	if(this->_q->empty()){
+		std::vector<double> m;
+		return m;
+	}
 	std::vector<double> CoM(3);
 	CoM.at(0)=_q->at(_offset + (_Nframes-1)*17 + 12);
 	CoM.at(1)=_q->at(_offset + (_Nframes-1)*17 + 13);
@@ -139,14 +143,14 @@ std::vector<double> TrajectoryVisualizer::getFinalCoM(){
 void TrajectoryVisualizer::setPlanarWorldBaseTransform(double x, double y, double yaw){
 	tf::Transform transform;
 	transform.setOrigin( tf::Vector3(x,y,-0.05) ); //in frame base_link
-	tf::Quaternion com_rot;
-	com_rot.setRPY(0,0,yaw);
-	transform.setRotation(com_rot);
+	tf::Quaternion rotation;
+	rotation.setRPY(0,0,yaw);
+	transform.setRotation(rotation);
 
 	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "/world_frame", "/base_link"));
-
 }
 
+// deprecated transformation functions
 void TrajectoryVisualizer::setTranslationTransform(const char* from, const char* to, double x, double y, double z){
 	tf::Transform transform;
 	transform.setOrigin( tf::Vector3(x,y,z) ); //in frame base_link
