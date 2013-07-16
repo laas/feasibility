@@ -17,6 +17,9 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 	}
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
+	_com_offset_x = 0;
+	_com_offset_y = 0;
+	_com_offset_t = 0;
 	ros::Rate r(10);
 
 	KDL::Tree tree("/base_link");
@@ -30,8 +33,34 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	}
 	this->setPlanarWorldBaseTransform(x,y,0);
 	this->_rsp = new robot_state_publisher::RobotStatePublisher(tree);
-
 	this->reset();
+	this->setPlanarWorldBaseTransform(x,y,0);
+}
+void TrajectoryVisualizer::setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t){
+	_com_offset_x = cur_com_x;
+	_com_offset_y = cur_com_y;
+	_com_offset_t = cur_com_t;
+}
+void TrajectoryVisualizer::reset(){
+	std::map<std::string, double> q;
+	q["RLEG_JOINT0"] = 0.0;
+	q["RLEG_JOINT1"] = 0.0;
+	q["RLEG_JOINT2"] = 0.0;
+	q["RLEG_JOINT3"] = 0.0;
+	q["RLEG_JOINT4"] = 0.0;
+	q["RLEG_JOINT5"] = 0.0;
+
+	q["LLEG_JOINT0"] = 0.0;
+	q["LLEG_JOINT1"] = 0.0;
+	q["LLEG_JOINT2"] = 0.0;
+	q["LLEG_JOINT3"] = 0.0;
+	q["LLEG_JOINT4"] = 0.0;
+	q["LLEG_JOINT5"] = 0.0;
+
+	setUpperBodyJointsDefault(q);
+
+	_rsp->publishFixedTransforms();
+	_rsp->publishTransforms(q, ros::Time::now());
 }
 void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, double> &q ){
 	q["RARM_JOINT0"] = 0.0;
@@ -67,27 +96,6 @@ void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, doub
 	q["CHEST_JOINT0"] = 0.0;
 	q["CHEST_JOINT1"] = 0.0;
 }
-void TrajectoryVisualizer::reset(){
-	std::map<std::string, double> q;
-	q["RLEG_JOINT0"] = 0.0;
-	q["RLEG_JOINT1"] = 0.0;
-	q["RLEG_JOINT2"] = 0.0;
-	q["RLEG_JOINT3"] = 0.0;
-	q["RLEG_JOINT4"] = 0.0;
-	q["RLEG_JOINT5"] = 0.0;
-
-	q["LLEG_JOINT0"] = 0.0;
-	q["LLEG_JOINT1"] = 0.0;
-	q["LLEG_JOINT2"] = 0.0;
-	q["LLEG_JOINT3"] = 0.0;
-	q["LLEG_JOINT4"] = 0.0;
-	q["LLEG_JOINT5"] = 0.0;
-
-	setUpperBodyJointsDefault(q);
-
-	_rsp->publishFixedTransforms();
-	_rsp->publishTransforms(q, ros::Time::now());
-}
 void TrajectoryVisualizer::rewind(){
 	_ctrFrames = 0;
 }
@@ -120,9 +128,9 @@ bool TrajectoryVisualizer::next(){
 	_rsp->publishTransforms(q, ros::Time::now());
 
 	double CoM[3];
-	CoM[0]=_q->at(_offset + _ctrFrames*17 + 12);
-	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13);
-	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14);
+	CoM[0]=_q->at(_offset + _ctrFrames*17 + 12) + _com_offset_x;
+	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13) + _com_offset_y;
+	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14) + _com_offset_t;
 
 	this->setPlanarWorldBaseTransform(CoM[0], CoM[1], CoM[2]);
 	_ctrFrames++;
@@ -134,9 +142,9 @@ std::vector<double> TrajectoryVisualizer::getFinalCoM(){
 		return m;
 	}
 	std::vector<double> CoM(3);
-	CoM.at(0)=_q->at(_offset + (_Nframes-1)*17 + 12);
-	CoM.at(1)=_q->at(_offset + (_Nframes-1)*17 + 13);
-	CoM.at(2)=_q->at(_offset + (_Nframes-1)*17 + 14);
+	CoM.at(0)=_q->at(_offset + (_Nframes-1)*17 + 12)+_com_offset_x;
+	CoM.at(1)=_q->at(_offset + (_Nframes-1)*17 + 13)+_com_offset_y;
+	CoM.at(2)=_q->at(_offset + (_Nframes-1)*17 + 14)+ _com_offset_t;
 	return CoM;
 }
 

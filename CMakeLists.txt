@@ -195,8 +195,8 @@ target_link_libraries(FastRePlanner ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_L
 rosbuild_add_executable(PublishHRP2 test/publish_hrp2.cpp )
 target_link_libraries(PublishHRP2 ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
-rosbuild_add_executable(VisualizeSteps test/vis_steps.cpp )
-target_link_libraries(VisualizeSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+rosbuild_add_executable(PlaybackSteps test/perrin_fastplanner_playback.cpp )
+target_link_libraries(PlaybackSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #################################################################################
 ###### UNIT TESTING #####################
 #################################################################################
