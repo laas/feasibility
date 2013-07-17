@@ -87,11 +87,21 @@ int main( int argc, char** argv )
 			double x = fsi.at(i).at(0);
 			double y = fsi.at(i).at(1);
 			double t = fsi.at(i).at(2);
+			char foot = fsi.at(i).at(3);
+
+			double cy = 0.095;
+			if(foot=='R'){
+				cy = -cy;
+			}
+				//newY = abs_y - 0.19 + sin(abs_t)*x + cos(abs_t)*y;
+			double st = sin(t);
+			double ct = cos(t);
+			x = x + st*cy;
+			y = y - (ct+1)*cy;
 
 			double abs_x = xold;
 			double abs_y = yold;
 			double abs_t = told;
-			char foot = fsi.at(i).at(3);
 
 			double newX = abs_x + cos(abs_t)*x - sin(abs_t)*y;
 			double newY = abs_y + sin(abs_t)*x + cos(abs_t)*y;
@@ -104,9 +114,7 @@ int main( int argc, char** argv )
 			yold=newY;
 			told=newT;
 
-			if(foot=='L'){
-				newY = abs_y - 0.19 + sin(abs_t)*x + cos(abs_t)*y;
-			}
+			//}
 			FootMarker f(newX,newY,newT);
 
 
