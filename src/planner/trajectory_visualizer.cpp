@@ -6,6 +6,7 @@
 #include <sensor_msgs/JointState.h>
 #include <kdl_parser/kdl_parser.hpp>
 #include <string>
+#include <fstream>
 #include "planner/trajectory_visualizer.h"
 
 void TrajectoryVisualizer::init(std::vector<double> &q){
@@ -17,6 +18,22 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 	}
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
+	ROS_INFO("searching for path of package 'feasibility' ...");
+	std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2.urdf";
+
+	std::ifstream urdf_fs(URDFFilename.c_str());
+	std::string urdf_content(       (std::istreambuf_iterator<char>(urdf_fs) ),
+					(std::istreambuf_iterator<char>()      ) );
+
+	ros::NodeHandle nh;
+
+	//upload robot to parameter server if necessary
+	ROS_INFO("Uploading robot to parameter server (%s)", URDFFilename.c_str());
+	nh.setParam("/robot_description", urdf_content.c_str());
+
+	//exit(0);
+
+
 	_com_offset_x = 0;
 	_com_offset_y = 0;
 	_com_offset_t = 0;
@@ -24,8 +41,6 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 
 	KDL::Tree tree("/base_link");
 	urdf::Model my_model;
-	ROS_INFO("searching for path of package 'feasibility' ...");
-	std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2a.urdf";
 
 	if (!kdl_parser::treeFromFile(URDFFilename, tree))
 	{
