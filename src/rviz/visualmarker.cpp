@@ -383,7 +383,7 @@ namespace ros{
 	}
 
 	void RVIZVisualMarker::thread_evart(){
-		assert(!m_subscriber);
+		assert(m_subscriber.getNumPublishers()==0);
 		ros::Rate r(10); //Hz
 		m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 		std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
