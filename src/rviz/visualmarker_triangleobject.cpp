@@ -216,6 +216,7 @@ namespace ros{
 		int res=fscanf(fp, "%d", &ntris);
 		CHECK(res==1, fname);
 
+		ROS_INFO("loading tris file /w %d triangles", ntris);
 
 		Color cc = get_color();
 		std_msgs::ColorRGBA c;

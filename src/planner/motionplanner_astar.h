@@ -24,7 +24,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ContactTransition::timer->register_stopper("ff", "compute ff transformation");
 		ContactTransition::timer->register_stopper("a*", "a* algorithm");
 		ContactTransition::feasibilityChecks=0;
-
 	}
 	~MotionPlannerAStar(){
 		DEBUG(ROS_INFO("***** DELETE A_STAR ********");)
@@ -63,7 +62,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 		{
 			SearchState = astarsearch->SearchStep();
 			SearchSteps++;
-			if(SearchSteps > 40){
+			if(SearchSteps > 200){
 				astarsearch->CancelSearch();
 				break;
 			}
@@ -113,7 +112,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 			ContactTransition *node = astarsearch->GetSolutionStart();
 			int steps = 0;
 			double oldX = node->g.x;
-			double oldY = node->g.y-0.2;
+			double oldY = node->g.y;
 			double oldT = node->g.getYawRadian();
 
 			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
@@ -133,22 +132,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 					m.publish();
 					m.drawLine(oldX, oldY);
 
-					/*
-					if(sv){
-						ros::Geometry rel = node->computeRelFFfromAbsFF( oldX, oldY, oldT,
-								node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
-
-						uint hash = hashit<double>(vecD(rel.x, rel.y, rel.getYawRadian()));
-						std::string robot_file = node->get_swept_volume_file_name( hash );
-
-						ROS_INFO("try loading %f %f %f", rel.x, rel.y, rel.getYawRadian());
-						ROS_INFO("loading swept vlume %s",robot_file.c_str());
-
-						ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), rel);
-						robot->set_color(0.6,0.0,0.6,0.3);
-						robot->publish();
-					}
-					*/
 
 
 					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
@@ -157,6 +140,36 @@ struct MotionPlannerAStar: public MotionPlanner{
 					m.publish();
 					m.drawLine(oldX, oldY);
 					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
+				}
+
+				if(sv){
+					//ros::Geometry rel = node->computeRelFFfromAbsFF( oldX, oldY, oldT,
+							//node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
+					//uint hash = hashit<double>(vecD(rel.x, rel.y, rel.getYawRadian()));
+					uint hash = hashit<double>(vecD(node->rel_x, node->rel_y, node->rel_yaw));
+
+					//std::string robot_file = node->get_swept_volume_file_name( hash );
+					//robot_file += node->get_swept_volume_file_name( hash );
+					std::string robot_file = "fullBodyApprox/";
+					robot_file += node->get_swept_volume_file_name( hash );
+					robot_file = get_robot_str(robot_file.c_str());
+
+					ROS_INFO("step[%d] %f %f %f", steps, node->rel_x, node->rel_y, node->rel_yaw);
+					ros::Geometry sv_pos;
+					sv_pos.x = node->g.x;
+					sv_pos.y = node->g.y;
+					sv_pos.setRPYRadian( 0,0,node->g.getYawRadian() );
+					if(node->L_or_R == 'R'){
+						sv_pos.setRPYRadian( 0,0,node->g.getYawRadian()+M_PI );
+					}
+
+					ROS_INFO("loading swept vlume %s",robot_file.c_str());
+
+					//ros::SweptVolumeObject *robot = static_cast<ConstraintsCheckerSweptVolume*>(ContactTransition::constraints)->get_sv_from_hash(hash);
+					ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos);
+					robot->set_color(0.6, 0.0, 0.6, 0.3);
+					robot->publish();
+					delete robot;
 				}
 				steps++;
 			};

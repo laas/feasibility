@@ -170,7 +170,21 @@ namespace ros{
 #endif
 
 	//Only load BVH structure for distance checking
+	SweptVolumeVisual::SweptVolumeVisual(std::string f, Geometry &in): TrisTriangleObject() {
+		this->g = in;
+
+		double scale = 1.0;
+		this->g.sx = scale;
+		this->g.sy = scale;
+		this->g.sz = scale;
+		this->tris_file_name=f;
+
+		this->tris2marker( this->marker, tris_file_name.c_str() );
+		set_color(ros::SWEPT_VOLUME);
+		init_marker();
+	}
 	SweptVolumeObject::SweptVolumeObject(): TrisTriangleObject() {
+		//NOTHING is initialized with intent! 
 	}
 	SweptVolumeObject::SweptVolumeObject(std::string f, Geometry &in): TrisTriangleObject() {
 		this->g = in;
@@ -180,14 +194,15 @@ namespace ros{
 		this->g.sy = scale;
 		this->g.sz = scale;
 		this->tris_file_name=f;
-
 		//this->bvh = new fcl::BVHModel< BoundingVolume >();
 		//this->tris2BVH(this->bvh, tris_file_name.c_str() );
+
 		this->pqp_model = new PQP_Model;
 		this->tris2PQP( this->pqp_model, tris_file_name.c_str() );
-		//this->tris2PQP(this->bvh, tris_file_name.c_str() );
+
 		//this->tris2marker( this->marker, tris_file_name.c_str() );
-		//init_marker();
+		set_color(ros::SWEPT_VOLUME);
+		init_marker();
 	}
 
 	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname): TrisTriangleObject(){

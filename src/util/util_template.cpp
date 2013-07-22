@@ -21,7 +21,7 @@ int hashit(std::vector<T> in){
 	template<class T>
 	void vecahelper(std::vector<T> &z, T t){ z.at(z.size()-1)=t; }
 
-	template<class T, typename ...A>
+	template<class T, class ...A>
 	void vecahelper(std::vector<T> &z, T t, A ...args){
 		z.at(z.size()-1-sizeof...(args))=t;
 		if(sizeof...(args)) vecahelper<T>(z, args...);
@@ -29,7 +29,7 @@ int hashit(std::vector<T> in){
 
 	//can be called by using e.g. 
 	//std::vector<double> d = ARRAY<double>(1, 2, 3) //infinite arguments possible
-	template<class T, typename ...A>
+	template<class T, class ...A>
 	std::vector<T> ARRAY( A ...args) {
 		std::vector<T> z(sizeof...(args));
 		vecahelper<T>(z, args...);

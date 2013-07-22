@@ -143,9 +143,9 @@ bool TrajectoryVisualizer::next(){
 	_rsp->publishTransforms(q, ros::Time::now());
 
 	double CoM[3];
-	CoM[0]=_q->at(_offset + _ctrFrames*17 + 12) + _com_offset_x;
-	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13) + _com_offset_y;
-	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14) + _com_offset_t;
+	CoM[0]=_q->at(_offset + _ctrFrames*17 + 12);// + _com_offset_x;
+	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13);// + _com_offset_y;
+	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14);// + _com_offset_t;
 
 	this->setPlanarWorldBaseTransform(CoM[0], CoM[1], CoM[2]);
 	_ctrFrames++;

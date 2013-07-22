@@ -112,7 +112,7 @@ std::string ContactTransition::get_swept_volume_file_name( uint hash ){
 	if(constraints->sweptvolumes_file_names.find(hash)!=constraints->sweptvolumes_file_names.end()){
 		return constraints->sweptvolumes_file_names.find(hash)->second;
 	}
-	return "NOT_FOUND_EXCEPTION";
+	throw "NOT_FOUND_EXCEPTION";
 }
 void ContactTransition::feasibilityVisualizer(){
 
@@ -256,6 +256,10 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 				next.rel_x_parent = it->second.at(0);
 				next.rel_y_parent = it->second.at(1);
 				next.rel_yaw_parent = it->second.at(2);
+
+				next.rel_x = next_ff_rel_x;
+				next.rel_y = next_ff_rel_y;
+				next.rel_yaw = next_ff_rel_yaw;
 
 				next.cost_so_far = 0.0;
 				astarsearch->AddSuccessor(next);

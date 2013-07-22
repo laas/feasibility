@@ -15,6 +15,11 @@ struct ContactTransition
 	double rel_x_parent;
 	double rel_y_parent;
 	double rel_yaw_parent;
+
+	double rel_x;
+	double rel_y;
+	double rel_yaw;
+
 	char L_or_R;
 	static Timer* timer;
 

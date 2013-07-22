@@ -19,7 +19,9 @@ bool ConstraintsCheckerSweptVolume::isFeasible(
 		return true;
 	}
 }
-
+ros::SweptVolumeObject* ConstraintsCheckerSweptVolume::get_sv_from_hash( uint hash ){
+	return sweptvolumeMap.find(hash)->second;
+}
 double ConstraintsCheckerSweptVolume::computeSVOutput( 
 		const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){

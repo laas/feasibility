@@ -10,6 +10,7 @@ struct MotionPlannerPerrin: public MotionPlanner{
 
 	MotionPlannerPerrin(Environment *env, int &argc, char** &argv);
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m);
+	void getAbsoluteFromRelativeFootSteps( std::vector<fastreplanning::footStepInterface> &fsi );
 	virtual void cleanObjects();
 	void start_planner();
 	void setStart( ros::Geometry &pos );

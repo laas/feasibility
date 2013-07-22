@@ -72,6 +72,7 @@ int main( int argc, char** argv )
 		uint i=0;
 
 		for(i=0;i<fsi.size();i++){
+			/*
 			//half-foot-step-format v.3.0:
 			// 1: x
 			// 2: y
@@ -115,6 +116,11 @@ int main( int argc, char** argv )
 			told=newT;
 
 			//}
+			*/
+			double newX = fsi.at(i).at(5);
+			double newY = fsi.at(i).at(6);
+			double newT = fsi.at(i).at(7);
+			char foot = fsi.at(i).at(3);
 			FootMarker f(newX,newY,newT);
 
 

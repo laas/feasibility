@@ -189,6 +189,8 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ##### PROJECTS #####################
 ################################################################################
 
+rosbuild_add_executable(PerrinPlannerReImplementation test/perrin_reimplementation.cpp )
+target_link_libraries(PerrinPlannerReImplementation ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
 target_link_libraries(FastRePlanner ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 

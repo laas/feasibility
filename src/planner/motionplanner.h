@@ -23,6 +23,7 @@ protected:
 	MResults results;
 
 	double cur_sf_x, cur_sf_y, cur_sf_yaw;
+	char cur_sf_foot;
 	double cur_com_x, cur_com_y, cur_com_t;
 public:
 	MotionPlanner(Environment *env){
