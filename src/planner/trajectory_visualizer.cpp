@@ -34,8 +34,8 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	//exit(0);
 
 
-	_com_offset_x = 0;
-	_com_offset_y = 0;
+	_com_offset_x = x;
+	_com_offset_y = y;
 	_com_offset_t = 0;
 	ros::Rate r(10);
 

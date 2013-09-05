@@ -12,6 +12,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 	MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
 		DEBUG(ROS_INFO("***** START A_STAR ********");)
+
 		ContactTransition::cleanStatic();
 		astarsearch = new AStarSearch<ContactTransition>(10000);
 		if(ContactTransition::timer!=NULL){
