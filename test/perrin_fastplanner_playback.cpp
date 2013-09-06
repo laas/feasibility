@@ -82,10 +82,15 @@ std::vector<double> generateWholeBodyMotionFromFootsteps(
 	//###############################################################################
 
 	if(lastStepSmoothed > fsi.size()-1){
+		ROS_INFO("last step: %d / %d -> exit", lastStepSmoothed, fsi.size());
 		return q;
 	}
-	vector<step> vectStep;
+	std::vector<step> vectStep;
+	vectStep.clear();
 	halfFootStepToStep(fsi, vectStep);
+	int lastStep = vectStep.size();
+	//###############################################################################
+	//###############################################################################
 
 	//###############################################################################
 	//###############################################################################
@@ -93,8 +98,14 @@ std::vector<double> generateWholeBodyMotionFromFootsteps(
 	//computeStepFeaturesWithoutSmoothing
 	//###############################################################################
 	//###############################################################################
+	recomputeZMP(vectStep, 'L'); //TODO add current robot position
 
-	recomputeZMP(vectStep, 'L');
+//	curTraj_.stepF1 = 
+//		curVar_.FR->smoothing( curTraj_.stepsToSend, 
+//					 curInd_.lastStepSmoothed, 2, 
+//					 curVar_.doNotSmooth);   
+
+
 
 	double defaultSlide = -0.1;
 
@@ -122,25 +133,17 @@ std::vector<double> generateWholeBodyMotionFromFootsteps(
 //Generate full body trajectory
 //###############################################################################
 //###############################################################################
-	int size;
-	if(lastStepSmoothed == 0){
-		size = 
-		  (int)(vectStep[lastStepSmoothed].stepFeaturesUP.size
-			+ vectStep[lastStepSmoothed].stepFeaturesDOWN.size
-			+ 0.001);
-	}else{
-		size = 
-		  (int)(vectStep[lastStepSmoothed].stepFeaturesUP.size
-			+ vectStep[lastStepSmoothed].stepFeaturesDOWN.size
-			//+ 200.0*(vectStep [lastStepSmoothed-1].slideUP
-				 //+ vectStep [lastStepSmoothed-1].slideDOWN) 
-			+ 0.001);
-	}
+	int size = vectStep[lastStepSmoothed].stepFeaturesUP.size
+		 + vectStep[lastStepSmoothed].stepFeaturesDOWN.size
+		 + (int) (200.0*( vectStep [lastStepSmoothed-1].slideUP
+				+ vectStep [lastStepSmoothed-1].slideDOWN) 
+				+ 0.001) 
+		 + 1;
+
 	int firstIndex = getFirstIndex( vectStep, lastStepSmoothed);                                                                                                   
 	ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);
 
 	if(size>0){
-
 		vector<vector<double> > trajTimedRadQ;
 		CGFBT->generateTrajectory( trajTimedRadQ, stepF, firstIndex, size);
 		q = createArticularValuesVector(trajTimedRadQ, stepF, firstIndex, 0, size);
@@ -178,12 +181,10 @@ int main( int argc, char** argv )
 	//std::vector<double> q = data_q.getV();
 	//ROS_INFO("q size: %d", q.size());
 
-
 	r.sleep();
 	FootMarker marker(0,0,0);
 
 	Environment* environment = Environment::getSalleBauzil();
-
 
 	CSVReader data_steps("playback_steps.dat");
 	
@@ -231,14 +232,15 @@ int main( int argc, char** argv )
 
 			}
 			f.publish();
-			//ROS_INFO("published footstep [%d] at x=%f, y=%f, theta=%f", i,newX,newY,newT);
+			ROS_INFO("published footstep [%d] (local x=%f, y=%f, t=%f) at x=%f, y=%f, theta=%f", 
+						i, fsi.at(i).at(0), fsi.at(i).at(1), fsi.at(i).at(2),
+						newX,newY,newT);
 
 		}
 	}
 	uint stepCounter = 0;
 	while (ros::ok())
 	{
-		//######################################################
 		std::vector<double> q = generateWholeBodyMotionFromFootsteps(fsi, stepCounter++);
 		if(q.size()>0){
 			ROS_INFO("configuration vector: %d", q.size());

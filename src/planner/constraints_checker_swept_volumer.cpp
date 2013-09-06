@@ -2,16 +2,15 @@
 #include <dirent.h>
 
 #define DEBUG(x)
-#define LIGHT_DEBUG(x)
+#define LIGHT_DEBUG(x) x
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
-	this->loadSweptVolumesToHashMap("../fastReplanningData/data/fullBodyApprox/");
+	this->loadSweptVolumesToHashMap("fullBodyApprox/");
 }
 
 bool ConstraintsCheckerSweptVolume::isFeasible(  
 		const std::vector<double> &p, 
 		const std::vector< std::vector<double> > &obj){
 
-	if(fabs(p.at(2))>toRad(16)) return false;
 	double continuous_feasibility = this->computeSVOutput( p, obj);
 	if(continuous_feasibility<=0){
 		return false;
@@ -109,6 +108,7 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 //struct fann *ann = fann_create_from_file(argv[1]);
 	bool collision=false;
 	uint Nfiles = get_num_files_in_dir(path, ".tris");
+	ROS_INFO("Opening %d files", Nfiles);
 	DIR* dpath = opendir( path );
 	if ( dpath ) 
 	{
@@ -154,6 +154,7 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 				printf("[%d/%d] loaded %s\n", number++, Nfiles, hFile->d_name);
 			}
 		} 
+		ROS_INFO("Loaded Swept Volumes");
 		closedir( dpath );
 	}
 	if(collision){

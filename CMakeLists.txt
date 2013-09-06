@@ -131,6 +131,8 @@ set(SOURCE
 	src/planner/contact_transition.cpp 
 	src/planner/trajectory_visualizer.h 
 	src/planner/trajectory_visualizer.cpp
+	src/planner/motion_generator.h
+	src/planner/motion_generator.cpp
 	src/rviz/visualmarker.h
 	src/rviz/visualmarker.cpp
 	src/rviz/geometry.cpp

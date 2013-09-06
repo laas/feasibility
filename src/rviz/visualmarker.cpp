@@ -333,7 +333,7 @@ namespace ros{
 		line.type = shape;
 		line.action = visualization_msgs::Marker::ADD;
 
-		line.scale.x = 0.005;
+		line.scale.x = 0.01;
 		geometry_msgs::Point p;
 		p.x = g.x;
 		p.y = g.y;

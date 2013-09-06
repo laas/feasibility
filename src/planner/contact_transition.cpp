@@ -242,7 +242,6 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 			feasibilityChecks++;
 			if(constraints->isFeasible( it->second, obj)){
-
 				//relative position of the next proposed pos of FF
 				TIMER_DEBUG( timer->begin("ff") );
 

@@ -12,7 +12,6 @@ MotionPlannerPerrin::MotionPlannerPerrin(Environment *env, int &argc, char** &ar
 	planner = fastreplanning::fastReplanningInterfaceFactory(prefix, argc, argv);
 
 	planner->setVerboseLevel(10); //0 5 15
-	//planner->setStateLevel(fastreplanning::tools::RUN);
 	setStart(start_loc);
 	planner->initStep(); //init
 
