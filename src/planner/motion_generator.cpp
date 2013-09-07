@@ -55,9 +55,14 @@ void MotionGenerator::convertAbsoluteHalfFootStepToStepVector(std::vector< std::
 		t.theta = fsi.at(i).at(2);
 		t.left_or_right = fsi.at(i).at(3);
 
-		double halfYLengthHalfSitting=0.095; 
+		if(t.left_or_right=='R'){
+			t.y = -t.y;
+			t.theta = -t.theta;
+		}
+		//double halfYLengthHalfSitting=0.095; 
+		double halfYLengthHalfSitting=-0.005; 
 
-		if (t.left_or_right=='R'){
+		if (t.left_or_right=='L'){
 			halfYLengthHalfSitting = -halfYLengthHalfSitting;
 		}
 		double theta = t.theta;
@@ -143,7 +148,7 @@ void MotionGenerator::createFeatures( step& s0, step& s1 )
 				       tmpPart2, foot);
 } 
 // adding stepFeaturesUP/DOWN to footsteps
-void MotionGenerator::recomputeZMP(vector<step>& vectStep, char foot='L', 
+void MotionGenerator::recomputeZMP(vector<step>& vectStep, char foot='R', 
                                  double x_init=0.0, double y_init=0.19, double t_init=0.0)
 {
 	if(vectStep.at(0).stepFeaturesUP.size == 0){
@@ -173,7 +178,15 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromAbsoluteFootstep
 	std::vector<step> vectStep;
 	vectStep.clear();
 	convertAbsoluteHalfFootStepToStepVector(fsi, vectStep);
-	return generateWholeBodyMotionFromStepVector(vectStep, lastStepSmoothed);
+	return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed);
+}
+std::vector<double> MotionGenerator::generateWholeBodyMotionFromAbsoluteFootsteps(
+			std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
+			double sf_x, double sf_y, double sf_t, char sf_f){
+	std::vector<step> vectStep;
+	vectStep.clear();
+	convertAbsoluteHalfFootStepToStepVector(fsi, vectStep);
+	return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed, sf_x, sf_y, sf_t, sf_f);
 }
 std::vector<double> MotionGenerator::generateWholeBodyMotionFromFootsteps(
 		std::vector<std::vector<double> > &fsi, int lastStepSmoothed)
@@ -187,6 +200,12 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromFootsteps(
 
 std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
 				std::vector<step> &vectStep, int lastStepSmoothed){
+
+	return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed, 0,0.19,0,'R');
+}
+std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
+				std::vector<step> &vectStep, int lastStepSmoothed, 
+				double sf_x, double sf_y, double sf_t, char sf_f){
 	//###############################################################################
 	//###############################################################################
 	//fsi to step format
@@ -206,7 +225,7 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
 	//computeStepFeaturesWithoutSmoothing
 	//###############################################################################
 	//###############################################################################
-	recomputeZMP(vectStep); //TODO add current robot position
+	recomputeZMP(vectStep, sf_f, sf_x, sf_y, sf_t);
 
 	double defaultSlide = -0.1;
 

@@ -38,7 +38,7 @@ void ContactTransition::cleanStatic(){
 	objects.clear();
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
-	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.3;
+	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.2;
 }
 
 //
@@ -222,9 +222,9 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		feasibilityChecks++;
 
 		//position constraints
-		if(sf_abs_x < -0.3 || sf_abs_x > 3.3 || sf_abs_y < -0.76 || sf_abs_y > 0.76){
-			ff_start_feasible = false;
-		}
+		//if(sf_abs_x < -0.3 || sf_abs_x > 3.3 || sf_abs_y < -0.76 || sf_abs_y > 0.76){
+			//ff_start_feasible = false;
+		//}
 	}
 
 	if(ff_start_feasible){

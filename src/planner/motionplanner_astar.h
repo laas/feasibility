@@ -37,14 +37,14 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ContactTransition::setConstraintsChecker( constraints );
 	}
 	void setGoal( ros::Geometry &goal ){
-		this->goal = goal;
+		this->goal.g = goal;
 	}
 	void setStart( ros::Geometry &start ){
-		this->start = start;
+		this->start.g = start;
 		this->start.rel_x_parent = 0;
 		this->start.rel_y_parent = 0;
 		this->start.rel_yaw_parent = 0;
-		this->start.L_or_R = 'L'; //start foot
+		this->start.L_or_R = 'L';
 	}
 
 	void feasibilityChecker(){
@@ -107,6 +107,101 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ros::FootMarker m(0,0,0);
 		m.reset();
 	}
+	void publish_onestep(){
+		const char *colorLeft = "red";
+		const char *colorRight = "green";
+		uint SearchState = astarsearch->SearchStep();
+
+		std::vector<std::vector<double> > fsi;
+		double sf_x, sf_y, sf_t;
+		char sf_f;
+		sf_x = start.g.x;
+		sf_y = start.g.y;
+		sf_t = start.g.getYawRadian();
+		sf_f = start.L_or_R;
+		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
+		{
+			ContactTransition *node = astarsearch->GetSolutionStart();
+			int steps = 0;
+			double oldX = node->g.x;
+			double oldY = node->g.y;
+			double oldT = node->g.getYawRadian();
+
+			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
+			l.publish();
+			ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
+			m.publish();
+
+			for( ;; )
+			{
+				DEBUG(ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, toDeg(node->g.getYawRadian()));)
+				node = astarsearch->GetSolutionNext();
+				if( !node ) break;
+				if(steps==0){
+					this->start.g.x = node->g.x;
+					this->start.g.y = node->g.y;
+					this->start.g.setRPYRadian(0,0,node->g.getYawRadian());
+					this->start.rel_x_parent = 0;
+					this->start.rel_y_parent = 0;
+					this->start.rel_yaw_parent = 0;
+					//this->start.L_or_R = node->L_or_R=='L'?'R':'L';
+					this->start.L_or_R = node->L_or_R;
+				}
+
+				//tmp_fsi = vecD(node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
+				//tmp_fsi = vecD(node->rel_x_parent, node->rel_y_parent, node->rel_yaw_parent, node->L_or_R);
+
+				std::vector<double> tmp_fsi = 
+						vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L');
+				ROS_INFO("X: %f, Y: %f, T: %f, F: %f", node->rel_x, node->rel_y, toDeg(node->rel_yaw), node->L_or_R);
+				fsi.push_back(tmp_fsi);
+
+				if(node->L_or_R == 'L'){
+					ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
+					m.publish();
+					m.drawLine(oldX, oldY);
+					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
+				}else{
+					ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorRight);
+					m.publish();
+					m.drawLine(oldX, oldY);
+					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
+				}
+
+				steps++;
+			};
+			cout << "Solution steps " << steps << endl;
+			astarsearch->FreeSolutionNodes();
+			results.steps = steps;
+
+			//Show Trajectory
+			TrajectoryVisualizer *tv = new TrajectoryVisualizer(0,0);
+			MotionGenerator *mg = new MotionGenerator();
+			for(uint i=0;i<1 && ros::ok();i++){
+				std::vector<double> q = 
+					mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, i, sf_x, sf_y, sf_t, sf_f);
+				if(q.size()>0){
+					ROS_INFO("configuration vector: %d", q.size());
+					//Replay trajectory
+					tv->init(q);
+					ros::Rate rq(500);
+					while(tv->next()){
+						ros::spinOnce();
+						rq.sleep();
+					}
+				}
+			}
+
+
+
+		}
+		else if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_FAILED ) 
+		{
+			cout << "No contact transitions are published" << endl;
+		}
+
+		astarsearch->EnsureMemoryFreed();
+	}
 	void publish_run(){
 		const char *colorLeft = "red";
 		const char *colorRight = "green";
@@ -120,10 +215,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 			double oldX = node->g.x;
 			double oldY = node->g.y;
 			double oldT = node->g.getYawRadian();
-
-			//tmp_fsi = vecD(node->rel_x_parent, node->rel_y_parent, node->rel_yaw_parent, node->L_or_R=='R'?'L':'R');
-			//tmp_fsi = vecD(node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
-			//fsi.push_back(tmp_fsi);
 
 			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
 			l.publish();

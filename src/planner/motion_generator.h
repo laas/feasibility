@@ -57,9 +57,18 @@ public:
 		CGFBT = new CgenFullBodyTrajectory();
 	}
 	std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
+			std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
+			double sf_x, double sf_y, double sf_t, char sf_f);
+
+	std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
 			std::vector<std::vector<double> > &fsi, int lastStepSmoothed);
+
 	std::vector<double> generateWholeBodyMotionFromFootsteps(
 			std::vector<std::vector<double> > &fsi, int lastStepSmoothed);
+
+	std::vector<double> generateWholeBodyMotionFromStepVector(
+				std::vector<step> &vectStep, int lastStepSmoothed, 
+				double sf_x, double sf_y, double sf_t, char sf_f);
 private:
 	std::vector<double> generateWholeBodyMotionFromStepVector(
 				std::vector<step> &vectStep, int lastStepSmoothed);
