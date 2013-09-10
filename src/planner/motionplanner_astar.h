@@ -5,11 +5,18 @@
 #include "planner/motion_generator.h"
 
 #define DEBUG(x) x
+const char *colorLeft = "red";
+const char *colorRight = "green";
 struct MotionPlannerAStar: public MotionPlanner{
 
 	ContactTransition goal;
 	ContactTransition start;
 	AStarSearch<ContactTransition> *astarsearch;
+	std::vector<std::vector<double> > fsi;
+	double sf_x, sf_y, sf_t;
+	char sf_f;
+	uint _current_step_index;
+	TrajectoryVisualizer *tv;
 
 	MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
 		DEBUG(ROS_INFO("***** START A_STAR ********");)
@@ -26,6 +33,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ContactTransition::timer->register_stopper("ff", "compute ff transformation");
 		ContactTransition::timer->register_stopper("a*", "a* algorithm");
 		ContactTransition::feasibilityChecks=0;
+		_current_step_index=0;
 	}
 	~MotionPlannerAStar(){
 		DEBUG(ROS_INFO("***** DELETE A_STAR ********");)
@@ -48,6 +56,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 			this->start.rel_y_parent = 0;
 			this->start.rel_yaw_parent = 0;
 			this->start.L_or_R = 'L';
+			tv = new TrajectoryVisualizer(start.x, start.y, start.getYawRadian()); //visualize q with CoM offset
 		}
 	}
 
@@ -58,7 +67,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 	}
 
 	void start_planner(){
-
 		astarsearch->SetStartAndGoalStates( start, goal );
 		ContactTransition::feasibilityChecks = 0;
 		unsigned int SearchSteps = 0;
@@ -111,165 +119,68 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ros::FootMarker m(0,0,0);
 		m.reset();
 	}
-	std::vector<std::vector<double> > fsi;
-	double sf_x, sf_y, sf_t;
-	char sf_f;
 
-	uint _current_step_index;
-	TrajectoryVisualizer *tv;
+	std::vector<std::vector<double> > get_footstep_vector(){
+
+		uint SearchState = astarsearch->SearchStep();
+		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
+		{
+			ContactTransition *node = astarsearch->GetSolutionStart();
+			for( ;; )
+			{
+				node = astarsearch->GetSolutionNext();
+				if( !node ) break;
+
+				std::vector<double> tmp_fsi = 
+						vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
+				fsi.push_back(tmp_fsi);
+			};
+			astarsearch->FreeSolutionNodes();
+
+		}
+		fsi.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
+		astarsearch->EnsureMemoryFreed();
+		return fsi;
+	}
 
 	void update_planner(){
-		const char *colorLeft = "red";
-		const char *colorRight = "green";
-		uint SearchState = astarsearch->SearchStep();
-
+		if(fsi.size()==0){
+			fsi = get_footstep_vector();
+			return;
+		}
 		for(uint i=0;i<=_current_step_index+3;i++){
 			fsi.at(i)=fsi.at(i);
 		}
 		fsi.erase(fsi.begin()+_current_step_index+3, fsi.end());
+		std::vector<std::vector<double> > fsi_new;
+		fsi_new = get_footstep_vector();
 
-		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
-		{
-			ContactTransition *node = astarsearch->GetSolutionStart();
-			for( ;; )
-			{
-				node = astarsearch->GetSolutionNext();
-				if( !node ) break;
-				std::vector<double> tmp_fsi = 
-						vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
-				ROS_INFO("X: %f, Y: %f, T: %f, F: %f", node->rel_x, node->rel_y, toDeg(node->rel_yaw), node->L_or_R);
-				fsi.push_back(tmp_fsi);
-			};
-			astarsearch->FreeSolutionNodes();
-		}
-		else if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_FAILED ) 
-		{
-			cout << "No contact transitions are published" << endl;
-		}
-
-		astarsearch->EnsureMemoryFreed();
-
+		fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
 	}
-	void publish_onestep_init(){
-
-		_current_step_index=0;
-		const char *colorLeft = "red";
-		const char *colorRight = "green";
-		uint SearchState = astarsearch->SearchStep();
-		sf_x = start.g.x;
-		sf_y = start.g.y;
-		sf_t = start.g.getYawRadian();
-		sf_f = start.L_or_R;
-		tv = new TrajectoryVisualizer(sf_x,sf_y,sf_t); //visualize q with CoM offset
-		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
-		{
-			ContactTransition *node = astarsearch->GetSolutionStart();
-			int steps = 0;
-			double oldX = node->g.x;
-			double oldY = node->g.y;
-			double oldT = node->g.getYawRadian();
-
-			ros::ColorFootMarker l(oldX, oldY, node->g.getYawRadian(), colorRight);
-			l.publish();
-			ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
-			m.publish();
-
-			for( ;; )
-			{
-				DEBUG(ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, toDeg(node->g.getYawRadian()));)
-				node = astarsearch->GetSolutionNext();
-				if( !node ) break;
-				if(steps==0){
-					this->start.g.x = node->g.x;
-					this->start.g.y = node->g.y;
-					this->start.g.setRPYRadian(0,0,node->g.getYawRadian());
-					this->start.rel_x_parent = 0;
-					this->start.rel_y_parent = 0;
-					this->start.rel_yaw_parent = 0;
-					//this->start.L_or_R = node->L_or_R=='L'?'R':'L';
-					this->start.L_or_R = node->L_or_R;
-				}
-
-				//tmp_fsi = vecD(node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
-				//tmp_fsi = vecD(node->rel_x_parent, node->rel_y_parent, node->rel_yaw_parent, node->L_or_R);
-
-				std::vector<double> tmp_fsi = 
-						vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
-				ROS_INFO("X: %f, Y: %f, T: %f, F: %f", node->rel_x, node->rel_y, toDeg(node->rel_yaw), node->L_or_R);
-				fsi.push_back(tmp_fsi);
-
-				if(node->L_or_R == 'L'){
-					ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorLeft);
-					m.publish();
-					m.drawLine(oldX, oldY);
-					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
-				}else{
-					ros::ColorFootMarker m(node->g.x, node->g.y, node->g.getYawRadian(), colorRight);
-					m.publish();
-					m.drawLine(oldX, oldY);
-					oldX = node->g.x;oldY = node->g.y;//oldT = node->g.getYawRadian();
-				}
-
-				steps++;
-			};
-			cout << "Solution steps " << steps << endl;
-			astarsearch->FreeSolutionNodes();
-			results.steps = steps;
-
-
+	void publish_footstep_vector(){
+		if(_current_step_index >= fsi.size()){
+			return;
 		}
-		else if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_FAILED ) 
-		{
-			cout << "No contact transitions are published" << endl;
+		ros::FootMarker l(0,0,0);
+		l.reset();
+		for(uint i=_current_step_index;i<fsi.size();i++){
+			double x = fsi.at(i).at(4);
+			double y = fsi.at(i).at(5);
+			double t = fsi.at(i).at(6);
+			double f = fsi.at(i).at(3);
+
+			if(f == 'L'){
+				ros::ColorFootMarker m(x,y,t,colorLeft);
+				m.publish();
+			}else{
+				ros::ColorFootMarker m(x,y,t,colorRight);
+				m.publish();
+			}
 		}
+		//update start pos for further replanning
+		uint i=_current_step_index+3;
 
-
-
-		fsi.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
-
-		astarsearch->EnsureMemoryFreed();
-	}
-	bool publish_onestep_next(){
-			if(_current_step_index >= fsi.size()){
-				return false;
-			}
-
-			const char *colorLeft = "red";
-			const char *colorRight = "green";
-			ros::FootMarker l(0,0,0);
-			l.reset();
-			for(uint i=_current_step_index;i<fsi.size();i++){
-				double x = fsi.at(i).at(4);
-				double y = fsi.at(i).at(5);
-				double t = fsi.at(i).at(6);
-				double f = fsi.at(i).at(3);
-
-				if(f == 'L'){
-					ros::ColorFootMarker m(x,y,t,colorLeft);
-					m.publish();
-				}else{
-					ros::ColorFootMarker m(x,y,t,colorRight);
-					m.publish();
-				}
-			}
-
-			MotionGenerator *mg = new MotionGenerator(); //generate q
-			for(uint i=_current_step_index;i<_current_step_index+1 && ros::ok();i++){
-				std::vector<double> q = 
-					mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, i);
-				if(q.size()>0){
-					ROS_INFO("configuration vector: %d", q.size());
-					//Replay trajectory
-					tv->init(q);
-					ros::Rate rq(500);
-					while(tv->next()){
-						ros::spinOnce();
-						rq.sleep();
-					}
-				}
-			}
-			//update start pos for further replanning
-			uint i=_current_step_index+3;
+		if(i<fsi.size()){
 			double x = fsi.at(i).at(4);
 			double y = fsi.at(i).at(5);
 			double t = fsi.at(i).at(6);
@@ -278,12 +189,26 @@ struct MotionPlannerAStar: public MotionPlanner{
 			this->start.g.y=y;
 			this->start.g.setRPYRadian(0,0,t);
 			this->start.L_or_R = f=='R'?'L':'R'; //starting pos is omitted
-			if(f == 'L'){
-				ros::ColorFootMarker m(x,y,t,"blue");
-				m.publish();
-			}else{
-				ros::ColorFootMarker m(x,y,t,"blue");
-				m.publish();
+			ros::ColorFootMarker m(x,y,t,"blue");
+			m.publish();
+		}
+		ROS_INFO("step %d/%d", _current_step_index, fsi.size());
+	}
+	bool publish_onestep_next(){
+
+			publish_footstep_vector();
+			MotionGenerator *mg = new MotionGenerator(); //generate q
+			std::vector<double> q = 
+				mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, _current_step_index);
+			if(q.size()>0){
+				ROS_INFO("configuration vector: %d", q.size());
+				//Replay trajectory
+				tv->init(q);
+				ros::Rate rq(200);
+				while(tv->next()){
+					ros::spinOnce();
+					rq.sleep();
+				}
 			}
 
 			_current_step_index++;
@@ -313,9 +238,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 				DEBUG(ROS_INFO("step[%d] %f %f %f", steps, node->g.x, node->g.y, toDeg(node->g.getYawRadian()));)
 				node = astarsearch->GetSolutionNext();
 				if( !node ) break;
-
-				//tmp_fsi = vecD(node->g.x, node->g.y, node->g.getYawRadian(), node->L_or_R);
-				//tmp_fsi = vecD(node->rel_x_parent, node->rel_y_parent, node->rel_yaw_parent, node->L_or_R);
 
 				std::vector<double> tmp_fsi = 
 						vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L');

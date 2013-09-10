@@ -71,7 +71,7 @@ void MotionGenerator::convertAbsoluteHalfFootStepToStepVector(std::vector< std::
 		t.x = t.x - (st) * halfYLengthHalfSitting;
 		t.y = t.y + (ct + 1) * halfYLengthHalfSitting;
 
-		ROS_INFO("X: %f, Y: %f, T: %f, F: %f", t.x, t.y, toDeg(t.theta), t.left_or_right);
+		//ROS_INFO("X: %f, Y: %f, T: %f, F: %f", t.x, t.y, toDeg(t.theta), t.left_or_right);
 
 
 		vectStep.push_back(t);
