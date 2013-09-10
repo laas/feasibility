@@ -36,7 +36,7 @@ void EnvironmentSalleBauzil::setGoalObject(){
 	//goal->subscribeToEvart("/evart/helmet2/PO");
 }
 void EnvironmentSalleBauzil::setStartObject(){
-	start = new ros::SphereMarker(0.0, 0.0, 0.2, 0.0);
+	start = new ros::SphereMarker(0.0, 1.0, 0.2, 0.0);
 	start->addText("start");
 	//start->subscribeToEvart("/evart/robot/PO");
 }

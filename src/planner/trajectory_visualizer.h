@@ -30,15 +30,21 @@ private:
 	double _com_offset_x;
 	double _com_offset_y;
 	double _com_offset_t;
+
+	double _cur_com_offset_x;
+	double _cur_com_offset_y;
+	double _cur_com_offset_t;
+
 	std::vector<double> *_q;
 	robot_state_publisher::RobotStatePublisher *_rsp;
 	tf::TransformBroadcaster _br;
 public:
 	void init(std::vector<double> &q);
-	TrajectoryVisualizer(double x=0, double y=0);
+	TrajectoryVisualizer(double x=0, double y=0, double t=0);
 	std::vector<double> getFinalCoM();
 	void setUpperBodyJointsDefault( std::map<std::string, double> &q );
 	void setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t);
+	void setCoMOffset(std::vector<double> com);
 
 	void setConstTransform(const char* from, const char* to);
 	void setPlanarWorldBaseTransform(double x, double y, double yaw);

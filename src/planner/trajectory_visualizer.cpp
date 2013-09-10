@@ -17,7 +17,7 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 		this->_ctrFrames = 0;
 	}
 }
-TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
+TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
 	ROS_INFO("searching for path of package 'feasibility' ...");
 	std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2.urdf";
 
@@ -31,12 +31,9 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	ROS_INFO("Uploading robot to parameter server (%s)", URDFFilename.c_str());
 	nh.setParam("/robot_description", urdf_content.c_str());
 
-	//exit(0);
-
-
 	_com_offset_x = x;
 	_com_offset_y = y;
-	_com_offset_t = 0;
+	_com_offset_t = t;
 	ros::Rate r(10);
 
 	KDL::Tree tree("/base_link");
@@ -50,6 +47,11 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y){
 	this->_rsp = new robot_state_publisher::RobotStatePublisher(tree);
 	this->reset();
 	this->setPlanarWorldBaseTransform(x,y,0);
+}
+void TrajectoryVisualizer::setCoMOffset(std::vector<double> com){
+	_com_offset_x = com.at(0);
+	_com_offset_y = com.at(1);
+	_com_offset_t = com.at(2);
 }
 void TrajectoryVisualizer::setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t){
 	_com_offset_x = cur_com_x;
@@ -143,23 +145,32 @@ bool TrajectoryVisualizer::next(){
 	_rsp->publishTransforms(q, ros::Time::now());
 
 	double CoM[3];
-	CoM[0]=_q->at(_offset + _ctrFrames*17 + 12);
-	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13);
-	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14);
+	CoM[0]=_q->at(_offset + _ctrFrames*17 + 12) + _com_offset_x;
+	CoM[1]=_q->at(_offset + _ctrFrames*17 + 13) + _com_offset_y;
+	CoM[2]=_q->at(_offset + _ctrFrames*17 + 14) + _com_offset_t;
+
+	_cur_com_offset_x = CoM[0];
+	_cur_com_offset_y = CoM[1];
+	_cur_com_offset_t = CoM[2];
 
 	this->setPlanarWorldBaseTransform(CoM[0], CoM[1], CoM[2]);
 	_ctrFrames++;
 	return true;
 }
 std::vector<double> TrajectoryVisualizer::getFinalCoM(){
-	if(this->_q->empty()){
-		std::vector<double> m;
-		return m;
-	}
+	//if(this->_q->empty()){
+	//	ROS_INFO("ATTENTION: empty com vector");
+	//	std::vector<double> m;
+	//	return m;
+	//}
 	std::vector<double> CoM(3);
-	CoM.at(0)=_q->at(_offset + (_Nframes-1)*17 + 12)+_com_offset_x;
-	CoM.at(1)=_q->at(_offset + (_Nframes-1)*17 + 13)+_com_offset_y;
-	CoM.at(2)=_q->at(_offset + (_Nframes-1)*17 + 14)+ _com_offset_t;
+	ROS_INFO("_ctrFrames: %d, Nframes: %d", _ctrFrames, _Nframes);
+	//CoM.at(0)=_q->at(_offset + (_Nframes-1)*17 + 12)+_com_offset_x;
+	//CoM.at(1)=_q->at(_offset + (_Nframes-1)*17 + 13)+_com_offset_y;
+	//CoM.at(2)=_q->at(_offset + (_Nframes-1)*17 + 14)+_com_offset_t;
+	CoM.at(0) = _cur_com_offset_x;
+	CoM.at(1) = _cur_com_offset_y;
+	CoM.at(2) = _cur_com_offset_t;
 	return CoM;
 }
 
