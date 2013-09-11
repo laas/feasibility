@@ -122,6 +122,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 	std::vector<std::vector<double> > get_footstep_vector(){
 
+		std::vector<std::vector<double> > fs_vector;
 		uint SearchState = astarsearch->SearchStep();
 		if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
 		{
@@ -133,14 +134,16 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 				std::vector<double> tmp_fsi = 
 						vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
-				fsi.push_back(tmp_fsi);
+				fs_vector.push_back(tmp_fsi);
 			};
 			astarsearch->FreeSolutionNodes();
 
 		}
-		fsi.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
+		if(!fs_vector.empty()){
+			fs_vector.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
+		}
 		astarsearch->EnsureMemoryFreed();
-		return fsi;
+		return fs_vector;
 	}
 
 	void update_planner(){
@@ -148,17 +151,25 @@ struct MotionPlannerAStar: public MotionPlanner{
 			fsi = get_footstep_vector();
 			return;
 		}
-		for(uint i=0;i<=_current_step_index+3;i++){
+
+		for(uint i=0;i<=_current_step_index+3 && i<fsi.size();i++){
 			fsi.at(i)=fsi.at(i);
 		}
-		fsi.erase(fsi.begin()+_current_step_index+3, fsi.end());
+
 		std::vector<std::vector<double> > fsi_new;
 		fsi_new = get_footstep_vector();
 
+		if(_current_step_index+3 >= fsi.size()+fsi_new.size()){
+			//goal is reached in the next three steps, 
+			return;
+		}
+
+		fsi.erase(min(fsi.begin()+_current_step_index+3, fsi.end()), fsi.end());
 		fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
 	}
 	void publish_footstep_vector(){
 		if(_current_step_index >= fsi.size()){
+			ROS_INFO("Finished trajectory");
 			return;
 		}
 		ros::FootMarker l(0,0,0);
@@ -195,6 +206,9 @@ struct MotionPlannerAStar: public MotionPlanner{
 		ROS_INFO("step %d/%d", _current_step_index, fsi.size());
 	}
 	bool publish_onestep_next(){
+			if(_current_step_index >= fsi.size()){
+				return false;
+			}
 
 			publish_footstep_vector();
 			MotionGenerator *mg = new MotionGenerator(); //generate q

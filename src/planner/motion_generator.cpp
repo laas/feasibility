@@ -60,7 +60,7 @@ void MotionGenerator::convertAbsoluteHalfFootStepToStepVector(std::vector< std::
 			t.theta = -t.theta;
 		}
 		//double halfYLengthHalfSitting=0.095; 
-		double halfYLengthHalfSitting=-0.005; 
+		double halfYLengthHalfSitting=-0.000; 
 
 		if (t.left_or_right=='L'){
 			halfYLengthHalfSitting = -halfYLengthHalfSitting;
@@ -203,30 +203,8 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
 
 	return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed, 0,0.19,0,'R');
 }
-std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
-				std::vector<step> &vectStep, int lastStepSmoothed, 
-				double sf_x, double sf_y, double sf_t, char sf_f){
-	//###############################################################################
-	//###############################################################################
-	//fsi to step format
-	//###############################################################################
-	//###############################################################################
-
-	std::vector<double> q;
-	if(lastStepSmoothed > vectStep.size()-1){
-		ROS_INFO("last step: %d / %d -> exit", lastStepSmoothed, vectStep.size());
-		return q;
-	}
-
-	//int lastStep = vectStep.size();
-	//###############################################################################
-	//###############################################################################
-	// NO smooth STEPS
-	//computeStepFeaturesWithoutSmoothing
-	//###############################################################################
-	//###############################################################################
-	recomputeZMP(vectStep, sf_f, sf_x, sf_y, sf_t);
-
+StepFeatures MotionGenerator::computeFeaturesWithoutSmoothing(
+			std::vector<step> &vectStep){
 	double defaultSlide = -0.1;
 
 	StepFeatures stepF, stepUP, stepDOWN;
@@ -246,18 +224,201 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
 		vectStep[i].slideUP = defaultSlide;
 		vectStep[i].slideDOWN = defaultSlide;
 	}
+	return stepF;
+}
+double MotionGenerator::findMultiple(double x, double mul)
+{
+	double temp = 0.0;
+	if(x>=0.0){
+		while(temp<x){
+			temp += mul;
+		}
+	}else{
+		while(temp>x){
+			temp -= mul;
+		}
+	}
+	return temp;
+}
+StepFeatures MotionGenerator::computeFeaturesWithSmoothing(vector<step>& stepsVect, int startFrom, int numberOfSteps){
+
+	StepFeatures stepF1, stepUP, stepDOWN;
+	vector<vector<double> > trajTimedRadQ;
+	//FIXME: useful?
+	//CC->updateObstacle(evalFunction);
+
+	if(startFrom<0) startFrom=0;
+	if(numberOfSteps==-1) numberOfSteps = stepsVect.size() - startFrom;
+
+	double t1 = STEP_LENGTH/2.0 - 0.05*STEP_LENGTH/2.0; //0.95;
+	double t2 = STEP_LENGTH/2.0 + 0.05*STEP_LENGTH/2.0; //1.05;
+	double t3 = STEP_LENGTH;
+
+	//FIXME : test multiple of 0.005
+	double maxSlideUp = COEF_MAX_SLIDE_UP * (t1 + t3 - t2);
+	double maxSlideDown =  COEF_MAX_SLIDE_DOWN * min(t3-t2, t1);
+
+	double minZero = 0.0;
+	double maxOne = 0.0;
+	double currentAttempt = 0.0;
+	double slideMin = 0.1;
+
+	int NB_TEST = 0;
+
+	unsigned int STEP_FEATURE_LENGTH_UP = stepsVect.at(0).stepFeaturesUP.size;
+	unsigned int STEP_FEATURE_LENGTH_DOWN = stepsVect.at(0).stepFeaturesDOWN.size;
+	//FIXME : collision test length ?
+	int TEST_LENGTH = 3*200;
+
+	//Create StepFeatures
+	stepUP = stepsVect.at(0).stepFeaturesUP;
+	stepF1 = stepUP;
+
+	for(int i=0; i<startFrom; i++){
+		if(i==0){
+			if(stepsVect.at(i).stepFeaturesUP.size!=STEP_FEATURE_LENGTH_UP) 
+			{
+				printf("\n[%d] stepFeaturesDOWN is not good (%d!=%d).\n",i,
+					 stepsVect.at(i).stepFeaturesUP.size,STEP_FEATURE_LENGTH_UP); 
+				exit(1);
+			}
+			stepDOWN = stepsVect.at(i).stepFeaturesDOWN;
+			NPSS->addStepFeaturesWithSlide(stepF1, stepDOWN, stepsVect.at(i).slideDOWN);
+		}else{
+			if(stepsVect.at(i).stepFeaturesUP.size!=STEP_FEATURE_LENGTH_UP) 
+			  {
+			    printf("\n[%d] stepFeaturesUP is not good (%d!=%d).\n",i,
+				   stepsVect.at(i).stepFeaturesUP.size,STEP_FEATURE_LENGTH_UP); 
+			    exit(1);
+			  }
+			if(stepsVect.at(i).stepFeaturesDOWN.size!=STEP_FEATURE_LENGTH_DOWN) 
+			  {
+			    printf("\n[%d] stepFeaturesDOWN is not good (%d!=%d).\n",i,
+				   stepsVect.at(i).stepFeaturesDOWN.size,STEP_FEATURE_LENGTH_DOWN); 
+			    exit(1);
+			  }
+
+			stepUP = stepsVect.at(i).stepFeaturesUP;
+			stepDOWN = stepsVect.at(i).stepFeaturesDOWN;
+			NPSS->addStepFeaturesWithSlide(stepF1, stepUP  , 
+						       stepsVect.at(i).slideUP  );
+			NPSS->addStepFeaturesWithSlide(stepF1, stepDOWN, 
+						       stepsVect.at(i).slideDOWN);
+		}
+	}//for
+
+	int laststep = min(startFrom+numberOfSteps,(int)stepsVect.size());
+	for(int i=startFrom;i<laststep;i++){
+		//Smooth stepUP
+		if(i!=0){
+			maxOne = findMultiple(maxSlideUp,0.005);
+
+			stepUP = stepsVect.at(i).stepFeaturesUP;
+			stepsVect.at(i).slideUP = -maxOne;
+
+			NPSS->addStepFeaturesWithSlide(stepF1,stepUP,-maxOne);
+		}
+		//Smooth stepDown
+		minZero = maxSlideDown;
+		maxOne = 0.0;
+		currentAttempt = maxSlideDown;
+
+		while(minZero - maxOne > T_STOP_DICHO){
+			StepFeatures newStep = stepF1;
+			stepDOWN = stepsVect.at(i).stepFeaturesDOWN;
+
+			//Test if stepFeature is correct
+			if(stepDOWN.size!=STEP_FEATURE_LENGTH_DOWN){
+				  printf("\n[%d] stepFeaturesDOWN is not good (%d!=%d).\n",i,
+					 stepsVect.at(i).stepFeaturesDOWN.size,STEP_FEATURE_LENGTH_DOWN); 
+				  exit(1);
+			}
+
+			double currentAttemptTemp = findMultiple(currentAttempt,0.005);
+			NPSS->addStepFeaturesWithSlide(newStep,stepDOWN,-currentAttemptTemp);
+
+			int firstIndex = newStep.size - TEST_LENGTH;
+			if(firstIndex<0){
+				firstIndex = 0;
+			}
+			CGFBT->generateTrajectory(trajTimedRadQ,newStep, firstIndex);
+
+			NB_TEST++;
+
+			//int res = -1;
+			//res = CC->checkCollisions(trajTimedRadQ, trajTimedWaist, 0 ,10);
+
+			//res = CC->checkCollisions(trajTimedRadQ, newStep, 0 ,3);
+			//if( res==0 ){
+			maxOne = currentAttempt;
+			//}else{
+			//  minZero = currentAttempt;
+			//}
+			currentAttempt = (maxOne+minZero)/2.0;
+		}
+
+		if(maxOne<slideMin){
+			maxOne = slideMin;
+		}else{
+			maxOne = findMultiple(maxOne,0.005);
+		}
+
+		stepDOWN = stepsVect.at(i).stepFeaturesDOWN;
+		stepsVect.at(i).slideDOWN = -maxOne;
+		NPSS->addStepFeaturesWithSlide(stepF1,stepDOWN,-maxOne);
+	}
+	return stepF1;
+}
+std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
+				std::vector<step> &vectStep, int lastStepSmoothed, 
+				double sf_x, double sf_y, double sf_t, char sf_f){
+	//###############################################################################
+	//###############################################################################
+	//fsi to step format
+	//###############################################################################
+	//###############################################################################
+
+	std::vector<double> q;
+	if(lastStepSmoothed > vectStep.size()-1){
+		ROS_INFO("last step: %d / %d -> exit", lastStepSmoothed, vectStep.size());
+		return q;
+	}
+
+	//int lastStep = vectStep.size();
+//###############################################################################
+//###############################################################################
+// NO smooth STEPS
+//computeStepFeaturesWithoutSmoothing
+//###############################################################################
+//###############################################################################
+	recomputeZMP(vectStep, sf_f, sf_x, sf_y, sf_t);
+
+	bool smoothing=true;
+	int size = -1;
+	StepFeatures stepF;
+	if(smoothing){
+		stepF = computeFeaturesWithSmoothing(vectStep, lastStepSmoothed, 2);
+		size = vectStep[lastStepSmoothed].stepFeaturesUP.size 
+			   + vectStep[lastStepSmoothed].stepFeaturesDOWN.size + 
+			 + (int) (200.0*( vectStep [lastStepSmoothed].slideUP
+					+ vectStep [lastStepSmoothed].slideDOWN) 
+					+ 0.001) 
+			 + 1;
+	}else{
+		stepF = computeFeaturesWithoutSmoothing(vectStep);
+		size = vectStep[lastStepSmoothed].stepFeaturesUP.size
+			 + vectStep[lastStepSmoothed].stepFeaturesDOWN.size
+			 + (int) (200.0*( vectStep [lastStepSmoothed-1].slideUP
+					+ vectStep [lastStepSmoothed-1].slideDOWN) 
+					+ 0.001) 
+			 + 1;
+	}
 
 //###############################################################################
 //###############################################################################
 //Generate full body trajectory
 //###############################################################################
 //###############################################################################
-	int size = vectStep[lastStepSmoothed].stepFeaturesUP.size
-		 + vectStep[lastStepSmoothed].stepFeaturesDOWN.size
-		 + (int) (200.0*( vectStep [lastStepSmoothed-1].slideUP
-				+ vectStep [lastStepSmoothed-1].slideDOWN) 
-				+ 0.001) 
-		 + 1;
 
 	int firstIndex = getFirstIndex( vectStep, lastStepSmoothed);                                                                                                   
 	ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);

@@ -73,6 +73,10 @@ private:
 	std::vector<double> generateWholeBodyMotionFromStepVector(
 				std::vector<step> &vectStep, int lastStepSmoothed);
 
+	StepFeatures computeFeaturesWithoutSmoothing(std::vector<step> &vectStep);
+	StepFeatures computeFeaturesWithSmoothing(vector<step>& stepsVect, int startFrom, int numberOfSteps);
+	double findMultiple(double x, double mul);
+
 	void convertAbsoluteHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep);
 	void convertHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep);
 
