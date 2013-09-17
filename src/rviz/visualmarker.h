@@ -25,9 +25,7 @@
 #endif
 #include <Eigen/Core>
 
-#ifdef PQP_COLLISION_CHECKING
 #include <pqp/PQP.h>
-#endif
 
 #include "util/util.h"
 #include "rviz/rviz_interface.h"
@@ -81,6 +79,7 @@ namespace ros{
 	static Color WHITE(1.0,1.0,1.0,1.0);
 	static Color MAGENTA(0.9,0.0,0.9,1.0);
 	static Color SWEPT_VOLUME(0.6,0.0,0.6,0.3);
+	static Color OBSTACLE(0.5,0.0,0.5,0.3);
 
 	//static Color TEXT_COLOR(0.9,0.9,0.9,1.0);
 	static Color TEXT_COLOR(0.1,0.1,0.1,1.0);
@@ -188,20 +187,16 @@ namespace ros{
 		fcl::BVHModel< BoundingVolume > *bvh;
 #endif
 		std::string tris_file_name;
-#ifdef PQP_COLLISION_CHECKING
 		PQP_Model *pqp_model;
 		PQP_Model *pqp_margin;
-#endif
 	public:
 		TriangleObject();
 		virtual ~TriangleObject();
 		virtual std::string name();
 		virtual uint32_t get_shape();
-#ifdef PQP_COLLISION_CHECKING
 		double pqp_distance_to(TriangleObject &rhs);
 		void set_pqp_ptr( PQP_Model* pqp_in );
 		PQP_Model* get_pqp_ptr();
-#endif
 #ifdef FCL_COLLISION_CHECKING
 		void set_bvh_ptr( fcl::BVHModel< BoundingVolume > *bvh_in );
 		fcl::BVHModel< BoundingVolume >* get_bvh_ptr();
@@ -244,10 +239,8 @@ namespace ros{
 		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
 		void reloadCylinderBVH(double radius, double height);
 #endif
-#ifdef PQP_COLLISION_CHECKING
 		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
 		void tris2PQP(PQP_Model *m, const char *fname );
-#endif
 
 		void reloadBVH();
 	};

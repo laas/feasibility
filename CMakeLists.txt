@@ -12,48 +12,49 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 set(ROS_BUILD_TYPE Debug)
 rosbuild_init()
 
-#set the default path for built executables to the "bin" directory
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-#set the default path for built libraries to the "lib" directory
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 #uncomment if you have defined messages
 #rosbuild_genmsg()
 #uncomment if you have defined services
 #rosbuild_gensrv()
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/usr/local/include")
-SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/local/lib")
+#SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "/usr/local/include")
+#SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "/usr/local/lib")
+
+INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/boost.cmake)
+#INCLUDE(cmake/cpack.cmake)
+INCLUDE(cmake/ros.cmake)
+INCLUDE(CMakeModules/FindPQP.cmake)
+
+ADD_REQUIRED_DEPENDENCY("analyticalPG >= 0.9")
+ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.9.0")
+
+SET(BOOST_COMPONENTS
+  system thread filesystem
+)
+SEARCH_FOR_BOOST()
 
 FIND_PACKAGE(Boost)
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+set(Boost_LIBRARIES
+	${Boost_LIBRARIES}
+	/usr/lib/libboost_system.so
+	/usr/lib/libboost_thread.so
+)
 IF (Boost_FOUND)
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+	message(STATUS ${Boost_LIBRARIES})
+	message(STATUS ${Boost_INCLUDE_DIRS})
+	message(STATUS ${Boost_LIBRARY_DIRS})
     ADD_DEFINITIONS( "-DHAS_BOOST" )
 ENDIF()
 
 include(CheckFunctionExists)
 include($ENV{ROS_ROOT}/core/rosbuild/FindPkgConfig.cmake)
-
-#add_definitions("-DPQP_COLLISION_CHECKING")
-include_directories("/opt/ros/electric/stacks/visualization/interactive_markers")
-#link_directories("/opt/openrobots")
-#set(MISC
-#	PQP
-#	fast-replanning
-#)
-
-pkg_check_modules(FPlanner fast-replanning)
-include_directories(${FPlanner_INCLUDE_DIRS})
-link_directories(${FPlanner_LIBRARY_DIRS})
-if(${FPlanner_FOUND})
-	add_definitions("-DPQP_COLLISION_CHECKING")
-	message(STATUS "------------------- ")
-	message(STATUS ${FPlanner_LIBRARY_DIRS})
-	message(STATUS ${FPlanner_LIBRARIES})
-	message(STATUS ${FPlanner_INCLUDE_DIRS})
-	message(STATUS "------------------- ")
-else()
-	message(STATUS "Compilation without fast-planner libary")
-endif()
+#include_directories("/opt/ros/electric/stacks/visualization/interactive_markers")
 
 ## pkg_check_modules(<NAME> REQUIRED <pkglib>)
 ## be sure that <NAME> != <pkglib>
@@ -68,9 +69,15 @@ if(${LibFann_FOUND})
 	message(STATUS ${LibFann_LIBRARIES})
 	message(STATUS ${LibFann_INCLUDE_DIRS})
 	message(STATUS "------------------- ")
+	set(LibFann_LIBRARIES
+		fann
+		m
+	)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lm -lfann")
 else()
 	message(STATUS "Compilation without fann libary")
 endif()
+##########################################################
 ##########################################################
 pkg_check_modules(FCLLIB fcl)
 include_directories(${FCLLIB_INCLUDE_DIRS})
@@ -95,17 +102,12 @@ if(${EIGEN_FOUND})
 else()
 	message(STATUS "Compilation without EIGEN libary")
 endif()
+##########################################################
+##########################################################
 
 #ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
 #COMMAND rosrun ${PROJECT_NAME} Main 
 #COMMENT "rosmake & rosrun"
-#)
-
-set(MAIN_EXE FootStepPlanner)
-
-#ADD_CUSTOM_TARGET( run
-#COMMAND ./../bin/${MAIN}
-#COMMENT "execute main project"
 #)
 set(SOURCE
 	src/environment/environment.h
@@ -161,28 +163,13 @@ set(SOURCE
 	src/genFullBodyTrajectory.cpp
 	src/genFullBodyTrajectory.h
 )
-if(${FPlanner_FOUND})
-	set(SOURCE ${SOURCE} 
-		src/planner/motionplanner_perrin.h
-		src/planner/motionplanner_perrin.cpp
-	)
-endif()
-set(LibFann_LIBRARIES
-	fann
-	m
-)
-
 
 add_definitions("-std=c++0x")
 include_directories(src)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lm -lfann")
 set(UTIL_LIB util)
-
-
 rosbuild_add_library(${UTIL_LIB} ${SOURCE})
 target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
-#target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARY_DIRS})
-
+target_link_libraries(${UTIL_LIB} ${Boost_LIBRARIES})
 
 ################################################################################
 ###### MAIN PROJECTS #####################
@@ -192,18 +179,22 @@ target_link_libraries(${UTIL_LIB} ${FCLLIB_LIBRARIES})
 ################################################################################
 ##### PROJECTS #####################
 ################################################################################
-
 #rosbuild_add_executable(PerrinPlannerReImplementation test/perrin_reimplementation.cpp )
 #target_link_libraries(PerrinPlannerReImplementation ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
-target_link_libraries(FastRePlanner ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+PKG_CONFIG_USE_DEPENDENCY(FastRePlanner jrl-mal)
+PKG_CONFIG_USE_DEPENDENCY(FastRePlanner analyticalPG)
+SET_TARGET_PROPERTIES(FastRePlanner PROPERTIES LINK_FLAGS -lboost_system-mt)
+target_link_libraries(FastRePlanner ${PQP_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+TARGET_LINK_LIBRARIES(FastRePlanner ${PQP_LDFLAGS})
+TARGET_LINK_LIBRARIES(FastRePlanner ${Boost_LIBRARIES})
 
-rosbuild_add_executable(PublishHRP2 test/publish_hrp2.cpp )
-target_link_libraries(PublishHRP2 ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#rosbuild_add_executable(PublishHRP2 test/publish_hrp2.cpp )
+#target_link_libraries(PublishHRP2 ${PQP_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
-rosbuild_add_executable(PlaybackSteps test/perrin_fastplanner_playback.cpp )
-target_link_libraries(PlaybackSteps ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
+#rosbuild_add_executable(PlaybackSteps test/perrin_fastplanner_playback.cpp )
+#target_link_libraries(PlaybackSteps ${PQP_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 #################################################################################
 ###### UNIT TESTING #####################
 #################################################################################

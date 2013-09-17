@@ -416,6 +416,6 @@ namespace ros{
 		thread_start();
 	}
 	double RVIZVisualMarker::getTextZ(){
-		return g.z+g.sz/2+0.1;
+		return g.z+g.sz+0.1;
 	}
 }

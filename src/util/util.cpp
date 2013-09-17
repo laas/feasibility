@@ -407,7 +407,6 @@ CSVReader::~CSVReader(){
 }
 
 //##########################################################################
-#ifdef PQP_COLLISION_CHECKING
 void MRotZ(PQP_REAL R[3][3], PQP_REAL t){
 	R[0][0]=cos(t);
 	R[1][0]=sin(t);
@@ -417,4 +416,3 @@ void MRotZ(PQP_REAL R[3][3], PQP_REAL t){
 	R[0][2]=R[1][2]=0.0;
 	R[2][2]=1.0;
 }
-#endif

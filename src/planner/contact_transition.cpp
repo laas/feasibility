@@ -46,7 +46,7 @@ ros::Geometry ContactTransition::computeRelFFfromAbsFF(
 		double sf_abs_x, double sf_abs_y, double sf_abs_yaw, 
 		double ff_abs_x, double ff_abs_y, double ff_abs_yaw,
 		char sf_foot){
-	NYI("");
+	NYI();
 	double ff_rel_x, ff_rel_y, ff_rel_yaw;
 	ROS_INFO("sf_abs %f %f %f", sf_abs_x, sf_abs_y, sf_abs_yaw);
 	ROS_INFO("ff_abs %f %f %f", ff_abs_x, ff_abs_y, ff_abs_yaw);

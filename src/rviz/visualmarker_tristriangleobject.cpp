@@ -41,17 +41,15 @@ namespace ros{
 		this->g.sz = scale;
 		this->tris_file_name=f;
 
-#ifdef PQP_COLLISION_CHECKING
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
 		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
-#endif
 #ifdef FCL_COLLISION_CHECKING
 		this->bvh = new fcl::BVHModel< BoundingVolume >();
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
 #endif
 		this->tris2marker( this->marker, tris_file_name.c_str() );
-		set_color(ros::WHITE);
+		set_color(ros::OBSTACLE);
 		init_marker();
 
 	}
@@ -61,7 +59,6 @@ namespace ros{
 	uint32_t TrisTriangleObject::get_shape(){
 		return visualization_msgs::Marker::TRIANGLE_LIST;
 	}
-#ifdef PQP_COLLISION_CHECKING
 	void TrisTriangleObject::tris2PQP(PQP_Model *m, const char *fname ){
 		int ntris;
 
@@ -131,7 +128,6 @@ namespace ros{
 		DEBUG( ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);)
 
 	}
-#endif
 #ifdef FCL_COLLISION_CHECKING
 	void TrisTriangleObject::tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname ){
 		

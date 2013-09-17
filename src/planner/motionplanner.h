@@ -1,8 +1,6 @@
 #pragma once
 #include <vector>
-#ifdef PQP_COLLISION_CHECKING
 #include <pqp/PQP.h>
-#endif
 #include "rviz/visualmarker.h"
 #include "environment/environment.h"
 
@@ -34,7 +32,6 @@ public:
 	}
 	virtual ~MotionPlanner(){}
 	
-
 	void update(){
 		if(environment->isChanged()){
 			ROS_INFO("***update environment***");

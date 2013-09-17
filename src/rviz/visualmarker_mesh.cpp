@@ -15,12 +15,9 @@ namespace ros{
 		this->g.sy = 1.0;
 		this->g.sz = 1.0;
 
-
-#ifdef PQP_COLLISION_CHECKING
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
 		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
-#endif
 
 		set_color(0,0,0,0);
 		init_marker();

@@ -12,7 +12,7 @@
 #define PRINT(msg) std::cout << CUR_LOCATION << " >> " << msg << std::endl
 #define ABORT(msg) PRINT(msg); throw msg;
 #define HALT(msg) PRINT(msg); exit(1);
-#define NYI(msg) PRINT(msg); exit(1);
+#define NYI() PRINT("NOT YET IMPLEMENTED"); exit(1);
 #define COUT(msg) PRINT(msg);
 #define CHECK(cond, str) if(!(cond)){ PRINT(str); throw(str); }
 
@@ -56,11 +56,10 @@ bool isNumOrMinus(char c);
 std::vector<double> extract_num_from_string( std::string s );
 std::string get_logging_str(const char* prefix, std::string s);
 uint get_num_files_in_dir(const char *path, const char *ending);
-#ifdef PQP_COLLISION_CHECKING
+
 //for backward compability with N.Perrin framework
 #include <pqp/PQP.h>
 void MRotZ(PQP_REAL R[3][3], PQP_REAL t);
-#endif
 
 //##########################################################################
 // logger / stable

@@ -1,3 +1,4 @@
+#include "planner/trajectory_visualizer.h"
 #include "planner/motionplanner.h"
 #include "../extern/astar/stlastar.h"
 #include "planner/contact_transition.h"
@@ -13,6 +14,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 	ContactTransition start;
 	AStarSearch<ContactTransition> *astarsearch;
 	std::vector<std::vector<double> > fsi;
+
 	double sf_x, sf_y, sf_t;
 	char sf_f;
 	uint _current_step_index;
@@ -76,7 +78,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 		{
 			SearchState = astarsearch->SearchStep();
 			SearchSteps++;
-			if(SearchSteps > 200){
+			if(SearchSteps > 100){
 				astarsearch->CancelSearch();
 				break;
 			}
@@ -111,10 +113,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 			return false;
 	}
 
-	//plot footsteps into rviz
-	void publish(){
-		publish("green", "red");
-	}
 	void clean_publish(){
 		ros::FootMarker m(0,0,0);
 		m.reset();
@@ -227,6 +225,14 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 			_current_step_index++;
 			return true;
+	}
+	void publish(){
+		NYI();
+	}
+	/*
+	//plot footsteps into rviz
+	void publish(){
+		publish("green", "red");
 	}
 	void publish_run(){
 		const char *colorLeft = "red";
@@ -384,6 +390,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 		astarsearch->EnsureMemoryFreed();
 	}
+	*/
 	void clean(){
 		ContactTransition::cleanStatic();
 		astarsearch->EnsureMemoryFreed();

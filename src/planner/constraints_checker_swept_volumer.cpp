@@ -2,7 +2,7 @@
 #include <dirent.h>
 
 #define DEBUG(x)
-#define LIGHT_DEBUG(x) x
+#define LIGHT_DEBUG(x)
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
 	this->loadSweptVolumesToHashMap("fullBodyApprox/");
 }
@@ -75,10 +75,6 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 		//swept vlumes are always tested on the right side
 		while(ryaw>M_PI) ryaw-=2*M_PI;
 		while(ryaw<-M_PI) ryaw+=2*M_PI;
-
-		//--> cylinder coordinates
-		//std::vector<double> cyl(3);
-		//cyl.at(0)=sqrtf(rx*rx + ry*ry); cyl.at(1)=atan2(rx,ry); cyl.at(2)=yaw;
 
 		double dist = sqrtf(rx*rx+ry*ry);
 
