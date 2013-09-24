@@ -182,13 +182,18 @@ target_link_libraries(${UTIL_LIB} ${Boost_LIBRARIES})
 #rosbuild_add_executable(PerrinPlannerReImplementation test/perrin_reimplementation.cpp )
 #target_link_libraries(PerrinPlannerReImplementation ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
+rosbuild_add_executable(contactPDF test/contact_pdf_creator.cpp )
+PKG_CONFIG_USE_DEPENDENCY(contactPDF jrl-mal)
+PKG_CONFIG_USE_DEPENDENCY(contactPDF analyticalPG)
+target_link_libraries(contactPDF ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
+
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner jrl-mal)
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner analyticalPG)
-SET_TARGET_PROPERTIES(FastRePlanner PROPERTIES LINK_FLAGS -lboost_system-mt)
-target_link_libraries(FastRePlanner ${PQP_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
-TARGET_LINK_LIBRARIES(FastRePlanner ${PQP_LDFLAGS})
-TARGET_LINK_LIBRARIES(FastRePlanner ${Boost_LIBRARIES})
+target_link_libraries(FastRePlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
+
+#SET_TARGET_PROPERTIES(FastRePlanner PROPERTIES LINK_FLAGS -lboost_system-mt)
+#TARGET_LINK_LIBRARIES(FastRePlanner ${Boost_LIBRARIES})
 
 #rosbuild_add_executable(PublishHRP2 test/publish_hrp2.cpp )
 #target_link_libraries(PublishHRP2 ${PQP_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
