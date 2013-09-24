@@ -8,6 +8,7 @@ struct MResults{
 	uint iterations;
 	double time;
 	uint steps;
+	std::vector< std::vector<double> > *step_vector;
 	unsigned long long feasibilityChecks; //guaranteed bit sizes (at least): long (32 bit), long long (64 bit)
 	bool success;
 	void print(){

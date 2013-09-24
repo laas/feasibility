@@ -164,6 +164,10 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 		fsi.erase(min(fsi.begin()+_current_step_index+3, fsi.end()), fsi.end());
 		fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
+
+	}
+	void steps_to_results(){
+		results.step_vector = &fsi;
 	}
 	void publish_footstep_vector(){
 		if(_current_step_index >= fsi.size()){

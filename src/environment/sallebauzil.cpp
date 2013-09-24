@@ -17,12 +17,12 @@ void EnvironmentSalleBauzil::setObjects(){
 	chair->make_interactive(0.4);
 	objects.push_back(chair);
 
-	chair = new ros::TriangleObjectFloor(1.5, 1.5, "chairLabo.tris", "/evart/chair3/PO");
+	//chair = new ros::TriangleObjectFloor(1.5, 1.5, "chairLabo.tris", "/evart/chair3/PO");
 	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
-	chair->addText("/evart/chair3/PO");
+	//chair->addText("/evart/chair3/PO");
 	//chair->subscribeToEvart("/evart/chair2/PO");
-	chair->make_interactive(0.4);
-	objects.push_back(chair);
+	//chair->make_interactive(0.4);
+	//objects.push_back(chair);
 
 }
 void EnvironmentSalleBauzil::setGoalObject(){

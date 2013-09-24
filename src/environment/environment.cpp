@@ -150,8 +150,28 @@ void Environment::clean(){
 	if(goal!=NULL){ delete goal; goal=NULL;}
 	if(start!=NULL){ delete start; start=NULL;}
 }
+
 std::vector<ros::RVIZVisualMarker*> Environment::getObjects(){
 	return objects;
+}
+
+void Environment::setObjectPosition(uint id, double x, double y, double yaw){
+	if(id>objects.size()){
+		ROS_INFO("WARNING: setObjectPosition, ID not existant");
+		return;
+	}
+	objects.at(id)->g.x = x;
+	objects.at(id)->g.y = y;
+	objects.at(id)->g.setRPYRadian(0,0,yaw);
+}
+
+void Environment::setStart(double x, double y){
+	this->start->g.x = x;
+	this->start->g.y = y;
+}
+void Environment::setGoal(double x, double y){
+	this->goal->g.x = x;
+	this->goal->g.y = y;
 }
 ros::Geometry Environment::getGoal(){
 	assert(goal);

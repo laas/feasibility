@@ -38,6 +38,9 @@ public:
 	bool isChanged();
 	void reloadObjects();
 	std::vector<ros::RVIZVisualMarker*> getObjects();
+	void setGoal(double x, double y);
+	void setStart(double x, double y);
+	void setObjectPosition(uint id, double x, double y, double yaw);
 	ros::Geometry getGoal();
 	ros::Geometry getStart();
 };
