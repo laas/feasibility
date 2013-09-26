@@ -11,7 +11,8 @@
   <depend package="visualization_msgs"/>
   <depend package="interactive_markers"/>
   <depend package="kdl_parser" />
- <depend package="robot_state_publisher"/>
+  <depend package="robot_state_publisher"/>
+  <depend package="trajectory_msgs"/>
 </package>
 
 

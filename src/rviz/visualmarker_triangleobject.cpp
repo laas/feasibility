@@ -207,6 +207,7 @@ namespace ros{
 #endif
 	}
 	double computeDerivativeFromNearestPoints( fcl::Vec3f &a, fcl::Vec3f &b){
+          return 0;
 	}
 	void TriangleObject::tris2marker(visualization_msgs::Marker &marker, const char *fname){
 		
