@@ -52,4 +52,12 @@ public:
 	void reset();
 	void rewind();
 	bool next();
+
+#define NB_JOINT_HRP2 36
+#define NB_PUBLISHED_JOINT_HRP2 12
+        static const std::string JointNames[NB_JOINT_HRP2];
+
+        void publishTrajectory();
+
+
 };

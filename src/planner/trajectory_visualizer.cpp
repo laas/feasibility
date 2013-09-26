@@ -1,13 +1,64 @@
+/*! Standard includes */
 #include <vector>
+#include <string>
+#include <fstream>
+
+/*! ROS specific */
 #include <ros/ros.h>
 #include <ros/time.h>
 #include <ros/package.h>
 #include <robot_state_publisher/robot_state_publisher.h>
 #include <sensor_msgs/JointState.h>
 #include <kdl_parser/kdl_parser.hpp>
-#include <string>
-#include <fstream>
+
+#include <trajectory_msgs/JointTrajectory.h>
+
+
+/* ! Feasibility Framework */
 #include "planner/trajectory_visualizer.h"
+
+const std::string JointNames[NB_JOINT_HRP2]= {
+          "RLEG_JOINT0",
+          "RLEG_JOINT1",
+          "RLEG_JOINT2",
+          "RLEG_JOINT3",
+          "RLEG_JOINT4",
+          "RLEG_JOINT5",
+          
+          "LLEG_JOINT0",
+          "LLEG_JOINT1",
+          "LLEG_JOINT2",
+          "LLEG_JOINT3",
+          "LLEG_JOINT4",
+          "LLEG_JOINT5",
+
+          "RARM_JOINT0",
+          "RARM_JOINT1",
+          "RARM_JOINT2",
+          "RARM_JOINT3",
+          "RARM_JOINT4",
+          "RARM_JOINT5",
+          "RARM_JOINT6",
+
+          "LARM_JOINT0",
+          "LARM_JOINT1",
+          "LARM_JOINT2",
+          "LARM_JOINT3",
+          "LARM_JOINT4",
+          "LARM_JOINT5",
+          "LARM_JOINT6",
+          
+          "RHAND_JOINT0",
+          "RHAND_JOINT1",
+          "RHAND_JOINT2",
+          "RHAND_JOINT3",
+          "RHAND_JOINT4",
+          
+          "LHAND_JOINT0",
+          "LHAND_JOINT1",
+          "LHAND_JOINT2",
+          "LHAND_JOINT3",
+          "LHAND_JOINT4"};
 
 void TrajectoryVisualizer::init(std::vector<double> &q){
 	this->_q = &q;
@@ -202,4 +253,27 @@ void TrajectoryVisualizer::setConstTransform(const char* from, const char* to){
 	transform.setRotation(com_rot);
 
 	_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), from, to));
+}
+
+void TrajectoryVisualizer::publishTrajectory()
+{
+  trajectory_msgs::JointTrajectory goal;
+
+  for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++)
+    goal.joint_names.push_back(JointNames[i]);
+  
+  goal.points.resize(_Nframes);
+
+  for(unsigned int idPoint=0;idPoint<_Nframes;idPoint++)
+    {
+      for(unsigned int i=0;i<NB_JOINT_HRP2;i++)
+        goal.points[idPoint].positions[i]= _q->at(_offset+_ctrFrames*17+i);
+    }
+  
+  // Trajectory publication through ROS
+  ros::NodeHandle n;
+  ros::Publisher trajectory_pub = n.advertise<trajectory_msgs::JointTrajectory>("/planner/trajectory",2);
+  
+  trajectory_pub.publish(goal);
+
 }

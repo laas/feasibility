@@ -6,13 +6,13 @@ ConstraintsChecker::ConstraintsChecker(){
 }
 void ConstraintsChecker::loadSweptVolumeFileNames(const char *path){
 	bool collision=false;
-	uint Nfiles = get_num_files_in_dir(path, ".tris");
+	//uint Nfiles = get_num_files_in_dir(path, ".tris");
 	DIR* dpath = opendir( path );
 	if ( dpath ) 
 	{
 		struct dirent* hFile;
 		errno = 0;
-		uint number = 0;
+		//uint number = 0;
 		while (( hFile = readdir( dpath )) != NULL ){
 			//if(number++>2) break;
 			if( !strcmp( hFile->d_name, "."  )) continue;
