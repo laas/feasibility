@@ -38,6 +38,8 @@ private:
 	std::vector<double> *_q;
 	robot_state_publisher::RobotStatePublisher *_rsp;
 	tf::TransformBroadcaster _br;
+          
+        ros::Publisher trajectory_pub_;
 public:
 	void init(std::vector<double> &q);
 	TrajectoryVisualizer(double x=0, double y=0, double t=0);
@@ -59,5 +61,5 @@ public:
 
         void publishTrajectory();
 
-
+        
 };

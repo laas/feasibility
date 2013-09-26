@@ -17,7 +17,7 @@
 /* ! Feasibility Framework */
 #include "planner/trajectory_visualizer.h"
 
-const std::string JointNames[NB_JOINT_HRP2]= {
+const std::string TrajectoryVisualizer::JointNames[NB_JOINT_HRP2]= {
           "RLEG_JOINT0",
           "RLEG_JOINT1",
           "RLEG_JOINT2",
@@ -66,6 +66,8 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 		this->_offset=4;
 		this->_Nframes = (this->_q->size()-this->_offset)/17.0; //12 joint values + 3 CoM (x,y,t) + 2 ZMP (x,y)
 		this->_ctrFrames = 0;
+
+                publishTrajectory();
 	}
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
@@ -98,6 +100,9 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
 	this->_rsp = new robot_state_publisher::RobotStatePublisher(tree);
 	this->reset();
 	this->setPlanarWorldBaseTransform(x,y,0);
+
+        trajectory_pub_ = nh.advertise<trajectory_msgs::JointTrajectory>("/planner/trajectory",2);
+  
 }
 void TrajectoryVisualizer::setCoMOffset(std::vector<double> com){
 	_com_offset_x = com.at(0);
@@ -266,14 +271,12 @@ void TrajectoryVisualizer::publishTrajectory()
 
   for(unsigned int idPoint=0;idPoint<_Nframes;idPoint++)
     {
-      for(unsigned int i=0;i<NB_JOINT_HRP2;i++)
+      goal.points[idPoint].positions.resize(NB_PUBLISHED_JOINT_HRP2);
+      for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++)
         goal.points[idPoint].positions[i]= _q->at(_offset+_ctrFrames*17+i);
     }
   
   // Trajectory publication through ROS
-  ros::NodeHandle n;
-  ros::Publisher trajectory_pub = n.advertise<trajectory_msgs::JointTrajectory>("/planner/trajectory",2);
-  
-  trajectory_pub.publish(goal);
+  trajectory_pub_.publish(goal);
 
 }
