@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include "planner/trajectory_visualizer.h"
+#include "util/util.h"
 
 void TrajectoryVisualizer::init(std::vector<double> &q){
 	this->_q = &q;
@@ -80,19 +81,63 @@ void TrajectoryVisualizer::reset(){
 	_rsp->publishTransforms(q, ros::Time::now());
 }
 void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, double> &q ){
+	/**
+\brief HALFSITTINGPOSITION \
+legs : 0.0, 0.0, -26.0, 50.0, -24.0, 0.0, 0.0, 0.0, -26.0, 50.0, -24.0, 0.0
+chest and head : 0.0, 0.0, 0.0, 0.0,
+right arm : 15.0, -10.0, 0.0, -30.0, 0.0, 0.0, 10.0,
+left arm : 15.0, 10.0, 0.0, -30.0, 0.0, 0.0, 10.0,
+right hand : -10.0, 10.0, -10.0, 10.0, -10.0,
+left hand : -10.0, 10.0, -10.0, 10.0, -10.0
+*/
+	q["RARM_JOINT0"] = toRad(15.0);
+	q["RARM_JOINT1"] = -toRad(10.0);
+	q["RARM_JOINT2"] = toRad(0.0);
+	q["RARM_JOINT3"] = -toRad(30.0);
+	q["RARM_JOINT4"] = toRad(0.0);
+	q["RARM_JOINT5"] = toRad(0.0);
+	q["RARM_JOINT6"] = toRad(10.0);
+
+	q["LARM_JOINT0"] = toRad(15.0);
+	q["LARM_JOINT1"] = toRad(10.0);
+	q["LARM_JOINT2"] = toRad(0.0);
+	q["LARM_JOINT3"] = -toRad(30.0);
+	q["LARM_JOINT4"] = toRad(0.0);
+	q["LARM_JOINT5"] = toRad(0.0);
+	q["LARM_JOINT6"] = toRad(10.0);
+
+	q["RHAND_JOINT0"] = -toRad(10.0);
+	q["RHAND_JOINT1"] = toRad(10.0);
+	q["RHAND_JOINT2"] = -toRad(10.0);
+	q["RHAND_JOINT3"] = toRad(10.0);
+	q["RHAND_JOINT4"] = -toRad(10.0);
+
+	q["LHAND_JOINT0"] = -toRad(10.0);
+	q["LHAND_JOINT1"] = toRad(10.0);
+	q["LHAND_JOINT2"] = -toRad(10.0);
+	q["LHAND_JOINT3"] = toRad(10.0);
+	q["LHAND_JOINT4"] = -toRad(10.0);
+
+	q["HEAD_JOINT0"] = 0.0;
+	q["HEAD_JOINT1"] = 0.0;
+
+	q["CHEST_JOINT0"] = 0.0;
+	q["CHEST_JOINT1"] = 0.0;
+/*
 	q["RARM_JOINT0"] = 0.0;
-	q["LARM_JOINT0"] = 0.0;
 	q["RARM_JOINT1"] = -0.1;
-	q["LARM_JOINT1"] = -0.1;
 	q["RARM_JOINT2"] = 0.0;
-	q["LARM_JOINT2"] = 0.0;
 	q["RARM_JOINT3"] = -0.8;
-	q["LARM_JOINT3"] = -0.8;
 	q["RARM_JOINT4"] = 0.0;
-	q["LARM_JOINT4"] = 0.0;
 	q["RARM_JOINT5"] = -0.2;
-	q["LARM_JOINT5"] = -0.2;
 	q["RARM_JOINT6"] = 0.0;
+
+	q["LARM_JOINT0"] = 0.0;
+	q["LARM_JOINT1"] = -0.1;
+	q["LARM_JOINT2"] = 0.0;
+	q["LARM_JOINT3"] = -0.8;
+	q["LARM_JOINT4"] = 0.0;
+	q["LARM_JOINT5"] = -0.2;
 	q["LARM_JOINT6"] = 0.0;
 
 	q["RHAND_JOINT0"] = 0.0;
@@ -108,10 +153,11 @@ void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, doub
 	q["LHAND_JOINT4"] = 0.0;
 
 	q["HEAD_JOINT0"] = 0.0;
-	q["HEAD_JOINT1"] = 0.1;
+	q["HEAD_JOINT1"] = 0.0;
 
 	q["CHEST_JOINT0"] = 0.0;
 	q["CHEST_JOINT1"] = 0.0;
+*/
 }
 void TrajectoryVisualizer::rewind(){
 	_ctrFrames = 0;
