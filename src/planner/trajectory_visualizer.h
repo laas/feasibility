@@ -46,9 +46,8 @@ public:
 	void setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t);
 	void setCoMOffset(std::vector<double> com);
 
-	void setConstTransform(const char* from, const char* to);
 	void setPlanarWorldBaseTransform(double x, double y, double yaw);
-	void setTranslationTransform(const char* from, const char* to, double x, double y, double z);
+	void setTranslationTransform(const char* from, const char* to, double x, double y, double z, double roll, double pitch, double yaw);
 	void reset();
 	void rewind();
 	bool next();
