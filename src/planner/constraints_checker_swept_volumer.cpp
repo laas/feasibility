@@ -33,7 +33,7 @@ double ConstraintsCheckerSweptVolume::computeSVOutput(
 	std::vector<double> cost_per_object;
 	std::vector<ros::TriangleObject*>::iterator oit;
 
-	for(  oit = _objects.begin(); oit != _objects.end(); ++oit ){
+	for(  oit = objects_.begin(); oit != objects_.end(); ++oit ){
 		//static_cast<ros::TriangleObject&>(**oit);
 		cost_per_object.push_back( sv->pqp_distance_to(**oit) );
 		//cost_per_object.push_back( sv->fast_distance_to(static_cast<ros::TriangleObject&>(**oit)) );
@@ -51,7 +51,7 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 		double sf_x, double sf_y, double sf_yaw, char sf_foot){
 	std::vector<std::vector<double> > v;
 	std::vector<ros::RVIZVisualMarker*>::iterator oit;
-	_objects.clear();
+	objects_.clear();
 	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
 		double x = (*oit)->g.x;
 		double y = (*oit)->g.y;
@@ -95,7 +95,7 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 
 			o->g.x = rx;
 			o->g.y=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-			_objects.push_back(o);
+			objects_.push_back(o);
 		}
 	}
 	return v;

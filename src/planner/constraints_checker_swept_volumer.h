@@ -4,7 +4,7 @@
 
 class ConstraintsCheckerSweptVolume: public ConstraintsChecker{
 	SweptVolumeHashMap sweptvolumeMap;
-	std::vector<ros::TriangleObject*> _objects;
+	std::vector<ros::TriangleObject*> objects_;
 
 public:
 

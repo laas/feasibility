@@ -14,7 +14,7 @@ void CgenFullBodyTrajectory::getWaistFootKinematics(const matrix4d & jointRootPo
 						    vectorN &q,
 						    vector3d Dt)
 {
-  double _epsilon=1.0e-6;
+  double epsilon_=1.0e-6;
   // definition des variables relatif au design du robot
   double A = 0.3;//m_FemurLength;
   double B = 0.3;//m_TibiaLength;
@@ -58,15 +58,15 @@ void CgenFullBodyTrajectory::getWaistFootKinematics(const matrix4d & jointRootPo
   
   double l0 = sqrt(d3(0)*d3(0)+d3(1)*d3(1)+d3(2)*d3(2) - 0.035*0.035);
   c5 = 0.5 * (l0*l0-A*A-B*B) / (A*B);
-  if (c5 > 1.0-_epsilon)
+  if (c5 > 1.0-epsilon_)
     {
       q[3] = 0.0;
     }
-  if (c5 < -1.0+_epsilon)
+  if (c5 < -1.0+epsilon_)
     {
       q[3] = M_PI;
     }
-  if (c5 >= -1.0+_epsilon && c5 <= 1.0-_epsilon) 
+  if (c5 >= -1.0+epsilon_ && c5 <= 1.0-epsilon_) 
     {
       q[3] = acos(c5);
     }

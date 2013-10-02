@@ -17,10 +17,10 @@ public:
 	prepareObjectPosition(std::vector<ros::RVIZVisualMarker*> &obj, 
 			double sf_x, double sf_y, double sf_yaw, char foot);
 private:
-	ConstraintsChecker *_cc;
-	double _xlow;
-	double _xhigh;
-	double _ylow;
-	double _yhigh;
+	ConstraintsChecker *cc_;
+	double xlow_;
+	double xhigh_;
+	double ylow_;
+	double yhigh_;
 };
 

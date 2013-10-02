@@ -17,7 +17,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 
   double sf_x, sf_y, sf_t;
   char sf_f;
-  uint _current_step_index;
+  uint current_step_index_;
   TrajectoryVisualizer *tv;
 
 MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
@@ -35,7 +35,7 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
     ContactTransition::timer->register_stopper("ff", "compute ff transformation");
     ContactTransition::timer->register_stopper("a*", "a* algorithm");
     ContactTransition::feasibilityChecks=0;
-    _current_step_index=0;
+    current_step_index_=0;
   }
   ~MotionPlannerAStar(){
     DEBUG(ROS_INFO("***** DELETE A_STAR ********");)
@@ -150,19 +150,19 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
       return;
     }
 
-    for(uint i=0;i<=_current_step_index+3 && i<fsi.size();i++){
+    for(uint i=0;i<=current_step_index_+3 && i<fsi.size();i++){
       fsi.at(i)=fsi.at(i);
     }
 
     std::vector<std::vector<double> > fsi_new;
     fsi_new = get_footstep_vector();
 
-    if(_current_step_index+3 >= fsi.size()+fsi_new.size()){
+    if(current_step_index_+3 >= fsi.size()+fsi_new.size()){
       //goal is reached in the next three steps, 
       return;
     }
 
-    fsi.erase(min(fsi.begin()+_current_step_index+3, fsi.end()), fsi.end());
+    fsi.erase(min(fsi.begin()+current_step_index_+3, fsi.end()), fsi.end());
     fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
 
   }
@@ -170,13 +170,13 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
     results.step_vector = &fsi;
   }
   void publish_footstep_vector(){
-    if(_current_step_index >= fsi.size()){
+    if(current_step_index_ >= fsi.size()){
       ROS_INFO("Finished trajectory");
       return;
     }
     ros::FootMarker l(0,0,0);
     l.reset();
-    for(uint i=_current_step_index;i<fsi.size();i++){
+    for(uint i=current_step_index_;i<fsi.size();i++){
       double x = fsi.at(i).at(4);
       double y = fsi.at(i).at(5);
       double t = fsi.at(i).at(6);
@@ -191,7 +191,7 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
       }
     }
     //update start pos for further replanning
-    uint i=_current_step_index+3;
+    uint i=current_step_index_+3;
 
     if(i<fsi.size()){
       double x = fsi.at(i).at(4);
@@ -205,17 +205,17 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
       ros::ColorFootMarker m(x,y,t,"blue");
       m.publish();
     }
-    ROS_INFO("step %d/%d", _current_step_index, fsi.size());
+    ROS_INFO("step %d/%d", current_step_index_, fsi.size());
   }
   bool publish_onestep_next(){
-    if(_current_step_index >= fsi.size()){
+    if(current_step_index_ >= fsi.size()){
       return false;
     }
 
     publish_footstep_vector();
     MotionGenerator *mg = new MotionGenerator(); //generate q
     std::vector<double> q = 
-        mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, _current_step_index);
+        mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_);
     if(q.size()>0){
       ROS_INFO("configuration vector: %d", q.size());
       //Replay trajectory
@@ -227,7 +227,7 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
       }
     }
 
-    _current_step_index++;
+    current_step_index_++;
     return true;
   }
   void publish(){

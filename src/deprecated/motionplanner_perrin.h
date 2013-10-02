@@ -6,7 +6,7 @@
 struct MotionPlannerPerrin: public MotionPlanner{
 	fastreplanning::FastReplanningInterface *planner;
 	TrajectoryVisualizer *tv;
-	bool _step_finished;
+	bool step_finished_;
 
 	MotionPlannerPerrin(Environment *env, int &argc, char** &argv);
 	virtual void addObjectToPlanner(ros::RVIZVisualMarker *m);

@@ -15,7 +15,7 @@ MotionPlannerPerrin::MotionPlannerPerrin(Environment *env, int &argc, char** &ar
 	setStart(start_loc);
 	planner->initStep(); //init
 
-	_step_finished=false;
+	step_finished_=false;
 }
 
 void MotionPlannerPerrin::addObjectToPlanner(ros::RVIZVisualMarker *m){
@@ -30,12 +30,12 @@ void MotionPlannerPerrin::cleanObjects(){
 
 void MotionPlannerPerrin::start_planner(){
 	/*
-	if(!_step_finished){
+	if(!step_finished_){
 		ROS_INFO("replan");
 		//planner->initStep();
 		planner->replanStep();
 	}else{
-		_step_finished=false;
+		step_finished_=false;
 		planner->replanStep();
 	}
 	*/

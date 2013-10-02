@@ -286,9 +286,9 @@ namespace ros{
 	//embedding into voronoi hull)
 	struct TriangleMeshDecorator: public TriangleObject{
 	private:
-		TriangleObject *_tobj;
-		visualization_msgs::Marker _deco_marker;
-		std::string _deco_file;
+		TriangleObject *tobj_;
+		visualization_msgs::Marker deco_marker_;
+		std::string deco_file_;
 
 		TriangleMeshDecorator();
 	public:

@@ -24,20 +24,20 @@
 
 class TrajectoryVisualizer{
 private:
-	uint _Nframes;
-	uint _ctrFrames;
-	uint _offset;
-	double _com_offset_x;
-	double _com_offset_y;
-	double _com_offset_t;
+	uint Nframes_;
+	uint ctrFrames_;
+	uint offset_;
+	double com_offset_x_;
+	double com_offset_y_;
+	double com_offset_t_;
 
-	double _cur_com_offset_x;
-	double _cur_com_offset_y;
-	double _cur_com_offset_t;
+	double cur_com_offset_x_;
+	double cur_com_offset_y_;
+	double cur_com_offset_t_;
 
 	std::vector<double> *_q;
-	robot_state_publisher::RobotStatePublisher *_rsp;
-	tf::TransformBroadcaster _br;
+	robot_state_publisher::RobotStatePublisher *rsp_;
+	tf::TransformBroadcaster br_;
           
         ros::Publisher trajectory_pub_;
 public:
