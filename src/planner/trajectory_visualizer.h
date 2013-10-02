@@ -35,7 +35,7 @@ private:
 	double cur_com_offset_y_;
 	double cur_com_offset_t_;
 
-	std::vector<double> *_q;
+	std::vector<double> *q_;
 	robot_state_publisher::RobotStatePublisher *rsp_;
 	tf::TransformBroadcaster br_;
           

@@ -62,10 +62,10 @@ const std::string TrajectoryVisualizer::JointNames[NB_JOINT_HRP2]= {
           "LHAND_JOINT4"};
 
 void TrajectoryVisualizer::init(std::vector<double> &q){
-	this->_q = &q;
-	if(!this->_q->empty()){
+	this->q_ = &q;
+	if(!this->q_->empty()){
 		this->offset_=4;
-		this->Nframes_ = (this->_q->size()-this->offset_)/17.0; //12 joint values + 3 CoM (x,y,t) + 2 ZMP (x,y)
+		this->Nframes_ = (this->q_->size()-this->offset_)/17.0; //12 joint values + 3 CoM (x,y,t) + 2 ZMP (x,y)
 		this->ctrFrames_ = 0;
 
                 publishTrajectory();
@@ -219,7 +219,7 @@ void TrajectoryVisualizer::rewind(){
 	ctrFrames_ = 0;
 }
 bool TrajectoryVisualizer::next(){
-	if(this->_q->empty()){
+	if(this->q_->empty()){
 		return false;
 	}
 	if(ctrFrames_ >= Nframes_){
@@ -227,19 +227,19 @@ bool TrajectoryVisualizer::next(){
 	}
 	std::map<std::string, double> q;
 
-	q["RLEG_JOINT0"] = _q->at(offset_ + ctrFrames_*17 + 0);
-	q["RLEG_JOINT1"] = _q->at(offset_ + ctrFrames_*17 + 1);
-	q["RLEG_JOINT2"] = _q->at(offset_ + ctrFrames_*17 + 2);
-	q["RLEG_JOINT3"] = _q->at(offset_ + ctrFrames_*17 + 3);
-	q["RLEG_JOINT4"] = _q->at(offset_ + ctrFrames_*17 + 4);
-	q["RLEG_JOINT5"] = _q->at(offset_ + ctrFrames_*17 + 5);
+	q["RLEG_JOINT0"] = q_->at(offset_ + ctrFrames_*17 + 0);
+	q["RLEG_JOINT1"] = q_->at(offset_ + ctrFrames_*17 + 1);
+	q["RLEG_JOINT2"] = q_->at(offset_ + ctrFrames_*17 + 2);
+	q["RLEG_JOINT3"] = q_->at(offset_ + ctrFrames_*17 + 3);
+	q["RLEG_JOINT4"] = q_->at(offset_ + ctrFrames_*17 + 4);
+	q["RLEG_JOINT5"] = q_->at(offset_ + ctrFrames_*17 + 5);
 
-	q["LLEG_JOINT0"] = _q->at(offset_ + ctrFrames_*17 + 6);
-	q["LLEG_JOINT1"] = _q->at(offset_ + ctrFrames_*17 + 7);
-	q["LLEG_JOINT2"] = _q->at(offset_ + ctrFrames_*17 + 8);
-	q["LLEG_JOINT3"] = _q->at(offset_ + ctrFrames_*17 + 9);
-	q["LLEG_JOINT4"] = _q->at(offset_ + ctrFrames_*17 + 10);
-	q["LLEG_JOINT5"] = _q->at(offset_ + ctrFrames_*17 + 11);
+	q["LLEG_JOINT0"] = q_->at(offset_ + ctrFrames_*17 + 6);
+	q["LLEG_JOINT1"] = q_->at(offset_ + ctrFrames_*17 + 7);
+	q["LLEG_JOINT2"] = q_->at(offset_ + ctrFrames_*17 + 8);
+	q["LLEG_JOINT3"] = q_->at(offset_ + ctrFrames_*17 + 9);
+	q["LLEG_JOINT4"] = q_->at(offset_ + ctrFrames_*17 + 10);
+	q["LLEG_JOINT5"] = q_->at(offset_ + ctrFrames_*17 + 11);
 
 	setUpperBodyJointsDefault(q);
 
@@ -247,9 +247,9 @@ bool TrajectoryVisualizer::next(){
 	rsp_->publishTransforms(q, ros::Time::now());
 
 	double CoM[3];
-	CoM[0]=_q->at(offset_ + ctrFrames_*17 + 12) + com_offset_x_;
-	CoM[1]=_q->at(offset_ + ctrFrames_*17 + 13) + com_offset_y_;
-	CoM[2]=_q->at(offset_ + ctrFrames_*17 + 14) + com_offset_t_;
+	CoM[0]=q_->at(offset_ + ctrFrames_*17 + 12) + com_offset_x_;
+	CoM[1]=q_->at(offset_ + ctrFrames_*17 + 13) + com_offset_y_;
+	CoM[2]=q_->at(offset_ + ctrFrames_*17 + 14) + com_offset_t_;
 
 	cur_com_offset_x_ = CoM[0];
 	cur_com_offset_y_ = CoM[1];
@@ -260,16 +260,16 @@ bool TrajectoryVisualizer::next(){
 	return true;
 }
 std::vector<double> TrajectoryVisualizer::getFinalCoM(){
-	//if(this->_q->empty()){
+	//if(this->q_->empty()){
 	//	ROS_INFO("ATTENTION: empty com vector");
 	//	std::vector<double> m;
 	//	return m;
 	//}
 	std::vector<double> CoM(3);
 	ROS_INFO("ctrFrames_: %d, Nframes: %d", ctrFrames_, Nframes_);
-	//CoM.at(0)=_q->at(offset_ + (Nframes_-1)*17 + 12)+com_offset_x_;
-	//CoM.at(1)=_q->at(offset_ + (Nframes_-1)*17 + 13)+com_offset_y_;
-	//CoM.at(2)=_q->at(offset_ + (Nframes_-1)*17 + 14)+com_offset_t_;
+	//CoM.at(0)=q_->at(offset_ + (Nframes_-1)*17 + 12)+com_offset_x_;
+	//CoM.at(1)=q_->at(offset_ + (Nframes_-1)*17 + 13)+com_offset_y_;
+	//CoM.at(2)=q_->at(offset_ + (Nframes_-1)*17 + 14)+com_offset_t_;
 	CoM.at(0) = cur_com_offset_x_;
 	CoM.at(1) = cur_com_offset_y_;
 	CoM.at(2) = cur_com_offset_t_;
@@ -305,7 +305,7 @@ void TrajectoryVisualizer::publishTrajectory()
     {
       goal.points[idPoint].positions.resize(NB_PUBLISHED_JOINT_HRP2);
       for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++)
-        goal.points[idPoint].positions[i]= _q->at(offset_+ctrFrames_*17+i);
+        goal.points[idPoint].positions[i]= q_->at(offset_+ctrFrames_*17+i);
     }
   
   // Trajectory publication through ROS
