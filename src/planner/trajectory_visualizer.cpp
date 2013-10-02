@@ -18,6 +18,10 @@
 #include "planner/trajectory_visualizer.h"
 #include "util/util.h"
 
+
+//remove this if you apply it on the real robot
+#define SIMULATION(x) x
+
 const std::string TrajectoryVisualizer::JointNames[NB_JOINT_HRP2]= {
           "RLEG_JOINT0",
           "RLEG_JOINT1",
@@ -68,7 +72,7 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 		this->Nframes_ = (this->q_->size()-this->offset_)/17.0; //12 joint values + 3 CoM (x,y,t) + 2 ZMP (x,y)
 		this->ctrFrames_ = 0;
 
-                publishTrajectory();
+		publishTrajectory();
 	}
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
@@ -98,11 +102,12 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
 		ROS_ERROR("Failed to construct kdl tree");
 	}
 	this->setPlanarWorldBaseTransform(x,y,0);
+
 	this->rsp_ = new robot_state_publisher::RobotStatePublisher(tree);
 	this->reset();
 	this->setPlanarWorldBaseTransform(x,y,0);
 
-        trajectory_pub_ = nh.advertise<trajectory_msgs::JointTrajectory>("/planner/trajectory",2);
+	trajectory_pub_ = nh.advertise<trajectory_msgs::JointTrajectory>("/planner/trajectory",2);
   
 }
 void TrajectoryVisualizer::setCoMOffset(std::vector<double> com){
@@ -243,8 +248,10 @@ bool TrajectoryVisualizer::next(){
 
 	setUpperBodyJointsDefault(q);
 
-	rsp_->publishFixedTransforms();
-	rsp_->publishTransforms(q, ros::Time::now());
+	SIMULATION(
+		rsp_->publishFixedTransforms();
+		rsp_->publishTransforms(q, ros::Time::now());
+	)
 
 	double CoM[3];
 	CoM[0]=q_->at(offset_ + ctrFrames_*17 + 12) + com_offset_x_;
