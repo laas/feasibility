@@ -81,7 +81,7 @@ namespace ros{
 		//afterwards we can insert it into the server without compiler
 		//errors
 		boost::function<void (const visualization_msgs::InteractiveMarkerFeedbackConstPtr&)> bindedLoop =
-			bind(&RVIZVisualMarker::interactiveMarkerFeedbackLoop, this, 1_);
+			bind(&RVIZVisualMarker::interactiveMarkerFeedbackLoop, this, _1);
 
 		server->insert(active_marker, bindedLoop );
 		server->applyChanges();

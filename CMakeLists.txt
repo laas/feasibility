@@ -30,6 +30,8 @@ INCLUDE(CMakeModules/FindPQP.cmake)
 
 ADD_REQUIRED_DEPENDENCY("analyticalPG >= 0.9")
 ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.9.0")
+ADD_REQUIRED_DEPENDENCY("jrl-dynamics >= 1.19.1")
+ADD_REQUIRED_DEPENDENCY("hrp2-dynamics >= 1.0.1")
 
 SET(BOOST_COMPONENTS
   system thread filesystem
@@ -182,14 +184,15 @@ target_link_libraries(${UTIL_LIB} ${Boost_LIBRARIES})
 #rosbuild_add_executable(PerrinPlannerReImplementation test/perrin_reimplementation.cpp )
 #target_link_libraries(PerrinPlannerReImplementation ${FPlanner_LIBRARIES} ${UTIL_LIB} ${FCLLIB_LIBRARIES})
 
-rosbuild_add_executable(contactPDF test/contact_pdf_creator.cpp )
-PKG_CONFIG_USE_DEPENDENCY(contactPDF jrl-mal)
-PKG_CONFIG_USE_DEPENDENCY(contactPDF analyticalPG)
-target_link_libraries(contactPDF ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
+#rosbuild_add_executable(contactPDF test/contact_pdf_creator.cpp )
+#PKG_CONFIG_USE_DEPENDENCY(contactPDF jrl-mal)
+#PKG_CONFIG_USE_DEPENDENCY(contactPDF analyticalPG)
+#target_link_libraries(contactPDF ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
 
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner jrl-mal)
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner analyticalPG)
+PKG_CONFIG_USE_DEPENDENCY(FastRePlanner hrp2-dynamics)
 target_link_libraries(FastRePlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
 
 #SET_TARGET_PROPERTIES(FastRePlanner PROPERTIES LINK_FLAGS -lboost_system-mt)

@@ -1,4 +1,5 @@
 #include "planner/motion_generator.h"
+#define DEBUG(x) x
 int MotionGenerator::getFirstIndex(vector<step> &stepVect, int nStep)                                                                                                      
 {
   if(nStep==0)
@@ -345,15 +346,13 @@ StepFeatures MotionGenerator::computeFeaturesWithSmoothing(vector<step>& stepsVe
 
 			NB_TEST++;
 
-			//int res = -1;
-			//res = CC->checkCollisions(trajTimedRadQ, trajTimedWaist, 0 ,10);
-
-			//res = CC->checkCollisions(trajTimedRadQ, newStep, 0 ,3);
-			//if( res==0 ){
-			maxOne = currentAttempt;
-			//}else{
-			//  minZero = currentAttempt;
-			//}
+			int res = -1;
+			res = this->checkCollisions(trajTimedRadQ, newStep, 0 ,3);
+			if( res==0 ){
+				maxOne = currentAttempt;
+			}else{
+			  minZero = currentAttempt;
+			}
 			currentAttempt = (maxOne+minZero)/2.0;
 		}
 
@@ -369,9 +368,241 @@ StepFeatures MotionGenerator::computeFeaturesWithSmoothing(vector<step>& stepsVe
 	}
 	return stepF1;
 }
+void MotionGenerator::init_checkCollisionsPQP(std::string path, int ratio)
+{
+  dynamicsJRLJapan::ObjectFactory aRobotDynamicsObjectConstructor;
+  mp_aHDR = new Chrp2OptHumanoidDynamicRobot(&aRobotDynamicsObjectConstructor);
+
+  ostringstream mainWrl;
+  ostringstream jointRank;
+  ostringstream specificities;
+  mainWrl << path << "/HRP2JRLmainSmallOld.wrl";
+  jointRank << path << "/HRP2LinkJointRankSmallOld.xml";
+  specificities << path << "/HRP2SpecificitiesSmallOld.xml";
+
+  filebuf fb;
+  fb.open ( strdup(mainWrl.str().c_str()), ios::in);
+  if(!fb.is_open()){
+    printf("Failed to read file '%s'\n",mainWrl.str().c_str());
+    exit(1);
+  }
+  fb.close();
+  fb.open ( strdup(jointRank.str().c_str()), ios::in);
+  if(!fb.is_open()){
+    printf("Failed to read file '%s'\n",jointRank.str().c_str());
+    exit(1);
+  }
+  fb.close();
+  fb.open ( strdup(specificities.str().c_str()), ios::in);
+  if(!fb.is_open()){
+    printf("Failed to read file '%s'\n",specificities.str().c_str());
+    exit(1);
+  }
+  fb.close();
+
+  string RobotFileName = mainWrl.str();
+  string LinkJointRank_ = jointRank.str();
+  string SpecificitiesFileName_ = specificities.str();
+
+  dynamicsJRLJapan::parseOpenHRPVRMLFile(*mp_aHDR,
+					 RobotFileName,
+					 LinkJointRank_,
+					 SpecificitiesFileName_);
+
+  mp_aVecOfJoints = mp_aHDR->jointVector(); //joint 0: the BODY. Then, 6 joints in the right leg, and 6 in the left leg.
+  string margin;
+
+  switch(ratio)
+    {
+    case 100: margin = "100"; break;
+    case 110: margin = "110"; break;
+    case 120: margin = "120"; break;
+    default:  margin = "120"; break;
+    }
+
+  mp_Objects.clear();
+  for(int i=0;i<4;i++)
+    {
+      ostringstream ostrstrRight (ostringstream::out);
+      ostrstrRight << path << "/tris/rleg" << i+2 << "."<<margin<<".tris";
+      FILE *fp = fopen(ostrstrRight.str().c_str(),"r");
+      if(fp == NULL) { fprintf(stderr,"Couldn't open %s\n",ostrstrRight.str().c_str()); exit(1); }
+      PQPobject PQPobj;
+      PQPobj.id = i + 3;
+      PQP_Model *model = new PQP_Model;
+      int ntris;
+      if (fscanf(fp,"%d",&ntris)<0) 
+	{throw("Problem while reading file - tag 1"); }
+      model->BeginModel();
+      for (int i = 0; i < ntris; i++)
+        {
+	  double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
+	  if (fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+		     &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z)<0)
+	    { throw("Problem while reading file - tag 2"); }
+	  PQP_REAL p1[3],p2[3],p3[3];
+	  p1[0] = (PQP_REAL)p1x; p1[1] = (PQP_REAL)p1y; p1[2] = (PQP_REAL)p1z;
+	  p2[0] = (PQP_REAL)p2x; p2[1] = (PQP_REAL)p2y; p2[2] = (PQP_REAL)p2z;
+	  p3[0] = (PQP_REAL)p3x; p3[1] = (PQP_REAL)p3y; p3[2] = (PQP_REAL)p3z;
+	  model->AddTri(p1,p2,p3,i);
+        }
+      model->EndModel();
+      PQPobj.model = model;
+      mp_Objects.push_back(PQPobj);
+    }
+
+  for(int i=0;i<4;i++)
+    {
+      ostringstream ostrstrLeft (ostringstream::out);
+      ostrstrLeft << path << "/tris/lleg" << i+2 << "."<<margin<<".tris";
+      FILE *fp = fopen(ostrstrLeft.str().c_str(),"r");
+      if(fp == NULL) { fprintf(stderr,"Couldn't open %s\n",ostrstrLeft.str().c_str()); exit(1); }
+      PQPobject PQPobj;
+      PQPobj.id = i + 9;
+      PQP_Model *model = new PQP_Model;
+      int ntris;
+      if (fscanf(fp,"%d",&ntris)<0)
+	{ throw("Problem while reading file - tag 3");} 
+      model->BeginModel();
+      for (int i = 0; i < ntris; i++)
+        {
+	  double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
+	  if (fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+		     &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z)<0)
+	    {throw("Problem while reading file - tag 4");}
+	  PQP_REAL p1[3],p2[3],p3[3];
+	  p1[0] = (PQP_REAL)p1x; p1[1] = (PQP_REAL)p1y; p1[2] = (PQP_REAL)p1z;
+	  p2[0] = (PQP_REAL)p2x; p2[1] = (PQP_REAL)p2y; p2[2] = (PQP_REAL)p2z;
+	  p3[0] = (PQP_REAL)p3x; p3[1] = (PQP_REAL)p3y; p3[2] = (PQP_REAL)p3z;
+	  model->AddTri(p1,p2,p3,i);
+        }
+      model->EndModel();
+      PQPobj.model = model;
+      mp_Objects.push_back(PQPobj);
+    }
+
+}
+
+int MotionGenerator::checkCollisions(vector<vector<double> >& trajTimedRadQ, StepFeatures& stepF, int start, int offset)
+{
+
+  MAL_VECTOR_DIM(totall,double,36);
+  CjrlJoint *aJoint;
+  PQP_CollideResult cres;
+
+  int NB_TEST = 0;
+  for(unsigned int count = start; count < trajTimedRadQ.size() ; count+=offset)
+	{
+
+		double dtmp1 = min(min(min(min(min(min(min(min(min(min(min(trajTimedRadQ[count][1]*180/PI+30,30-trajTimedRadQ[count][1]*180/PI),trajTimedRadQ[count][2]*180/PI+30),20-trajTimedRadQ[count][2]*180/PI),trajTimedRadQ[count][3]*180/PI+120),40-trajTimedRadQ[count][3]*180/PI),trajTimedRadQ[count][4]*180/PI-2),150-trajTimedRadQ[count][4]*180/PI),trajTimedRadQ[count][5]*180/PI+75),40-trajTimedRadQ[count][5]*180/PI),trajTimedRadQ[count][6]*180/PI+20),30-trajTimedRadQ[count][6]*180/PI);
+		double dtmp2 = min(min(min(min(min(min(min(min(min(min(min(trajTimedRadQ[count][7]*180/PI+30,30-trajTimedRadQ[count][7]*180/PI),trajTimedRadQ[count][8]*180/PI+20),30-trajTimedRadQ[count][8]*180/PI),trajTimedRadQ[count][9]*180/PI+120),40-trajTimedRadQ[count][9]*180/PI),trajTimedRadQ[count][10]*180/PI-2),150-trajTimedRadQ[count][10]*180/PI),trajTimedRadQ[count][11]*180/PI+75),40-trajTimedRadQ[count][11]*180/PI),trajTimedRadQ[count][12]*180/PI+30),20-trajTimedRadQ[count][12]*180/PI);
+
+		double dtmp = min(dtmp1, dtmp2);
+
+		if( dtmp < 0.001)
+		{
+			DEBUG( printf("Collision 3 after : %d tests.\n",NB_TEST);)
+			return 3;
+		}
+
+		//FIXME compute fast inverse kinematic
+		int index = stepF.size - trajTimedRadQ.size() + count;
+
+		//freeflyer
+		totall[0] = stepF.comTrajX[index];
+		totall[1] = stepF.comTrajY[index] - 0.095;
+		totall[2] = 0.65;
+		totall[3] = totall[4] = 0.0;
+		totall[5] = stepF.waistOrient[index]*PI/180.0;
+
+		for(unsigned int i=6;i<6+12;i++)
+		{
+			totall[i]=trajTimedRadQ[count][i+1-6]; //the legs: 6 for the right leg (starting from the hip yaw), 6 for the left leg
+		}
+		for(unsigned int i=6+12;i<6+30;i++)
+		{
+			totall[i]=0; //upper body =0
+		}
+
+		mp_aHDR->currentConfiguration(totall);
+		mp_aHDR->computeForwardKinematics();
+
+		for(unsigned int i=0; i < mp_Objects.size(); i++)
+		{
+
+			matrix4d aCurrentM;
+			matrix4d initialM;
+
+			MAL_S3x3_MATRIX(aCurrentRot,double);
+			MAL_S3x3_MATRIX(aInitRotTranspose,double);
+			MAL_S3x3_MATRIX(aResultRot,double);
+
+			aJoint = mp_aVecOfJoints[mp_Objects[i].id];
+			initialM = aJoint->initialPosition();
+			aCurrentM = aJoint->currentTransformation();
+
+			for(unsigned int li=0;li<3;li++)
+			{
+				for(unsigned int lj=0;lj<3;lj++)
+				{
+					MAL_S3x3_MATRIX_ACCESS_I_J(aCurrentRot,li,lj) = MAL_S4x4_MATRIX_ACCESS_I_J(aCurrentM,li,lj);
+					MAL_S3x3_MATRIX_ACCESS_I_J(aInitRotTranspose,li,lj) = MAL_S4x4_MATRIX_ACCESS_I_J(initialM,li,lj); //transposed
+				}
+			}
+
+			aResultRot =  aCurrentRot * aInitRotTranspose;
+
+			for(unsigned int u1=0; u1 < 3; u1++)
+			{
+				for(unsigned int u2=0; u2 < 3; u2++)
+				{
+					mp_Objects[i].R[u1][u2] = MAL_S4x4_MATRIX_ACCESS_I_J(aResultRot,u1,u2);
+				}
+			}
+
+			mp_Objects[i].T[0] = MAL_S4x4_MATRIX_ACCESS_I_J(aCurrentM,0,3);
+			mp_Objects[i].T[1] = MAL_S4x4_MATRIX_ACCESS_I_J(aCurrentM,1,3);
+			mp_Objects[i].T[2] = MAL_S4x4_MATRIX_ACCESS_I_J(aCurrentM,2,3);
+		}
+
+		for(unsigned int i=0; i < 4; i++)
+		{
+			for(unsigned int j=4; j < 8; j++)
+			{
+				//NB_TEST++;
+				PQP_Collide(&cres, mp_Objects[i].R, mp_Objects[i].T, mp_Objects[i].model, mp_Objects[j].R, mp_Objects[j].T, mp_Objects[j].model, PQP_FIRST_CONTACT);
+				if(cres.NumPairs()>0){
+					DEBUG( printf("Collision between %d and %d at index %d.\n",i,j, count);)
+					DEBUG( printf("Collision 1 after : %d tests.\n",NB_TEST);)
+					return 1;
+				}
+			}
+		}
+
+		for(unsigned int i=0; i < 8; i++)
+		{
+			for(unsigned int j=0; j < mp_Obstacles.size(); j++)
+			{
+					NB_TEST++;
+					PQP_Collide(&cres, mp_Objects[i].R, mp_Objects[i].T, mp_Objects[i].model, mp_Obstacles[j].R, mp_Obstacles[j].T, mp_Obstacles[j].model, PQP_FIRST_CONTACT);
+					if(cres.NumPairs()>0) {
+						DEBUG( printf("Collision 2 after : %d tests.\n",NB_TEST); )
+						DEBUG( printf("Collision between %d and %d at index %d.\n",i,j, count);)
+						return 2;
+					}
+			}
+		}
+
+
+	}
+  DEBUG( printf("No collision after : %d tests.\n",NB_TEST); )
+  return 0;
+}
+
 std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
 				std::vector<step> &vectStep, int lastStepSmoothed, 
 				double sf_x, double sf_y, double sf_t, char sf_f){
+
 	//###############################################################################
 	//###############################################################################
 	//fsi to step format
