@@ -9,16 +9,15 @@ points in configuration space</p>
  -- log time for distance checking, depending on distance between objects</p>
 
 <h2> Dependencies </h2>
-<p> Fast Replanner -- ssh://<name>@trac.laas.fr/git/jrl/rblink/fast-replanning</p>
 <p> FCL lib -- git://github.com/flexible-collision-library/fcl.git</p>
 <p> Eigen </p>
 <p> Boost 1.44+ </p>
-<p> Fann http://leenissen.dk/fann/wp/ </p>
+<h3> Optional </h3>
+<p> Fann http://leenissen.dk/fann/wp/ (NN implementation for approximating feasibility function)</p>
 
 <p>The usual path to a fresh build:</p>
 
 <ul>
-<li>echo '/home/${MYNAME}/git/fastReplanningData/data/' > robotDATA.dat
 <li>mkdir build
 <li>cd build
 <li>cmake ..
