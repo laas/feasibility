@@ -2,10 +2,13 @@
 //refactoring of Nicolas Perrins work
 //std::vector<double> q = generateWholeBodyMotionFromFootsteps(fsi, stepCounter++);
 //
-//
 #include <analyticalPG/newPGstepStudy.h>                                                                                                                                   
+#include <jrl/mal/matrixabstractlayer.hh>
+#include <jrl/dynamics/dynamicsfactory.hh>
+#include <hrp2-dynamics/hrp2OptHumanoidDynamicRobot.h>
 #include "genFullBodyTrajectory.h"
 #include "util/util.h"
+#include "environment/environment.h"
 
 //###############################################################################
 //###############################################################################
@@ -46,15 +49,48 @@ struct step
     double slideDOWN;
     bool smoothed;
 };
-class MotionGenerator{
 
-public:
+struct PQPobject {
+
+    PQP_Model* model;
+    PQP_REAL T[3], R[3][3];
+    int id;
+
+};
+class MotionGenerator{
+private: 
 	CnewPGstepStudy *NPSS;
 	CgenFullBodyTrajectory *CGFBT;
 
-	MotionGenerator(){
+	int nbObs;
+	vector<PQPobject> mp_Obstacles;
+	std::vector<CjrlJoint *> mp_aVecOfJoints;
+	std::vector<PQPobject> mp_Objects;
+	Chrp2OptHumanoidDynamicRobot * mp_aHDR;
+
+public:
+
+	MotionGenerator(Environment *environment){
 		NPSS = new CnewPGstepStudy(STEP_LENGTH); 
 		CGFBT = new CgenFullBodyTrajectory();
+		this->init_checkCollisionsPQP("./model");
+
+		//add object as PQP pointers to motion generator
+		mp_Obstacles.clear();
+		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
+		std::vector<ros::RVIZVisualMarker*>::iterator it;
+		for(it=objects.begin(); it!=objects.end(); it++)
+		{
+			PQPobject PQPobj;
+			ros::TriangleObject *tri = dynamic_cast<ros::TriangleObject*>(*it);
+			PQPobj.model = (tri)->get_pqp_ptr();
+			PQPobj.T[0] = (tri)->g.x;
+			PQPobj.T[1] = (tri)->g.y;
+			PQPobj.T[2] = (tri)->g.z;
+			MRotZ(PQPobj.R, (tri)->g.getYawRadian());
+			mp_Obstacles.push_back(PQPobj);
+		}
+		nbObs = mp_Obstacles.size();
 	}
 	std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
 			std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
@@ -84,8 +120,9 @@ private:
 	std::vector<double> createArticularValuesVector(vector<vector<double> >& trajTimedRadQ, 
                                                            StepFeatures& stepF, int time_start, int start, int nbPosToSend);
 
+	void init_checkCollisionsPQP(std::string path, int ratio=110);
+	int checkCollisions(vector<vector<double> >& trajTimedRadQ, StepFeatures& stepF, int start, int offset);
 	void createFeatures( step& s0, step& s1 );
 	void recomputeZMP(vector<step>& vectStep, char ,double, double, double);
 
 };
-

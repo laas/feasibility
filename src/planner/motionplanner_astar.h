@@ -213,7 +213,7 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
     }
 
     publish_footstep_vector();
-    MotionGenerator *mg = new MotionGenerator(); //generate q
+    MotionGenerator *mg = new MotionGenerator(this->environment); //generate q
     std::vector<double> q = 
         mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_);
     if(q.size()>0){

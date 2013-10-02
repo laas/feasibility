@@ -4,7 +4,7 @@
 #define DEBUG(x)
 #define LIGHT_DEBUG(x)
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
-	this->loadSweptVolumesToHashMap("fullBodyApprox/");
+	this->loadSweptVolumesToHashMap("model/fullBodyApprox/");
 }
 
 bool ConstraintsCheckerSweptVolume::isFeasible(  
