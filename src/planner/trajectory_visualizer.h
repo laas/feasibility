@@ -24,6 +24,8 @@
 
 class TrajectoryVisualizer{
 private:
+	bool publish_configurations; //publish calculated joint values in rviz
+
 	uint Nframes_;
 	uint ctrFrames_;
 	uint offset_;
@@ -39,7 +41,7 @@ private:
 	robot_state_publisher::RobotStatePublisher *rsp_;
 	tf::TransformBroadcaster br_;
           
-        ros::Publisher trajectory_pub_;
+	ros::Publisher trajectory_pub_;
 public:
 	void init(std::vector<double> &q);
 	TrajectoryVisualizer(double x=0, double y=0, double t=0);
@@ -56,9 +58,9 @@ public:
 
 #define NB_JOINT_HRP2 36
 #define NB_PUBLISHED_JOINT_HRP2 12
-        static const std::string JointNames[NB_JOINT_HRP2];
+	static const std::string JointNames[NB_JOINT_HRP2];
 
-        void publishTrajectory();
+	void publishTrajectory();
 
         
 };

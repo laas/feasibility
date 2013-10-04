@@ -10,7 +10,6 @@
 #include <robot_state_publisher/robot_state_publisher.h>
 #include <sensor_msgs/JointState.h>
 #include <kdl_parser/kdl_parser.hpp>
-
 #include <trajectory_msgs/JointTrajectory.h>
 
 
@@ -74,6 +73,8 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 
 		publishTrajectory();
 	}
+	ros::NodeHandle n;
+	n.getParam("planner_publish_robot_configurations", publish_configurations, true);
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
 	ROS_INFO("searching for path of package 'feasibility' ...");
@@ -247,10 +248,11 @@ bool TrajectoryVisualizer::next(){
 
 	setUpperBodyJointsDefault(q);
 
-	SIMULATION(
+	//publish only for simulation in rviz
+	if(publish_configurations){
 		rsp_->publishFixedTransforms();
 		rsp_->publishTransforms(q, ros::Time::now());
-	)
+	}
 
 	double CoM[3];
 	CoM[0]=q_->at(offset_ + ctrFrames_*17 + 12) + com_offset_x_;
