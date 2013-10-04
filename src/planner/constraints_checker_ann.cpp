@@ -2,6 +2,7 @@
 #include "constraints_checker_ann.h"
 
 #define DEBUG(x)
+#define DEBUG_ANN(x) x
 #define DEBUGOBJ(x)
 
 DEBUG(Logger logger;)
@@ -15,16 +16,29 @@ bool ConstraintsCheckerANN::isFeasible(  const std::vector<double> &p,
 	if(continuous_feasibility<=0){
 		return false;
 	}else{
-		//prune also footsteps, which are too close to obstacles
+		//
+		//[SAFETY NET], if the ANN approximation has made an error. If this is used
+		//too often, we know that the approximation is suboptimal and has to be
+		//revised
+		//
+		DEBUG_ANN(
+			static uint Nemergency_exits = 0;
+			static uint Napprox_feasible_steps = 0;
+		)
 		std::vector<std::vector<double> > v;
 		double x=p.at(0);
 		double y=p.at(1);
 		std::vector< std::vector<double> >::const_iterator oit;
+
+		DEBUG_ANN( Napprox_feasible_steps++;)
 		for(  oit = obj.begin(); oit != obj.end(); ++oit ){
 			double ox = (*oit).at(0);
 			double oy = (*oit).at(1);
 			double radius = (*oit).at(2);
 			if( norml2(ox,x,oy,y) < (radius+0.132) ){ //0.132m radius of foot
+				DEBUG_ANN( ROS_INFO(" %d / %d (=%f) emergency exits! Approximation of feasibility function seems to be sub-optimal", 
+								Nemergency_exits, Napprox_feasible_steps, ((double)Nemergency_exits/(double)Napprox_feasible_steps)); )
+				DEBUG_ANN( Nemergency_exits++;) 
 				return false;
 			}
 		}
@@ -168,6 +182,7 @@ ConstraintsCheckerANN::~ConstraintsCheckerANN(){
 	neuralMap.clear();
 }
 ConstraintsCheckerANN::ConstraintsCheckerANN(uint Hneurons){
-	this->loadNNParameters("extern/fann/datasets/humanoids/", Hneurons);
+	//this->loadNNParameters("extern/fann/datasets/humanoids/", Hneurons);
+	this->loadNNParameters("model/ann_fullBody/", Hneurons);
 }
 

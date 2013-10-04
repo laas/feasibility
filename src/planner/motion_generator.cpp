@@ -1,6 +1,6 @@
 #include "planner/motion_generator.h"
 #define DEBUG(x) x
-int MotionGenerator::getFirstIndex(vector<step> &stepVect, int nStep)                                                                                                      
+int MotionGenerator::getFirstIndex(vector<step> &stepVect, int nStep)
 {
   if(nStep==0)
     return 0;
