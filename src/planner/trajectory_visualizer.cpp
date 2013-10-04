@@ -17,10 +17,6 @@
 #include "planner/trajectory_visualizer.h"
 #include "util/util.h"
 
-
-//remove this if you apply it on the real robot
-#define SIMULATION(x) x
-
 const std::string TrajectoryVisualizer::JointNames[NB_JOINT_HRP2]= {
           "RLEG_JOINT0",
           "RLEG_JOINT1",
@@ -74,7 +70,7 @@ void TrajectoryVisualizer::init(std::vector<double> &q){
 		publishTrajectory();
 	}
 	ros::NodeHandle n;
-	n.getParam("planner_publish_robot_configurations", publish_configurations, true);
+	n.param("planner_publish_robot_configurations", publish_configurations, true);
 }
 TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
 	ROS_INFO("searching for path of package 'feasibility' ...");
