@@ -4,6 +4,7 @@
 #include "planner/contact_transition.h"
 #include "util/util_timer.h"
 #include "planner/motion_generator.h"
+#include "std_msgs/Float64MultiArray.h" //pbulish vector<double>
 
 #define DEBUG(x) x
 const char *colorLeft = "red";
@@ -20,10 +21,16 @@ struct MotionPlannerAStar: public MotionPlanner{
   uint current_step_index_;
   TrajectoryVisualizer *tv;
 
-MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
+	//to publish footsteps on ros topic
+	ros::NodeHandle n;
+	ros::Publisher pub;
+
+	MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
+		std::string topic = "/feasibility/footsteps/relative";
+		pub = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     DEBUG(ROS_INFO("***** START A_STAR ********");)
 
-        ContactTransition::cleanStatic();
+		ContactTransition::cleanStatic();
     astarsearch = new AStarSearch<ContactTransition>(10000);
     if(ContactTransition::timer!=NULL){
       delete ContactTransition::timer;
@@ -36,6 +43,7 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
     ContactTransition::timer->register_stopper("a*", "a* algorithm");
     ContactTransition::feasibilityChecks=0;
     current_step_index_=0;
+
   }
   ~MotionPlannerAStar(){
     DEBUG(ROS_INFO("***** DELETE A_STAR ********");)
@@ -145,24 +153,25 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
   }
 
   void update_planner(){
+  	uint step_horizon = 3;
     if(fsi.size()==0){
       fsi = get_footstep_vector();
       return;
     }
 
-    for(uint i=0;i<=current_step_index_+3 && i<fsi.size();i++){
+    for(uint i=0;i<=current_step_index_ + step_horizon && i<fsi.size();i++){
       fsi.at(i)=fsi.at(i);
     }
 
     std::vector<std::vector<double> > fsi_new;
     fsi_new = get_footstep_vector();
 
-    if(current_step_index_+3 >= fsi.size()+fsi_new.size()){
+    if(current_step_index_ + step_horizon >= fsi.size() + fsi_new.size()){
       //goal is reached in the next three steps, 
       return;
     }
 
-    fsi.erase(min(fsi.begin()+current_step_index_+3, fsi.end()), fsi.end());
+    fsi.erase(min(fsi.begin() + current_step_index_ + step_horizon, fsi.end()), fsi.end());
     fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
 
   }
@@ -206,6 +215,28 @@ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env
       m.publish();
     }
     ROS_INFO("step %d/%d", current_step_index_, fsi.size());
+
+		//publish footsteps over ros topic
+		std_msgs::Float64MultiArray ros_steps;
+		ros_steps.layout.dim.push_back(std_msgs::MultiArrayDimension());
+		ros_steps.layout.dim.push_back(std_msgs::MultiArrayDimension());
+		ros_steps.layout.dim[0].label = "step";
+		ros_steps.layout.dim[0].size = fsi.size();
+		ros_steps.layout.dim[0].stride = fsi.size()*fsi.at(0).size();
+		ros_steps.layout.dim[1].label = "relative/absolute";
+		ros_steps.layout.dim[1].size = fsi.at(0).size();
+		ros_steps.layout.dim[1].stride = fsi.at(0).size();
+
+		ros_steps.data.resize( fsi.at(0).size() * fsi.size() );
+
+		for(uint i=0;i<fsi.size();i++){
+			for(uint j=0;j<fsi.at(0).size();j++){
+				ros_steps.data[i*fsi.at(0).size()+j]=( fsi.at(i).at(j) );
+			}
+		}
+
+		pub.publish(ros_steps);
+
   }
   bool publish_onestep_next(){
     if(current_step_index_ >= fsi.size()){

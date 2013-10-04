@@ -10,7 +10,7 @@
 #include "rviz/visualmarker.h"
 
 #define DEBUG(x)
-#define TIMER_DEBUG(x) x
+#define TIMER_DEBUG(x)
 
 ContactTransition::ContactTransition(){
 }
@@ -38,7 +38,7 @@ void ContactTransition::cleanStatic(){
 	objects.clear();
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
-	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.2;
+	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.22;
 }
 
 //
@@ -231,7 +231,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 		DEBUG(
 			if(foot=='L'){
 				ros::ColorFootMarker rp(parent->g.x, parent->g.y, parent->g.getYawRadian(),"white");
-				//rp.reset();
+				rp.reset();
 				rp.publish();
 			}
 

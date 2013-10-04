@@ -9,23 +9,23 @@
 #include "util/util.h"
 #include "environment/environment.h"
 #include "planner/motionplanner_astar.h"
-#include "planner/constraints_checker_swept_volumer.h"
 #include "planner/constraints_checker_ann.h"
 
 using namespace ros;
 int main( int argc, char** argv )
 {
-	ros::init(argc, argv, "perrin_fast_replanner");
+	ros::init(argc, argv, "orthey_fast_replanner");
 	ros::NodeHandle n;
 	ros::Rate r(1);
 
 	Environment* environment;
 	MotionPlannerAStar *astar;
 
-	environment = Environment::getSalleBauzil();
+	environment->Nobjects = 60;
+	environment = Environment::get13HumanoidsReal();
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
-	ConstraintsChecker *cc = new ConstraintsCheckerSweptVolume();
+	ConstraintsChecker *cc = new ConstraintsCheckerANN(16);
 	astar->setConstraintsChecker(cc);
 
 	while (ros::ok())
@@ -38,3 +38,4 @@ int main( int argc, char** argv )
 		}
 	}
 }
+
