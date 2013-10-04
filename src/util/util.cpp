@@ -10,6 +10,8 @@
 #include <stdarg.h> //va_arg
 #include <string.h> //strlen
 #include <dirent.h> //opendir
+
+#include <ros/package.h> //find package path
 #include "util.h"
 using std::endl;
 using std::cout;
@@ -87,6 +89,10 @@ int hashit(const char *str){
 }
 
 std::string get_data_path(){
+	std::string path = ros::package::getPath("feasibility");
+	return path;
+
+	/*
 	FILE *fp;
 	fp = fopen_s("robotDATA.dat", "r");
 	char line[1024];
@@ -97,6 +103,7 @@ std::string get_data_path(){
 	}
 	string path = string(line);
 	return path;
+	*/
 }
 
 std::string get_tris_str(const char *relative_path){
