@@ -1,7 +1,7 @@
 #include "rviz/visualmarker.h"
 #include "rviz/visualmarker.h"
 
-#define DEBUG(x) x
+#define DEBUG(x)
 #define THREAD_DEBUG(x) 
 namespace ros{
 	boost::shared_ptr<interactive_markers::InteractiveMarkerServer> RVIZVisualMarker::server;
