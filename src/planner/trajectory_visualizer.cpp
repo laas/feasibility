@@ -85,7 +85,6 @@ TrajectoryVisualizer::TrajectoryVisualizer(double x, double y, double t){
 
 	ros::NodeHandle nh;
 
-	//upload robot to parameter server if necessary
 	ROS_INFO("Uploading robot to parameter server (%s)", URDFFilename.c_str());
 	nh.setParam("/robot_description", urdf_content.c_str());
 
@@ -124,16 +123,16 @@ void TrajectoryVisualizer::reset(){
 	std::map<std::string, double> q;
 	q["RLEG_JOINT0"] = 0.0;
 	q["RLEG_JOINT1"] = 0.0;
-	q["RLEG_JOINT2"] = 0.0;
-	q["RLEG_JOINT3"] = 0.0;
-	q["RLEG_JOINT4"] = 0.0;
+	q["RLEG_JOINT2"] = -toRad(26.0);
+	q["RLEG_JOINT3"] = toRad(50.0);
+	q["RLEG_JOINT4"] = -toRad(24.0);
 	q["RLEG_JOINT5"] = 0.0;
 
 	q["LLEG_JOINT0"] = 0.0;
 	q["LLEG_JOINT1"] = 0.0;
-	q["LLEG_JOINT2"] = 0.0;
-	q["LLEG_JOINT3"] = 0.0;
-	q["LLEG_JOINT4"] = 0.0;
+	q["LLEG_JOINT2"] = -toRad(26.0);
+	q["LLEG_JOINT3"] = toRad(50.0);
+	q["LLEG_JOINT4"] = -toRad(24.0);
 	q["LLEG_JOINT5"] = 0.0;
 
 	setUpperBodyJointsDefault(q);
@@ -285,7 +284,7 @@ std::vector<double> TrajectoryVisualizer::getFinalCoM(){
 
 void TrajectoryVisualizer::setPlanarWorldBaseTransform(double x, double y, double yaw){
 	//use constant offset of CoM to origin of robot
-	setTranslationTransform("/world_frame", "/base_link", x, y-0.1, 0.705, 0, 0, yaw);
+	setTranslationTransform("/world_frame", "/base_link", x, y-0.1, 0.650, 0, 0, yaw);
 }
 
 // deprecated transformation functions
