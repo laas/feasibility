@@ -88,31 +88,21 @@ int hashit(const char *str){
 	return JSHash(string(str));
 }
 
-std::string get_data_path(){
-	std::string path = ros::package::getPath("feasibility");
-	return path;
-
-	/*
-	FILE *fp;
-	fp = fopen_s("robotDATA.dat", "r");
-	char line[1024];
-	if ( fgets(line, 1024, fp) != NULL )
-	{
-		line[strlen(line)-1] = '\0';
-		//fprintf(stderr, "%s\n", line);
-	}
-	string path = string(line);
-	return path;
-	*/
+std::string get_data_path(std::string package_name){
+  std::string path = ros::package::getPath(package_name.c_str());
+  return path;
 }
 
-std::string get_tris_str(const char *relative_path){
-	return get_tris_str(string(relative_path));
+std::string get_tris_str(const char *relative_path,std::string package_name){
+  return get_tris_str(string(relative_path),package_name);
 }
-std::string get_tris_str(std::string relative_path){
-	std::string prefix = get_data_path(); //robotDATA.dat path
+std::string get_tris_str(std::string relative_path,
+                         std::string package_name){
+	std::string prefix = get_data_path(package_name); //robotDATA.dat path
 	char tris_file[200];
-	sprintf(tris_file, "%s/env/%s", prefix.c_str(), relative_path.c_str());
+        std::cout << "Looking for " << relative_path 
+                  << " in " << package_name << std::endl;
+	sprintf(tris_file, "%s/%s", prefix.c_str(), relative_path.c_str());
 	std::string tris = string(tris_file);
 	return tris;
 }
@@ -123,7 +113,7 @@ std::string get_robot_str(){
 	return get_robot_str("fullBodyApprox/fullbody_-14_-21_-29.tris");
 }
 std::string get_chair_str(){
-	return get_tris_str("chairLabo.tris");
+  return get_tris_str("chairLabo.tris",std::string("fastReplanningData"));
 }
 std::string get_logging_str(const char* prefix, std::string s){
 	char logfile[200];
