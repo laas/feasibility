@@ -112,7 +112,7 @@ std::string get_tris_str(const char *relative_path){
 std::string get_tris_str(std::string relative_path){
 	std::string prefix = get_data_path(); //robotDATA.dat path
 	char tris_file[200];
-	sprintf(tris_file, "%s%s", prefix.c_str(), relative_path.c_str());
+	sprintf(tris_file, "%s/env/%s", prefix.c_str(), relative_path.c_str());
 	std::string tris = string(tris_file);
 	return tris;
 }
