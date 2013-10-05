@@ -270,8 +270,9 @@ namespace ros{
 		virtual std::string name();
 	};
 	struct TriangleObjectFloor: public TrisTriangleObject{
-		TriangleObjectFloor(double x, double y, std::string fname, std::string mocap);
-		TriangleObjectFloor(double x, double y, std::string fname);
+          TriangleObjectFloor(double x, double y, std::string fname, std::string mocap,std::string package_name="feasibility");
+          TriangleObjectFloor(double x, double y, std::string fname,
+                              std::string package_name="feasibility");
 	};
 	struct TriangleObjectCylinder: public TrisTriangleObject{
 		TriangleObjectCylinder(double x, double y);

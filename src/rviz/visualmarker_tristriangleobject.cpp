@@ -201,8 +201,8 @@ namespace ros{
 		init_marker();
 	}
 
-	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname): TrisTriangleObject(){
-		std::string object_file = get_tris_str(fname);
+  TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname, std::string package_name): TrisTriangleObject(){
+    std::string object_file = get_tris_str(fname,package_name);
 
 		Geometry object_pos;
 		object_pos.x = x;
@@ -210,8 +210,8 @@ namespace ros{
 
 		this->init_object(object_file, object_pos);
 	}
-	TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname, std::string mocap): TrisTriangleObject(){
-		std::string object_file = get_tris_str(fname);
+  TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname, std::string mocap,std::string package_name): TrisTriangleObject(){
+    std::string object_file = get_tris_str(fname,package_name);
 
 		Geometry object_pos;
 		object_pos.x = x;

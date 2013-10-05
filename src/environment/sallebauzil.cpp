@@ -10,7 +10,7 @@ void EnvironmentSalleBauzil::setDecorations(){
 	decorations.push_back(c);
 }
 void EnvironmentSalleBauzil::setObjects(){
-	ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(1.5, 0.5, "chairLabo.tris", "/evart/chair2/PO");
+  ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(1.5, 0.5, "data/chairLabo.tris", "/evart/chair2/PO",std::string("fastReplanningData"));
 	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
 	chair->addText("/evart/chair2/PO");
 	//chair->subscribeToEvart("/evart/chair2/PO");
