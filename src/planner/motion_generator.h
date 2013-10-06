@@ -71,9 +71,11 @@ private:
 public:
 
 	MotionGenerator(Environment *environment){
-		NPSS = new CnewPGstepStudy(STEP_LENGTH); 
-		CGFBT = new CgenFullBodyTrajectory();
-		this->init_checkCollisionsPQP("./model");
+          NPSS = new CnewPGstepStudy(STEP_LENGTH); 
+          CGFBT = new CgenFullBodyTrajectory();
+          std::string pkg_path = get_data_path(std::string("feasibility"));
+          std::string svfn = pkg_path + "/model";
+          this->init_checkCollisionsPQP(svfn.c_str());
 
 		//add object as PQP pointers to motion generator
 		mp_Obstacles.clear();
