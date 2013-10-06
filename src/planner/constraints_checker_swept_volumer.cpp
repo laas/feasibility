@@ -4,7 +4,10 @@
 #define DEBUG(x)
 #define LIGHT_DEBUG(x)
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
-	this->loadSweptVolumesToHashMap("model/fullBodyApprox/");
+  std::string pkg_path = get_data_path(std::string("feasibility"));
+  std::string svfn = pkg_path + "/model/fullBodyApprox/";
+  
+  this->loadSweptVolumesToHashMap(svfn.c_str());
 }
 
 bool ConstraintsCheckerSweptVolume::isFeasible(  

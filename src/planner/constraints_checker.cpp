@@ -2,7 +2,9 @@
 #include <dirent.h>
 
 ConstraintsChecker::ConstraintsChecker(){
-	this->loadSweptVolumeFileNames("../fastReplanningData/data/fullBodyApprox/");
+  std::string pkg_path = get_data_path(std::string("feasibility"));
+  std::string svfn = pkg_path + "/model/fullBodyApprox/";
+  this->loadSweptVolumeFileNames(svfn.c_str());
 }
 void ConstraintsChecker::loadSweptVolumeFileNames(const char *path){
 	bool collision=false;
