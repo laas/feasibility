@@ -194,6 +194,12 @@ PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner analyticalPG)
 PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner hrp2-dynamics)
 target_link_libraries(OrtheyFastRePlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
 
+rosbuild_add_executable(OrtheySVDrawer test/orthey_fastplanner_draw_sv.cpp )
+PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer jrl-mal)
+PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer analyticalPG)
+PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer hrp2-dynamics)
+target_link_libraries(OrtheySVDrawer ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
+
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner jrl-mal)
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner analyticalPG)

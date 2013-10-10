@@ -265,25 +265,32 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 
   void draw_swept_volume(){
+		if(fsi.size()>0){
+			draw_swept_volume(fsi.at(0).at(0), fsi.at(0).at(1), fsi.at(0).at(2), fsi.at(0).at(3));
+		}
+	}
+  void draw_swept_volume(double x, double y, double yaw, bool L_or_R){
 
-		uint hash = hashit<double>(vecD(node->rel_x, node->rel_y, node->rel_yaw));
+		uint hash = hashit<double>(vecD(x,y,yaw));
 
-		std::string robot_file = "model/fullBodyApprox/";
-		robot_file += node->get_swept_volume_file_name( hash );
+		std::string robot_file = "/model/fullBodyApprox/";
+		robot_file += ContactTransition::get_swept_volume_file_name( hash );
 		robot_file = get_robot_str(robot_file.c_str());
 
-		ROS_INFO("step[%d] %f %f %f", steps, node->rel_x, node->rel_y, node->rel_yaw);
+		ROS_INFO("step[%d] %f %f %f", 0, x, y, yaw);
 		ros::Geometry sv_pos;
-		sv_pos.x = node->g.x;
-		sv_pos.y = node->g.y;
-		sv_pos.setRPYRadian( 0,0,node->g.getYawRadian() );
-		if(node->L_or_R == 'R'){
-				sv_pos.setRPYRadian( 0,0,node->g.getYawRadian()+M_PI );
-		}
+		sv_pos.x = x;
+		sv_pos.y = y;
+		sv_pos.setRPYRadian( 0,0, yaw );
 
 		ROS_INFO("loading swept volume %s",robot_file.c_str());
 
-		ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos);
+		ros::TrisTriangleObject *robot;
+		if(L_or_R == 'L'){
+			robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos, false);
+		}else{
+			robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos, true);
+		}
 		robot->set_color(0.6, 0.0, 0.6, 0.3);
 		robot->publish();
 		delete robot;

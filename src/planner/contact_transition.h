@@ -33,7 +33,7 @@ struct ContactTransition
 	ContactTransition();
 	void print();
 	static void cleanStatic();
-	std::string get_swept_volume_file_name( uint action_hash );
+	static std::string get_swept_volume_file_name( uint action_hash );
 
 	/// package of functions, neccessary for A* star algorithm --> see
 	//stlastar.h
