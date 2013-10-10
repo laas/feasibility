@@ -113,6 +113,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     results.time = ContactTransition::timer->getFinalTime("a*");
     ContactTransition::timer->reset();
   }
+
   bool success(){
     uint SearchState = astarsearch->SearchStep();
     if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
@@ -261,6 +262,33 @@ struct MotionPlannerAStar: public MotionPlanner{
     current_step_index_++;
     return true;
   }
+
+
+  void draw_swept_volume(){
+
+		uint hash = hashit<double>(vecD(node->rel_x, node->rel_y, node->rel_yaw));
+
+		std::string robot_file = "model/fullBodyApprox/";
+		robot_file += node->get_swept_volume_file_name( hash );
+		robot_file = get_robot_str(robot_file.c_str());
+
+		ROS_INFO("step[%d] %f %f %f", steps, node->rel_x, node->rel_y, node->rel_yaw);
+		ros::Geometry sv_pos;
+		sv_pos.x = node->g.x;
+		sv_pos.y = node->g.y;
+		sv_pos.setRPYRadian( 0,0,node->g.getYawRadian() );
+		if(node->L_or_R == 'R'){
+				sv_pos.setRPYRadian( 0,0,node->g.getYawRadian()+M_PI );
+		}
+
+		ROS_INFO("loading swept volume %s",robot_file.c_str());
+
+		ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos);
+		robot->set_color(0.6, 0.0, 0.6, 0.3);
+		robot->publish();
+		delete robot;
+
+	}
   void publish(){
     NYI();
   }
