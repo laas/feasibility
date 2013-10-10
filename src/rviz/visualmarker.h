@@ -205,7 +205,7 @@ namespace ros{
 		double fast_distance_to(TriangleObject &rhs);
 		double gradient_distance_to(TriangleObject &rhs);
 
-		void tris2marker(visualization_msgs::Marker &marker, const char *fname);
+		void tris2marker(visualization_msgs::Marker &marker, const char *fname, bool mirror_y = false);
 
 	};
 
@@ -229,18 +229,20 @@ namespace ros{
 		explicit TrisTriangleObject();
 		TrisTriangleObject(const char *c, Geometry &in);
 		TrisTriangleObject(std::string f, Geometry &in);
+		TrisTriangleObject(const char *c, Geometry &in, bool mirror_y);
+		TrisTriangleObject(std::string f, Geometry &in, bool mirror_y);
 		TrisTriangleObject(const char *c);
 		TrisTriangleObject(std::string f);
 
-		void init_object( std::string f, Geometry &in );
+		void init_object( std::string f, Geometry &in, bool mirror_y = false);
 		virtual std::string name();
 		virtual uint32_t get_shape();
 #ifdef FCL_COLLISION_CHECKING
-		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname );
+		void tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname, bool mirror_y = false);
 		void reloadCylinderBVH(double radius, double height);
 #endif
-		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname );
-		void tris2PQP(PQP_Model *m, const char *fname );
+		void tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname, bool mirror_y = false);
+		void tris2PQP(PQP_Model *m, const char *fname, bool mirror_y = false);
 
 		void reloadBVH();
 	};

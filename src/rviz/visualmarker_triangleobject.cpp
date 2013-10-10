@@ -209,7 +209,11 @@ namespace ros{
 	double computeDerivativeFromNearestPoints( fcl::Vec3f &a, fcl::Vec3f &b){
           return 0;
 	}
-	void TriangleObject::tris2marker(visualization_msgs::Marker &marker, const char *fname){
+	void TriangleObject::tris2marker(visualization_msgs::Marker &marker, const char *fname, bool mirror_y){
+		double sm=1;
+		if(mirror_y){
+			sm = -1;
+		}
 		
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
@@ -235,7 +239,7 @@ namespace ros{
 			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
 			
 			double sX = 1.0;
-			double sY = 1.0;
+			double sY = sm*1.0;
 			double sZ = 1.0;
 			p.x = sX*p1x;p.y = sY*p1y;p.z = sZ*p1z;
 			p1.x = sX*p2x;p1.y = sY*p2y;p1.z = sZ*p2z;

@@ -20,6 +20,12 @@ namespace ros{
 	TrisTriangleObject::TrisTriangleObject(std::string f, Geometry &in): TriangleObject() {
 		init_object(f, in);
 	}
+	TrisTriangleObject::TrisTriangleObject(const char *c, Geometry &in, bool mirror_y): TriangleObject() {
+		init_object(std::string(c), in, mirror_y);
+	}
+	TrisTriangleObject::TrisTriangleObject(std::string f, Geometry &in, bool mirror_y): TriangleObject() {
+		init_object(f, in, mirror_y);
+	}
 	TrisTriangleObject::TrisTriangleObject(const char *c): TriangleObject() {
 		init_object(std::string(c), this->g);
 	}
@@ -32,7 +38,7 @@ namespace ros{
 		this->tris2BVH(this->bvh, tris_file_name.c_str() );
 	}
 
-	void TrisTriangleObject::init_object( std::string f, Geometry &in ){
+	void TrisTriangleObject::init_object( std::string f, Geometry &in, bool mirror_y){
 		this->g = in;
 
 		double scale = 1.0;
@@ -43,12 +49,12 @@ namespace ros{
 
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
-		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str() );
+		this->tris2PQP( this->pqp_model, this->pqp_margin, tris_file_name.c_str(), mirror_y);
 #ifdef FCL_COLLISION_CHECKING
 		this->bvh = new fcl::BVHModel< BoundingVolume >();
-		this->tris2BVH(this->bvh, tris_file_name.c_str() );
+		this->tris2BVH(this->bvh, tris_file_name.c_str(), mirror_y);
 #endif
-		this->tris2marker( this->marker, tris_file_name.c_str() );
+		this->tris2marker( this->marker, tris_file_name.c_str(), mirror_y);
 		set_color(ros::OBSTACLE);
 		init_marker();
 
@@ -59,7 +65,11 @@ namespace ros{
 	uint32_t TrisTriangleObject::get_shape(){
 		return visualization_msgs::Marker::TRIANGLE_LIST;
 	}
-	void TrisTriangleObject::tris2PQP(PQP_Model *m, const char *fname ){
+	void TrisTriangleObject::tris2PQP(PQP_Model *m, const char *fname, bool mirror_y){
+		double sy=1;
+		if(mirror_y){
+			sy = -1;
+		}
 		int ntris;
 
 		FILE *fp = fopen_s(fname,"r");
@@ -77,9 +87,9 @@ namespace ros{
 			CHECK(res==9, "fscanf failed");
 
 			PQP_REAL p1[3],p2[3],p3[3],p4[3],p5[3],p6[3];
-			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
-			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
-			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
+			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)sy*scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
+			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)sy*scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
+			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)sy*scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
 			m->AddTri(p1,p2,p3,i);
 			
 		}
@@ -89,7 +99,11 @@ namespace ros{
 		DEBUG( ROS_INFO("[%s] created PQP object with %d triangles.\n", name().c_str(), m->num_tris);)
 
 	}
-	void TrisTriangleObject::tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname ){
+	void TrisTriangleObject::tris2PQP(PQP_Model *m, PQP_Model *m_margin, const char *fname, bool mirror_y){
+		double sy=1;
+		if(mirror_y){
+			sy = -1;
+		}
 		int ntris;
 
 		FILE *fp = fopen_s(fname,"r");
@@ -111,13 +125,13 @@ namespace ros{
 			CHECK(res==9, "fscanf failed");
 
 			PQP_REAL p1[3],p2[3],p3[3],p4[3],p5[3],p6[3];
-			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
-			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
-			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
+			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)sy*scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
+			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)sy*scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
+			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)sy*scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
 			m->AddTri(p1,p2,p3,i);
-			p4[0] = (PQP_REAL)scale_x*p1x; p4[1] = (PQP_REAL)scale_y*p1y; p4[2] = (PQP_REAL)scale_z*p1z;
-			p5[0] = (PQP_REAL)scale_x*p2x; p5[1] = (PQP_REAL)scale_y*p2y; p5[2] = (PQP_REAL)scale_z*p2z;
-			p6[0] = (PQP_REAL)scale_x*p3x; p6[1] = (PQP_REAL)scale_y*p3y; p6[2] = (PQP_REAL)scale_z*p3z;
+			p4[0] = (PQP_REAL)scale_x*p1x; p4[1] = (PQP_REAL)sy*scale_y*p1y; p4[2] = (PQP_REAL)scale_z*p1z;
+			p5[0] = (PQP_REAL)scale_x*p2x; p5[1] = (PQP_REAL)sy*scale_y*p2y; p5[2] = (PQP_REAL)scale_z*p2z;
+			p6[0] = (PQP_REAL)scale_x*p3x; p6[1] = (PQP_REAL)sy*scale_y*p3y; p6[2] = (PQP_REAL)scale_z*p3z;
 			m_margin->AddTri(p4,p5,p6,i);
 			
 		}
@@ -129,7 +143,11 @@ namespace ros{
 
 	}
 #ifdef FCL_COLLISION_CHECKING
-	void TrisTriangleObject::tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname ){
+	void TrisTriangleObject::tris2BVH(fcl::BVHModel< BoundingVolume > *m, const char *fname, bool mirror_y){
+		double sy=1;
+		if(mirror_y){
+			sy = -1;
+		}
 		
 		int ntris;
 		FILE *fp = fopen_s(fname,"r");
@@ -145,9 +163,9 @@ namespace ros{
 			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
 			CHECK(res==9, "fscanf failed");
 			
-			fcl::Vec3f a(p1x, p1y, p1z);
-			fcl::Vec3f b(p2x, p2y, p2z);
-			fcl::Vec3f c(p3x, p3y, p3z);
+			fcl::Vec3f a(p1x, sy*p1y, p1z);
+			fcl::Vec3f b(p2x, sy*p2y, p2z);
+			fcl::Vec3f c(p3x, sy*p3y, p3z);
 			vertices.push_back(a);
 			vertices.push_back(b);
 			vertices.push_back(c);
