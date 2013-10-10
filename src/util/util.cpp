@@ -91,6 +91,18 @@ int hashit(const char *str){
 std::string get_data_path(std::string package_name){
   std::string path = ros::package::getPath(package_name.c_str());
   return path;
+	/*
+	FILE *fp;
+	fp = fopen_s("robotDATA.dat", "r");
+	char line[1024];
+	if ( fgets(line, 1024, fp) != NULL )
+	{
+		line[strlen(line)-1] = '\0';
+		//fprintf(stderr, "%s\n", line);
+	}
+	string path = string(line);
+	return path;
+	*/
 }
 
 std::string get_tris_str(const char *relative_path,std::string package_name){
