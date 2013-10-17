@@ -28,103 +28,84 @@
 
 struct step
 {
-    //UNITS are meters and radians
+  //UNITS are meters and radians
 
-    //Step parameters
-    double x;
-    double y;
-    double theta;
-    double f;
-    char left_or_right;
+  //Step parameters
+  double x;
+  double y;
+  double theta;
+  double f;
+  char left_or_right;
 
-    //Position before move
-    double abs_x;
-    double abs_y;
-    double abs_theta;
+  //Position before move
+  double abs_x;
+  double abs_y;
+  double abs_theta;
 
-    //Smoothing
-    StepFeatures stepFeaturesUP;
-    StepFeatures stepFeaturesDOWN;
-    double slideUP;
-    double slideDOWN;
-    bool smoothed;
+  //Smoothing
+  StepFeatures stepFeaturesUP;
+  StepFeatures stepFeaturesDOWN;
+  double slideUP;
+  double slideDOWN;
+  bool smoothed;
 };
 
 struct PQPobject {
 
-    PQP_Model* model;
-    PQP_REAL T[3], R[3][3];
-    int id;
+  PQP_Model* model;
+  PQP_REAL T[3], R[3][3];
+  int id;
 
 };
 class MotionGenerator{
 private: 
-	CnewPGstepStudy *NPSS;
-	CgenFullBodyTrajectory *CGFBT;
+  CnewPGstepStudy *NPSS;
+  CgenFullBodyTrajectory *CGFBT;
 
-	int nbObs;
-	vector<PQPobject> mp_Obstacles;
-	std::vector<CjrlJoint *> mp_aVecOfJoints;
-	std::vector<PQPobject> mp_Objects;
-	Chrp2OptHumanoidDynamicRobot * mp_aHDR;
+  int nbObs;
+  vector<PQPobject> mp_Obstacles;
+  std::vector<CjrlJoint *> mp_aVecOfJoints;
+  std::vector<PQPobject> mp_Objects;
+  Chrp2OptHumanoidDynamicRobot * mp_aHDR;
+
+  // Path to robot specific files: geometric description, and semantic.
+  static const std::string mp_robot_path;
 
 public:
 
-	MotionGenerator(Environment *environment){
-          NPSS = new CnewPGstepStudy(STEP_LENGTH); 
-          CGFBT = new CgenFullBodyTrajectory();
-          std::string pkg_path = get_data_path(std::string("feasibility"));
-          std::string svfn = pkg_path + "/model";
-          this->init_checkCollisionsPQP(svfn.c_str());
+  MotionGenerator(Environment *environment);
 
-		//add object as PQP pointers to motion generator
-		mp_Obstacles.clear();
-		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
-		std::vector<ros::RVIZVisualMarker*>::iterator it;
-		for(it=objects.begin(); it!=objects.end(); it++)
-		{
-			PQPobject PQPobj;
-			ros::TriangleObject *tri = dynamic_cast<ros::TriangleObject*>(*it);
-			PQPobj.model = (tri)->get_pqp_ptr();
-			PQPobj.T[0] = (tri)->g.x;
-			PQPobj.T[1] = (tri)->g.y;
-			PQPobj.T[2] = (tri)->g.z;
-			MRotZ(PQPobj.R, (tri)->g.getYawRadian());
-			mp_Obstacles.push_back(PQPobj);
-		}
-		nbObs = mp_Obstacles.size();
-	}
-	std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
-			std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
-			double sf_x, double sf_y, double sf_t, char sf_f);
+  std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
+      std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
+      double sf_x, double sf_y, double sf_t, char sf_f);
 
-	std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
-			std::vector<std::vector<double> > &fsi, int lastStepSmoothed);
+  std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
+      std::vector<std::vector<double> > &fsi, int lastStepSmoothed);
 
-	std::vector<double> generateWholeBodyMotionFromFootsteps(
-			std::vector<std::vector<double> > &fsi, int lastStepSmoothed);
+  std::vector<double> generateWholeBodyMotionFromFootsteps(
+      std::vector<std::vector<double> > &fsi, int lastStepSmoothed);
 
-	std::vector<double> generateWholeBodyMotionFromStepVector(
-				std::vector<step> &vectStep, int lastStepSmoothed, 
-				double sf_x, double sf_y, double sf_t, char sf_f);
+  std::vector<double> generateWholeBodyMotionFromStepVector(
+      std::vector<step> &vectStep, int lastStepSmoothed, 
+      double sf_x, double sf_y, double sf_t, char sf_f);
 private:
-	std::vector<double> generateWholeBodyMotionFromStepVector(
-				std::vector<step> &vectStep, int lastStepSmoothed);
+  std::vector<double> generateWholeBodyMotionFromStepVector(
+      std::vector<step> &vectStep, int lastStepSmoothed);
 
-	StepFeatures computeFeaturesWithoutSmoothing(std::vector<step> &vectStep);
-	StepFeatures computeFeaturesWithSmoothing(vector<step>& stepsVect, int startFrom, int numberOfSteps);
-	double findMultiple(double x, double mul);
+  StepFeatures computeFeaturesWithoutSmoothing(std::vector<step> &vectStep);
+  StepFeatures computeFeaturesWithSmoothing(vector<step>& stepsVect, int startFrom, int numberOfSteps);
+  double findMultiple(double x, double mul);
 
-	void convertAbsoluteHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep);
-	void convertHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep);
+  void convertAbsoluteHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep);
+  void convertHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep);
 
-	int getFirstIndex(vector<step> &stepVect, int nStep);
-	std::vector<double> createArticularValuesVector(vector<vector<double> >& trajTimedRadQ, 
-                                                           StepFeatures& stepF, int time_start, int start, int nbPosToSend);
+  int getFirstIndex(vector<step> &stepVect, int nStep);
+  std::vector<double> createArticularValuesVector(vector<vector<double> >& trajTimedRadQ, 
+                                                  StepFeatures& stepF, int time_start, int start, int nbPosToSend);
 
-	void init_checkCollisionsPQP(std::string path, int ratio=110);
-	int checkCollisions(vector<vector<double> >& trajTimedRadQ, StepFeatures& stepF, int start, int offset);
-	void createFeatures( step& s0, step& s1 );
-	void recomputeZMP(vector<step>& vectStep, char ,double, double, double);
+  void init_checkCollisionsPQP(std::string path, int ratio=110);
+  int checkCollisions(vector<vector<double> >& trajTimedRadQ, StepFeatures& stepF, int start, int offset);
+  void createFeatures( step& s0, step& s1 );
+  void recomputeZMP(vector<step>& vectStep, char ,double, double, double);
 
 };
