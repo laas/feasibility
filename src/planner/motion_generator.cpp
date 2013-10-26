@@ -21,7 +21,8 @@
 #include "planner/motion_generator.h"
 #define DEBUG(x) x
 
-MotionGenerator::MotionGenerator(Environment *environment)
+MotionGenerator::
+MotionGenerator(Environment *environment)
 {
   NPSS = new CnewPGstepStudy(STEP_LENGTH); 
   CGFBT = new CgenFullBodyTrajectory();
@@ -46,7 +47,9 @@ MotionGenerator::MotionGenerator(Environment *environment)
   nbObs = mp_Obstacles.size();
 }
 
-int MotionGenerator::getFirstIndex(vector<step> &stepVect, int nStep)
+int 
+MotionGenerator::
+getFirstIndex(vector<step> &stepVect, int nStep)
 {
   if(nStep==0)
     return 0;
@@ -61,8 +64,11 @@ int MotionGenerator::getFirstIndex(vector<step> &stepVect, int nStep)
   return index + 1;
 }
 
-std::vector<double> MotionGenerator::createArticularValuesVector(vector<vector<double> >& trajTimedRadQ, 
-                                                                 StepFeatures& stepF, int time_start, int start, int nbPosToSend)
+std::vector<double> 
+MotionGenerator::
+createArticularValuesVector(vector<vector<double> >& trajTimedRadQ, 
+                            StepFeatures& stepF, 
+                            int time_start, int start, int nbPosToSend)
 {
 
   if( start + nbPosToSend > (int)trajTimedRadQ.size() )
@@ -94,7 +100,11 @@ std::vector<double> MotionGenerator::createArticularValuesVector(vector<vector<d
 }
 
 
-void MotionGenerator::convertAbsoluteHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep){
+void 
+MotionGenerator::
+convertAbsoluteHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, 
+                                        std::vector<step> &vectStep)
+{
   for(uint i=0;i<fsi.size();i++){
     step t;
     t.x = fsi.at(i).at(0);
@@ -124,7 +134,12 @@ void MotionGenerator::convertAbsoluteHalfFootStepToStepVector(std::vector< std::
     vectStep.push_back(t);
   }
 }
-void MotionGenerator::convertHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, std::vector<step> &vectStep){
+void 
+MotionGenerator::
+convertHalfFootStepToStepVector(
+    std::vector< std::vector<double> > &fsi, 
+    std::vector<step> &vectStep)
+{
 
   for(uint i=0;i<fsi.size();i++){
     //half-foot-step-format v.3.0:
@@ -153,7 +168,10 @@ void MotionGenerator::convertHalfFootStepToStepVector(std::vector< std::vector<d
     vectStep.push_back(t);
   }
 }
-void MotionGenerator::createFeatures( step& s0, step& s1 )
+
+void 
+MotionGenerator::
+createFeatures( step& s0, step& s1 )
 {
   double zc = 0.814;
   double t1 = STEP_LENGTH/2.0 - 0.05;
@@ -194,9 +212,12 @@ void MotionGenerator::createFeatures( step& s0, step& s1 )
 				       incrTime, zc, g, t1, t2, t3, 
 				       tmpPart2, foot);
 } 
+
 // adding stepFeaturesUP/DOWN to footsteps
-void MotionGenerator::recomputeZMP(vector<step>& vectStep, char foot='R', 
-                                   double x_init=0.0, double y_init=0.19, double t_init=0.0)
+void 
+MotionGenerator::
+recomputeZMP(vector<step>& vectStep, char foot='R', 
+             double x_init=0.0, double y_init=0.19, double t_init=0.0)
 {
   if(vectStep.at(0).stepFeaturesUP.size == 0){
     step initialPosition; 
@@ -220,23 +241,34 @@ void MotionGenerator::recomputeZMP(vector<step>& vectStep, char foot='R',
 
 //###############################################################################
 //###############################################################################
-std::vector<double> MotionGenerator::generateWholeBodyMotionFromAbsoluteFootsteps(
-                                                                                  std::vector<std::vector<double> > &fsi, int lastStepSmoothed){
+std::vector<double> 
+MotionGenerator::
+generateWholeBodyMotionFromAbsoluteFootsteps(std::vector<std::vector<double> > &fsi, 
+                                             int lastStepSmoothed)
+{
   std::vector<step> vectStep;
   vectStep.clear();
   convertAbsoluteHalfFootStepToStepVector(fsi, vectStep);
   return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed);
 }
-std::vector<double> MotionGenerator::generateWholeBodyMotionFromAbsoluteFootsteps(
-                                                                                  std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
-                                                                                  double sf_x, double sf_y, double sf_t, char sf_f){
+
+std::vector<double> 
+MotionGenerator::
+generateWholeBodyMotionFromAbsoluteFootsteps(
+    std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
+    double sf_x, double sf_y, double sf_t, char sf_f)
+{
   std::vector<step> vectStep;
   vectStep.clear();
   convertAbsoluteHalfFootStepToStepVector(fsi, vectStep);
   return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed, sf_x, sf_y, sf_t, sf_f);
 }
-std::vector<double> MotionGenerator::generateWholeBodyMotionFromFootsteps(
-                                                                          std::vector<std::vector<double> > &fsi, int lastStepSmoothed)
+
+std::vector<double> 
+MotionGenerator::
+generateWholeBodyMotionFromFootsteps(
+    std::vector<std::vector<double> > &fsi, 
+    int lastStepSmoothed)
 {
   std::vector<step> vectStep;
   vectStep.clear();
@@ -245,13 +277,19 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromFootsteps(
 }
 
 
-std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
-                                                                           std::vector<step> &vectStep, int lastStepSmoothed){
-
+std::vector<double> 
+MotionGenerator::
+generateWholeBodyMotionFromStepVector(
+    std::vector<step> &vectStep, int lastStepSmoothed)
+{
   return generateWholeBodyMotionFromStepVector( vectStep, lastStepSmoothed, 0,0.19,0,'R');
 }
-StepFeatures MotionGenerator::computeFeaturesWithoutSmoothing(
-                                                              std::vector<step> &vectStep){
+
+StepFeatures 
+MotionGenerator::
+computeFeaturesWithoutSmoothing(
+    std::vector<step> &vectStep)
+{
   double defaultSlide = -0.1;
 
   StepFeatures stepF, stepUP, stepDOWN;
@@ -273,7 +311,10 @@ StepFeatures MotionGenerator::computeFeaturesWithoutSmoothing(
   }
   return stepF;
 }
-double MotionGenerator::findMultiple(double x, double mul)
+
+double 
+MotionGenerator::
+findMultiple(double x, double mul)
 {
   double temp = 0.0;
   if(x>=0.0){
@@ -287,7 +328,13 @@ double MotionGenerator::findMultiple(double x, double mul)
   }
   return temp;
 }
-StepFeatures MotionGenerator::computeFeaturesWithSmoothing(vector<step>& stepsVect, int startFrom, int numberOfSteps){
+
+StepFeatures 
+MotionGenerator::
+computeFeaturesWithSmoothing(
+    vector<step>& stepsVect, 
+    int startFrom, int numberOfSteps)
+{
 
   StepFeatures stepF1, stepUP, stepDOWN;
   vector<vector<double> > trajTimedRadQ;
@@ -414,7 +461,11 @@ StepFeatures MotionGenerator::computeFeaturesWithSmoothing(vector<step>& stepsVe
   }
   return stepF1;
 }
-void MotionGenerator::init_checkCollisionsPQP(std::string path, int ratio)
+
+void 
+MotionGenerator::
+init_checkCollisionsPQP(
+    std::string path, int ratio)
 {
   dynamicsJRLJapan::ObjectFactory aRobotDynamicsObjectConstructor;
   mp_aHDR = new Chrp2OptHumanoidDynamicRobot(&aRobotDynamicsObjectConstructor);
