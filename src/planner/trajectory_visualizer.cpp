@@ -349,5 +349,4 @@ publishTrajectory()
   
   // Trajectory publication through ROS
   trajectory_pub_.publish(goal);
-  
 }

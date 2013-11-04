@@ -93,7 +93,7 @@ createArticularValuesVector(vector<vector<double> >& trajTimedRadQ,
     vect[offset + i*17 + 12 + 0] = stepF.comTrajX[i+time_start];
     vect[offset + i*17 + 12 + 1] = stepF.comTrajY[i+time_start];
     vect[offset + i*17 + 12 + 2] = toRad(stepF.waistOrient[i+time_start]);
-    vect[offset + i*17 + 12 + 3] = stepF.zmpTrajX[i+time_start];
+    vect[offset + i*17 + 12 + 3] = stepF.zmpTrajX[i+time_start]; //change ref adding
     vect[offset + i*17 + 12 + 4] = stepF.zmpTrajY[i+time_start];
   }
   return vect;

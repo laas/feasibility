@@ -115,6 +115,7 @@ std::string get_tris_str(std::string relative_path,
         std::cout << "Looking for " << relative_path 
                   << " in " << package_name << std::endl;
 	sprintf(tris_file, "%s/%s", prefix.c_str(), relative_path.c_str());
+	ROS_INFO("opening file %s", tris_file);
 	std::string tris = string(tris_file);
 	return tris;
 }

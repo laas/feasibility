@@ -994,9 +994,9 @@ void CgenFullBodyTrajectory::generateTrajectory(vector<vector<double> > & trajTi
       //vector<double> tmpvectZMP(4);
       tmpvectCOM[0] = (stepF.incrTime * count);
       for(int j = 0; j < 42; j++)
-	{
-	  tmpvectCOM[j+1] = jointsRadValues[j];
-	}
+			{
+				tmpvectCOM[j+1] = jointsRadValues[j];
+			}
       trajTimedRadQ[count-from] = tmpvectCOM;
 
       /*tmpvectZMP[0] = (stepF.incrTime * count);
@@ -1007,6 +1007,10 @@ void CgenFullBodyTrajectory::generateTrajectory(vector<vector<double> > & trajTi
 	tmpvectZMP[3] = ( -(stepF.zc - 0.274)-0.105 );
 	trajTimedZMP[count-from] = tmpvectZMP;
       */
+      stepF.zmpTrajX[count-from] = (stepF.zmpTrajX[count]-stepF.comTrajX[count])*cos(-stepF.waistOrient[count]*PI/180)
+									-(stepF.zmpTrajY[count]-stepF.comTrajY[count])*sin(-stepF.waistOrient[count]*PI/180) ;
+			stepF.zmpTrajY[count-from] = (stepF.zmpTrajX[count]-stepF.comTrajX[count])*sin(-stepF.waistOrient[count]*PI/180)
+									+(stepF.zmpTrajY[count]-stepF.comTrajY[count])*cos(-stepF.waistOrient[count]*PI/180) ;
     }
 
 }
