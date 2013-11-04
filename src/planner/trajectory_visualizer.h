@@ -24,43 +24,47 @@
 
 class TrajectoryVisualizer{
 private:
-	bool publish_configurations; //publish calculated joint values in rviz
+  bool publish_configurations; //publish calculated joint values in rviz
 
-	uint Nframes_;
-	uint ctrFrames_;
-	uint offset_;
-	double com_offset_x_;
-	double com_offset_y_;
-	double com_offset_t_;
+  uint Nframes_;
+  uint ctrFrames_;
+  uint offset_;
+  double com_offset_x_;
+  double com_offset_y_;
+  double com_offset_t_;
+  
+  double cur_com_offset_x_;
+  double cur_com_offset_y_;
+  double cur_com_offset_t_;
+  
+  std::vector<double> *q_;
+  robot_state_publisher::RobotStatePublisher *rsp_;
+  tf::TransformBroadcaster br_;
+  
+  /// Handle to publish trajectory over ROS.
+  ros::Publisher trajectory_pub_;
 
-	double cur_com_offset_x_;
-	double cur_com_offset_y_;
-	double cur_com_offset_t_;
-
-	std::vector<double> *q_;
-	robot_state_publisher::RobotStatePublisher *rsp_;
-	tf::TransformBroadcaster br_;
-          
-	ros::Publisher trajectory_pub_;
+  /// Index of the trajectory.
+  unsigned int seq_id_;
+  
 public:
-	void init(std::vector<double> &q);
-	TrajectoryVisualizer(double x=0, double y=0, double t=0);
-	std::vector<double> getFinalCoM();
-	void setUpperBodyJointsDefault( std::map<std::string, double> &q );
-	void setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t);
-	void setCoMOffset(std::vector<double> com);
-
-	void setPlanarWorldBaseTransform(double x, double y, double yaw);
-	void setTranslationTransform(const char* from, const char* to, double x, double y, double z, double roll, double pitch, double yaw);
-	void reset();
-	void rewind();
-	bool next();
-
+  void init(std::vector<double> &q);
+  TrajectoryVisualizer(double x=0, double y=0, double t=0);
+  std::vector<double> getFinalCoM();
+  void setUpperBodyJointsDefault( std::map<std::string, double> &q );
+  void setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t);
+  void setCoMOffset(std::vector<double> com);
+  
+  void setPlanarWorldBaseTransform(double x, double y, double yaw);
+  void setTranslationTransform(const char* from, const char* to, double x, double y, double z, double roll, double pitch, double yaw);
+  void reset();
+  void rewind();
+  bool next();
+  
 #define NB_JOINT_HRP2 36
-#define NB_PUBLISHED_JOINT_HRP2 12
-	static const std::string JointNames[NB_JOINT_HRP2];
-
-	void publishTrajectory();
-
+#define NB_PUBLISHED_JOINT_HRP2 17
+  static const std::string JointNames[NB_JOINT_HRP2];
+  
+  void publishTrajectory();
         
 };
