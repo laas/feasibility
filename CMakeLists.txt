@@ -32,6 +32,7 @@ ADD_REQUIRED_DEPENDENCY("analyticalPG >= 0.9")
 ADD_REQUIRED_DEPENDENCY("jrl-mal >= 1.9.0")
 ADD_REQUIRED_DEPENDENCY("jrl-dynamics >= 1.19.1")
 ADD_REQUIRED_DEPENDENCY("hrp2-dynamics >= 1.0.1")
+ADD_REQUIRED_DEPENDENCY("fast-replanning-data >= 1.0.0")
 
 SET(BOOST_COMPONENTS
   system thread filesystem
@@ -107,6 +108,9 @@ endif()
 ##########################################################
 ##########################################################
 
+# Configure robot path to hrp-2 14 
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/planner/robot_path.cpp.in	
+	${CMAKE_CURRENT_BINARY_DIR}/src/robot_path.cpp)
 #ADD_CUSTOM_TARGET( ros rosmake ${PROJECT_NAME}
 #COMMAND rosrun ${PROJECT_NAME} Main 
 #COMMENT "rosmake & rosrun"
@@ -137,6 +141,7 @@ set(SOURCE
 	src/planner/trajectory_visualizer.cpp
 	src/planner/motion_generator.h
 	src/planner/motion_generator.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/src/robot_path.cpp
 	src/rviz/visualmarker.h
 	src/rviz/visualmarker.cpp
 	src/rviz/geometry.cpp

@@ -1,0 +1,23 @@
+//
+// Copyright 2013,
+// Olivier Stasse,
+//
+// CNRS/AIST
+//
+// This file is part of feasibility.
+// feasibility is free software: you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public License
+// as published by the Free Software Foundation, either version 3 of
+// the License, or (at your option) any later version.
+// feasibility is distributed in the hope that it will be
+// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.  You should
+// have received a copy of the GNU Lesser General Public License along
+// with feasibility.  If not, see <http://www.gnu.org/licenses/>.
+#ifndef FEASIBILITY_MOTION_GENERATOR_ROBOT_PATH_H_
+#define FEASIBILITY_MOTION_GENERATOR_ROBOT_PATH_H_
+#include <string>
+#include <planner/motion_generator.h>
+const std::string MotionGenerator::mp_robot_path = "@FAST_REPLANNING_DATA_DATAROOTDIR@/fast-replanning-data";
+#endif
