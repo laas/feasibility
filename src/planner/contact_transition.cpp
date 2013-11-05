@@ -38,7 +38,14 @@ void ContactTransition::cleanStatic(){
 	objects.clear();
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
-	return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.22;
+	double x = this->g.x;
+	double xg = nodeGoal.g.x;
+	double y = this->g.y;
+	double yg = nodeGoal.g.y;
+	double t = this->g.getYawRadian();
+	double tg = nodeGoal.g.getYawRadian();
+	return sqrtf( (x-xg)*(x-xg) + (y-yg)*(y-yg) ) < 0.22 && sqrtf( (t-tg)*(t-tg))<M_PI;
+	//return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.22;
 }
 
 //

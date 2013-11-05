@@ -335,17 +335,19 @@ publishTrajectory()
   goal.header.frame_id = oss.str();
   seq_id_++;
   
-  for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++)
+  for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++){
     goal.joint_names.push_back(JointNames[i]);
+	}
   
   goal.points.resize(Nframes_);
 
   for(unsigned int idPoint=0;idPoint<Nframes_;idPoint++)
-    {
+	{
       goal.points[idPoint].positions.resize(NB_PUBLISHED_JOINT_HRP2);
-      for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++)
+      for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++){
         goal.points[idPoint].positions[i]= q_->at(offset_+idPoint*17+i);
-    }
+			}
+	}
   
   // Trajectory publication through ROS
   trajectory_pub_.publish(goal);

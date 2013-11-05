@@ -27,6 +27,7 @@ void EnvironmentSalleBauzil::setObjects(){
 }
 void EnvironmentSalleBauzil::setGoalObject(){
 	goal = new ros::SphereMarker(2.5, 0.0, 0.2, 0.0);
+	goal->setRPYRadian(0,0,M_PI);
 	goal->make_interactive(0.3);
 	goal->addText("goal");
 	//goal->subscribeToEvart("/evart/helmet2/PO");
