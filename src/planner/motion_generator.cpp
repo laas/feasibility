@@ -297,9 +297,6 @@ MotionGenerator::
 computeFeaturesWithoutSmoothing(
     std::vector<step> &vectStep)
 {
-  std::ofstream act("/tmp/check_traj_mg.dat", std::ofstream::app);
-  act << "computeFeaturesWithoutSmoothing" << std::endl;
-  act.close();
 
   double defaultSlide = -0.1;
 
@@ -347,8 +344,6 @@ computeFeaturesWithSmoothing(
     int startFrom, int numberOfSteps)
 {
 
-  std::ofstream act("/tmp/check_traj_mg.dat", std::ofstream::app);
-  act << "computeFeaturesWithSmoothing" << std::endl;
 
   StepFeatures stepF1, stepUP, stepDOWN;
   vector<vector<double> > trajTimedRadQ;
@@ -416,7 +411,6 @@ computeFeaturesWithSmoothing(
   }//for
 
   int laststep = min(startFrom+numberOfSteps,(int)stepsVect.size());
-  act << startFrom << " " << laststep << std::endl;
   for(int i=startFrom;i<laststep;i++){
     //Smooth stepUP
     if(i!=0){
@@ -469,13 +463,11 @@ computeFeaturesWithSmoothing(
     }else{
       maxOne = findMultiple(maxOne,0.005);
     }
-    act << "currentAttempt:" << currentAttempt << std::endl;
 
     stepDOWN = stepsVect.at(i).stepFeaturesDOWN;
     stepsVect.at(i).slideDOWN = -maxOne;
     NPSS->addStepFeaturesWithSlide(stepF1,stepDOWN,-maxOne);
   }
-  act.close();
   return stepF1;
 }
 
