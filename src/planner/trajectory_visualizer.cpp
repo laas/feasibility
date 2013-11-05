@@ -53,7 +53,6 @@ init(std::vector<double> &q)
     this->offset_=4;
     this->Nframes_ = (this->q_->size()-this->offset_)/17.0; //12 joint values + 3 CoM (x,y,t) + 2 ZMP (x,y)
     this->ctrFrames_ = 0;
-    
     publishTrajectory();
   }
 }
@@ -61,6 +60,7 @@ init(std::vector<double> &q)
 TrajectoryVisualizer::
 TrajectoryVisualizer(double x, double y, double t)
 {
+
   ROS_INFO("searching for path of package 'feasibility' ...");
   std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2.urdf";
   

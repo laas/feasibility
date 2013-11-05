@@ -45,6 +45,7 @@ MotionGenerator(Environment *environment)
       mp_Obstacles.push_back(PQPobj);
     }
   nbObs = mp_Obstacles.size();
+
 }
 
 int 
@@ -87,15 +88,21 @@ createArticularValuesVector(vector<vector<double> >& trajTimedRadQ,
 
   int offset = 4;
   for(int i=0;i<nbPosToSend;i++){
+    unsigned int count = i+time_start;
+        
     for(int j=0;j<12;j++){
       vect[offset + i*17 + j] = trajTimedRadQ[i+start][j+1];
     }
-    vect[offset + i*17 + 12 + 0] = stepF.comTrajX[i+time_start];
-    vect[offset + i*17 + 12 + 1] = stepF.comTrajY[i+time_start];
-    vect[offset + i*17 + 12 + 2] = toRad(stepF.waistOrient[i+time_start]);
-    vect[offset + i*17 + 12 + 3] = stepF.zmpTrajX[i+time_start]; //change ref adding
-    vect[offset + i*17 + 12 + 4] = stepF.zmpTrajY[i+time_start];
+    vect[offset + i*17 + 12 + 0] = stepF.comTrajX[count];
+    vect[offset + i*17 + 12 + 1] = stepF.comTrajY[count];
+    vect[offset + i*17 + 12 + 2] = toRad(stepF.waistOrient[count]);
+    vect[offset + i*17 + 12 + 3] = (stepF.zmpTrajX[count]-stepF.comTrajX[count])*cos(-stepF.waistOrient[count]*PI/180)
+      -(stepF.zmpTrajY[count]-stepF.comTrajY[count])*sin(-stepF.waistOrient[count]*PI/180) ;
+    vect[offset + i*17 + 12 + 4] = (stepF.zmpTrajX[count]-stepF.comTrajX[count])*sin(-stepF.waistOrient[count]*PI/180)
+        +(stepF.zmpTrajY[count]-stepF.comTrajY[count])*cos(-stepF.waistOrient[count]*PI/180) ;
+    
   }
+      
   return vect;
 }
 
@@ -290,6 +297,10 @@ MotionGenerator::
 computeFeaturesWithoutSmoothing(
     std::vector<step> &vectStep)
 {
+  std::ofstream act("/tmp/check_traj_mg.dat", std::ofstream::app);
+  act << "computeFeaturesWithoutSmoothing" << std::endl;
+  act.close();
+
   double defaultSlide = -0.1;
 
   StepFeatures stepF, stepUP, stepDOWN;
@@ -335,6 +346,9 @@ computeFeaturesWithSmoothing(
     vector<step>& stepsVect, 
     int startFrom, int numberOfSteps)
 {
+
+  std::ofstream act("/tmp/check_traj_mg.dat", std::ofstream::app);
+  act << "computeFeaturesWithSmoothing" << std::endl;
 
   StepFeatures stepF1, stepUP, stepDOWN;
   vector<vector<double> > trajTimedRadQ;
@@ -402,6 +416,7 @@ computeFeaturesWithSmoothing(
   }//for
 
   int laststep = min(startFrom+numberOfSteps,(int)stepsVect.size());
+  act << startFrom << " " << laststep << std::endl;
   for(int i=startFrom;i<laststep;i++){
     //Smooth stepUP
     if(i!=0){
@@ -454,11 +469,13 @@ computeFeaturesWithSmoothing(
     }else{
       maxOne = findMultiple(maxOne,0.005);
     }
+    act << "currentAttempt:" << currentAttempt << std::endl;
 
     stepDOWN = stepsVect.at(i).stepFeaturesDOWN;
     stepsVect.at(i).slideDOWN = -maxOne;
     NPSS->addStepFeaturesWithSlide(stepF1,stepDOWN,-maxOne);
   }
+  act.close();
   return stepF1;
 }
 

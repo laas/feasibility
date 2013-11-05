@@ -21,16 +21,17 @@ struct MotionPlannerAStar: public MotionPlanner{
   uint current_step_index_;
   TrajectoryVisualizer *tv;
 
-	//to publish footsteps on ros topic
-	ros::NodeHandle n;
-	ros::Publisher pub;
-
-	MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
-		std::string topic = "/feasibility/footsteps/relative";
-		pub = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
+  //to publish footsteps on ros topic
+  ros::NodeHandle n;
+  ros::Publisher pub;
+        
+ MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
+    
+    std::string topic = "/feasibility/footsteps/relative";
+    pub = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     DEBUG(ROS_INFO("***** START A_STAR ********");)
-
-		ContactTransition::cleanStatic();
+                  
+      ContactTransition::cleanStatic();
     astarsearch = new AStarSearch<ContactTransition>(10000);
     if(ContactTransition::timer!=NULL){
       delete ContactTransition::timer;
@@ -47,7 +48,7 @@ struct MotionPlannerAStar: public MotionPlanner{
   }
   ~MotionPlannerAStar(){
     DEBUG(ROS_INFO("***** DELETE A_STAR ********");)
-        astarsearch->EnsureMemoryFreed();
+      astarsearch->EnsureMemoryFreed();
     if(astarsearch!=NULL) delete astarsearch;
     astarsearch=NULL;
   }
@@ -83,14 +84,14 @@ struct MotionPlannerAStar: public MotionPlanner{
     uint SearchState;
     ContactTransition::timer->begin("a*");
     do
-    {
-      SearchState = astarsearch->SearchStep();
-      SearchSteps++;
-      if(SearchSteps > 100){
-        astarsearch->CancelSearch();
-        break;
+      {
+        SearchState = astarsearch->SearchStep();
+        SearchSteps++;
+        if(SearchSteps > 100){
+          astarsearch->CancelSearch();
+          break;
+        }
       }
-    }
     while( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SEARCHING );
 
     results.success=false;
@@ -132,20 +133,20 @@ struct MotionPlannerAStar: public MotionPlanner{
     std::vector<std::vector<double> > fs_vector;
     uint SearchState = astarsearch->SearchStep();
     if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
-    {
-      ContactTransition *node = astarsearch->GetSolutionStart();
-      for( ;; )
       {
-        node = astarsearch->GetSolutionNext();
-        if( !node ) break;
+        ContactTransition *node = astarsearch->GetSolutionStart();
+        for( ;; )
+          {
+            node = astarsearch->GetSolutionNext();
+            if( !node ) break;
 
-        std::vector<double> tmp_fsi = 
-            vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
-        fs_vector.push_back(tmp_fsi);
-      };
-      astarsearch->FreeSolutionNodes();
+            std::vector<double> tmp_fsi = 
+              vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
+            fs_vector.push_back(tmp_fsi);
+          };
+        astarsearch->FreeSolutionNodes();
 
-    }
+      }
     if(!fs_vector.empty()){
       fs_vector.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
     }
@@ -154,7 +155,7 @@ struct MotionPlannerAStar: public MotionPlanner{
   }
 
   void update_planner(){
-  	uint step_horizon = 3;
+    uint step_horizon = 3;
     if(fsi.size()==0){
       fsi = get_footstep_vector();
       return;
@@ -217,26 +218,26 @@ struct MotionPlannerAStar: public MotionPlanner{
     }
     ROS_INFO("step %d/%d", current_step_index_, fsi.size());
 
-		//publish footsteps over ros topic
-		std_msgs::Float64MultiArray ros_steps;
-		ros_steps.layout.dim.push_back(std_msgs::MultiArrayDimension());
-		ros_steps.layout.dim.push_back(std_msgs::MultiArrayDimension());
-		ros_steps.layout.dim[0].label = "step";
-		ros_steps.layout.dim[0].size = fsi.size();
-		ros_steps.layout.dim[0].stride = fsi.size()*fsi.at(0).size();
-		ros_steps.layout.dim[1].label = "relative/absolute";
-		ros_steps.layout.dim[1].size = fsi.at(0).size();
-		ros_steps.layout.dim[1].stride = fsi.at(0).size();
+    //publish footsteps over ros topic
+    std_msgs::Float64MultiArray ros_steps;
+    ros_steps.layout.dim.push_back(std_msgs::MultiArrayDimension());
+    ros_steps.layout.dim.push_back(std_msgs::MultiArrayDimension());
+    ros_steps.layout.dim[0].label = "step";
+    ros_steps.layout.dim[0].size = fsi.size();
+    ros_steps.layout.dim[0].stride = fsi.size()*fsi.at(0).size();
+    ros_steps.layout.dim[1].label = "relative/absolute";
+    ros_steps.layout.dim[1].size = fsi.at(0).size();
+    ros_steps.layout.dim[1].stride = fsi.at(0).size();
 
-		ros_steps.data.resize( fsi.at(0).size() * fsi.size() );
+    ros_steps.data.resize( fsi.at(0).size() * fsi.size() );
 
-		for(uint i=0;i<fsi.size();i++){
-			for(uint j=0;j<fsi.at(0).size();j++){
-				ros_steps.data[i*fsi.at(0).size()+j]=( fsi.at(i).at(j) );
-			}
-		}
+    for(uint i=0;i<fsi.size();i++){
+      for(uint j=0;j<fsi.at(0).size();j++){
+        ros_steps.data[i*fsi.at(0).size()+j]=( fsi.at(i).at(j) );
+      }
+    }
 
-		pub.publish(ros_steps);
+    pub.publish(ros_steps);
 
   }
   bool publish_onestep_next(){
@@ -247,7 +248,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     publish_footstep_vector();
     MotionGenerator *mg = new MotionGenerator(this->environment); //generate q
     std::vector<double> q = 
-        mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_);
+      mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_);
     if(q.size()>0){
       ROS_INFO("configuration vector: %d", q.size());
       //Replay trajectory
@@ -265,37 +266,37 @@ struct MotionPlannerAStar: public MotionPlanner{
 
 
   void draw_swept_volume(){
-		if(fsi.size()>0){
-			draw_swept_volume(fsi.at(0).at(0), fsi.at(0).at(1), fsi.at(0).at(2), fsi.at(0).at(3));
-		}
-	}
+    if(fsi.size()>0){
+      draw_swept_volume(fsi.at(0).at(0), fsi.at(0).at(1), fsi.at(0).at(2), fsi.at(0).at(3));
+    }
+  }
   void draw_swept_volume(double x, double y, double yaw, bool L_or_R){
 
-		uint hash = hashit<double>(vecD(x,y,yaw));
+    uint hash = hashit<double>(vecD(x,y,yaw));
 
-		std::string robot_file = "/model/fullBodyApprox/";
-		robot_file += ContactTransition::get_swept_volume_file_name( hash );
-		robot_file = get_robot_str(robot_file.c_str());
+    std::string robot_file = "/model/fullBodyApprox/";
+    robot_file += ContactTransition::get_swept_volume_file_name( hash );
+    robot_file = get_robot_str(robot_file.c_str());
 
-		ROS_INFO("step[%d] %f %f %f", 0, x, y, yaw);
-		ros::Geometry sv_pos;
-		sv_pos.x = x;
-		sv_pos.y = y;
-		sv_pos.setRPYRadian( 0,0, yaw );
+    ROS_INFO("step[%d] %f %f %f", 0, x, y, yaw);
+    ros::Geometry sv_pos;
+    sv_pos.x = x;
+    sv_pos.y = y;
+    sv_pos.setRPYRadian( 0,0, yaw );
 
-		ROS_INFO("loading swept volume %s",robot_file.c_str());
+    ROS_INFO("loading swept volume %s",robot_file.c_str());
 
-		ros::TrisTriangleObject *robot;
-		if(L_or_R == 'L'){
-			robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos, false);
-		}else{
-			robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos, true);
-		}
-		robot->set_color(0.6, 0.0, 0.6, 0.3);
-		robot->publish();
-		delete robot;
+    ros::TrisTriangleObject *robot;
+    if(L_or_R == 'L'){
+      robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos, false);
+    }else{
+      robot = new ros::TrisTriangleObject(robot_file.c_str(), sv_pos, true);
+    }
+    robot->set_color(0.6, 0.0, 0.6, 0.3);
+    robot->publish();
+    delete robot;
 
-	}
+  }
   void publish(){
     NYI();
   }
