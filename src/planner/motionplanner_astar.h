@@ -156,6 +156,12 @@ struct MotionPlannerAStar: public MotionPlanner{
 
   void update_planner(){
     uint step_horizon = 3;
+
+    if(!environment_changed && success()){
+			ROS_INFO("Unchanged environment -> reusing old trajectory");
+			return;
+		}
+
     if(fsi.size()==0){
       fsi = get_footstep_vector();
       return;

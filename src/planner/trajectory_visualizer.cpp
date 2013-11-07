@@ -55,6 +55,13 @@ init(std::vector<double> &q)
     this->ctrFrames_ = 0;
     publishTrajectory();
   }
+  if(publish_configurations){
+    ROS_INFO("***********************************************");
+    ROS_INFO("WARNING publishing Q !");
+    ROS_INFO("WARNING publishing Q !");
+    ROS_INFO("WARNING publishing Q !");
+    ROS_INFO("***********************************************");
+	}
 }
 
 TrajectoryVisualizer::
@@ -257,7 +264,6 @@ bool TrajectoryVisualizer::next()
   if(publish_configurations){
     rsp_->publishFixedTransforms();
     rsp_->publishTransforms(q, ros::Time::now());
-    ROS_INFO("WARNING publishing Q !");
   }
   
   double CoM[3];

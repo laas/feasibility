@@ -20,6 +20,7 @@ protected:
 	static Environment *environment;
 	ros::Geometry goal;
 	MResults results;
+	bool environment_changed;
 
 	double cur_sf_x, cur_sf_y, cur_sf_yaw;
 	char cur_sf_foot;
@@ -30,29 +31,33 @@ public:
 			environment=NULL; //only delete pointer not object, so that we can handle multiple environments in the main loop
 		}
 		environment = env;
+		environment_changed=true;
 	}
 	virtual ~MotionPlanner(){}
 	
 	void update(){
-		if(environment->isChanged()){
-			ROS_INFO("***update environment***");
-			ros::Geometry goalG = environment->getGoal();
-			setGoal( goalG );
-			ros::Geometry start = environment->getStart();
-			setStart( start );
+		ROS_INFO("***update environment***");
+		ros::Geometry goalG = environment->getGoal();
+		setGoal( goalG );
+		ros::Geometry start = environment->getStart();
+		setStart( start );
 
-			cleanObjects();
-			std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
-			std::vector<ros::RVIZVisualMarker*>::iterator it;
-			for(it=objects.begin(); it!=objects.end(); it++){
-				addObjectToPlanner(*it);
-			}
+		cleanObjects();
+		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
+		std::vector<ros::RVIZVisualMarker*>::iterator it;
+		for(it=objects.begin(); it!=objects.end(); it++){
+			addObjectToPlanner(*it);
 		}
 	}
 	void plan(){
-		update();
-		ROS_INFO("start planner");
-		start_planner();
+		if(environment->isChanged()){
+			environment_changed=true;
+			update();
+			ROS_INFO("replanning");
+			start_planner();
+		}else{
+			environment_changed=false;
+		}
 	}
 
 	virtual void publish() = 0;
