@@ -96,11 +96,8 @@ createArticularValuesVector(vector<vector<double> >& trajTimedRadQ,
     vect[offset + i*17 + 12 + 0] = stepF.comTrajX[count];
     vect[offset + i*17 + 12 + 1] = stepF.comTrajY[count];
     vect[offset + i*17 + 12 + 2] = toRad(stepF.waistOrient[count]);
-    vect[offset + i*17 + 12 + 3] = (stepF.zmpTrajX[count]-stepF.comTrajX[count])*cos(-stepF.waistOrient[count]*PI/180)
-      -(stepF.zmpTrajY[count]-stepF.comTrajY[count])*sin(-stepF.waistOrient[count]*PI/180) ;
-    vect[offset + i*17 + 12 + 4] = (stepF.zmpTrajX[count]-stepF.comTrajX[count])*sin(-stepF.waistOrient[count]*PI/180)
-        +(stepF.zmpTrajY[count]-stepF.comTrajY[count])*cos(-stepF.waistOrient[count]*PI/180) ;
-    
+    vect[offset + i*17 + 12 + 3] = stepF.zmpTrajX[count];
+    vect[offset + i*17 + 12 + 4] = stepF.zmpTrajY[count];
   }
       
   return vect;
