@@ -17,7 +17,6 @@
 // have received a copy of the GNU Lesser General Public License along
 // with feasibility.  If not, see <http://www.gnu.org/licenses/>.
  
-
 #include "planner/motion_generator.h"
 #define DEBUG(x) x
 
@@ -72,21 +71,22 @@ createArticularValuesVector(vector<vector<double> >& trajTimedRadQ,
                             int time_start, int start, int nbPosToSend)
 {
 
-  if( start + nbPosToSend > (int)trajTimedRadQ.size() )
+  if( start + nbPosToSend > (int)trajTimedRadQ.size() ){
     nbPosToSend = trajTimedRadQ.size() - start;
+	}
 
-  if(start > (int)trajTimedRadQ.size())
+  if(start > (int)trajTimedRadQ.size()){
     nbPosToSend = 0;
+	}
 
-  vector<double> vect(nbPosToSend*17 + 4);
-
+  int offset = 4; //size of header
+  vector<double> vect(nbPosToSend*17 + offset);
 
   vect[0] = 42;                      //ID TODO
   vect[1] = stepF.size*0.005;                   //End of trajectory
   vect[2] = time_start*0.005;                   //Time of the begginnig of the modification
   vect[3] = (time_start + nbPosToSend)*0.005;   //Time of the end of the modification
 
-  int offset = 4;
   for(int i=0;i<nbPosToSend;i++){
     unsigned int count = i+time_start;
         

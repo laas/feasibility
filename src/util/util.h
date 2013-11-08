@@ -76,6 +76,7 @@ public:
 	~Logger();
 	void operator()(std::string fmt, ...);
 	void operator()(std::vector<double> &v, char* postfix=" ");
+	void operator()(std::vector< std::vector<double> > &v);
 };
 //##########################################################################
 // COUT/STREAM FUNCTIONS

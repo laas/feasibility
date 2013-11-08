@@ -150,6 +150,10 @@ struct MotionPlannerAStar: public MotionPlanner{
     if(!fs_vector.empty()){
       fs_vector.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
     }
+    DEBUG(
+    		Logger footlogger("footsteps.dat");
+    		footlogger( fs_vector );
+		)
     astarsearch->EnsureMemoryFreed();
     return fs_vector;
   }

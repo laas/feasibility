@@ -349,6 +349,17 @@ void Logger::operator()(std::string fmt, ...){
 	//fputc('\n', fp);
 	fclose(fp);
 }
+void Logger::operator()(std::vector< std::vector<double> > &v){
+	fp = fopen(this->name.c_str(),"a");
+	for(uint i=0;i<v.size();i++){
+		for(uint j=0;j<v.at(i).size();j++){
+			fprintf(fp, "%f ", v.at(i).at(j));
+		}
+		fprintf(fp, "\n");
+	}
+	fputc('\n', fp);
+	fclose(fp);
+}
 void Logger::operator()(std::vector<double> &v, char* postfix){
 	fp = fopen(this->name.c_str(),"a");
 	std::vector<double>::iterator it;
