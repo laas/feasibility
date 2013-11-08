@@ -55,18 +55,13 @@ init(std::vector<double> &q)
     this->ctrFrames_ = 0;
     publishTrajectory();
   }
-  if(publish_configurations){
-    ROS_INFO("***********************************************");
-    ROS_INFO("WARNING publishing Q !");
-    ROS_INFO("WARNING publishing Q !");
-    ROS_INFO("WARNING publishing Q !");
-    ROS_INFO("***********************************************");
-	}
 }
 
 TrajectoryVisualizer::
 TrajectoryVisualizer(double x, double y, double t)
 {
+  std::ofstream act("/tmp/check_traj.dat");
+  act.close();
 
   ROS_INFO("searching for path of package 'feasibility' ...");
   std::string URDFFilename = ros::package::getPath("feasibility")+"/data/hrp2.urdf";
@@ -264,6 +259,7 @@ bool TrajectoryVisualizer::next()
   if(publish_configurations){
     rsp_->publishFixedTransforms();
     rsp_->publishTransforms(q, ros::Time::now());
+    ROS_INFO("WARNING publishing Q !");
   }
   
   double CoM[3];
@@ -345,16 +341,19 @@ publishTrajectory()
     goal.joint_names.push_back(JointNames[i]);
 	}
   
+  std::ofstream act("/tmp/check_traj.dat",std::ofstream::app);
   goal.points.resize(Nframes_);
 
   for(unsigned int idPoint=0;idPoint<Nframes_;idPoint++)
-	{
+    {
       goal.points[idPoint].positions.resize(NB_PUBLISHED_JOINT_HRP2);
       for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++){
         goal.points[idPoint].positions[i]= q_->at(offset_+idPoint*17+i);
-			}
-	}
-  
+        act << goal.points[idPoint].positions[i] << " " ;
+      }
+      act << std::endl;
+    }
+  act.close();
   // Trajectory publication through ROS
   trajectory_pub_.publish(goal);
 }

@@ -465,6 +465,7 @@ computeFeaturesWithSmoothing(
     stepsVect.at(i).slideDOWN = -maxOne;
     NPSS->addStepFeaturesWithSlide(stepF1,stepDOWN,-maxOne);
   }
+  std::cout << "NB_TEST:" << NB_TEST << " " << currentAttempt << std::endl;
   return stepF1;
 }
 
