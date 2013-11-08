@@ -26,7 +26,10 @@ struct MotionPlannerAStar: public MotionPlanner{
   ros::Publisher pub;
         
  MotionPlannerAStar(Environment *env, int &argc, char** &argv): MotionPlanner(env){
-    
+
+    std::ofstream fct("/tmp/foot_check_traj.dat");
+    fct.close();
+
     std::string topic = "/feasibility/footsteps/relative";
     pub = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     DEBUG(ROS_INFO("***** START A_STAR ********");)

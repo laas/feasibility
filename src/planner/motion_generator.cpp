@@ -757,11 +757,31 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
 
   int firstIndex = getFirstIndex( vectStep, lastStepSmoothed);                                                                                                   
   ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);
-
+  
+  std::ofstream fct("/tmp/foot_check_traj.dat",std::ofstream::app);
   if(size>0){
     vector<vector<double> > trajTimedRadQ;
     CGFBT->generateTrajectory( trajTimedRadQ, stepF, firstIndex, size);
     q = createArticularValuesVector(trajTimedRadQ, stepF, firstIndex, 0, size);
+    
+    for(int count = firstIndex; count < firstIndex + size ; count++)
+      {
+        fct << stepF.leftfootXtraj[count] << " " 
+            << stepF.leftfootYtraj[count] << " " 
+            << stepF.leftfootHeight[count] << " "
+            << stepF.leftfootOrient[count] << " " 
+            << stepF.rightfootXtraj[count] << " " 
+            << stepF.rightfootYtraj[count] << " " 
+            << stepF.rightfootHeight[count] << " "
+            << stepF.rightfootOrient[count] << " " 
+            << stepF.comTrajX[count] << " " 
+            << stepF.comTrajY[count] << " " 
+            << stepF.waistOrient[count] << " " 
+            << stepF.zmpTrajX[count] << " " 
+            << stepF.zmpTrajY[count] << " " 
+            << std::endl;
+      }
+    fct.close();
   }
 
   return q;
