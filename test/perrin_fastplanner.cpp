@@ -14,7 +14,7 @@
 #include "planner/constraints_checker_ann.h"
 
 using namespace ros;
-bool plan;
+bool plan=false;
 
 void update(const std_msgs::Bool& stopPlanner){
 	plan = !stopPlanner.data;
