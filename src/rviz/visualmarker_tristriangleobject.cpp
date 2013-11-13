@@ -79,7 +79,7 @@ namespace ros{
 
 		std::vector<fcl::Vec3f> vertices;
 		std::vector<fcl::Triangle> triangles;
-		double scale = 1.0; //bigger obstacles for planning phase
+		double scale = 1.1; //bigger obstacles for planning phase
 		for (int i = 0; i < ntris; i++){
 			double p1x,p1y,p1z,p2x,p2y,p2z,p3x,p3y,p3z;
 			res=fscanf(fp,"%lf %lf %lf %lf %lf %lf %lf %lf %lf",
