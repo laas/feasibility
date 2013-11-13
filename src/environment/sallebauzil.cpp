@@ -8,6 +8,8 @@ void EnvironmentSalleBauzil::setDecorations(){
 	c->setRPYRadian(0,0,M_PI);
 
 	decorations.push_back(c);
+  c = new ros::TriangleObjectFloor(0.0, 0.0, "data/wall.tris", "/evart/chair2/PO", std::string("fastReplanningData"));
+	decorations.push_back(c);
 }
 void EnvironmentSalleBauzil::setObjects(){
   ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(1.5, 0.5, "data/chairLabo.tris", "/evart/chair2/PO", std::string("fastReplanningData"));
