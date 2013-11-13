@@ -28,7 +28,7 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double x = this->g.x;
 	double y = this->g.y;
 	//return norml1(x,xg,y,yg);
-	return norml2(x,xg,y,yg);
+	return norml2(x,xg,y,yg) + 0.02*this->rel_yaw*this->rel_yaw;
 }
 void ContactTransition::cleanStatic(){
 	std::vector<ros::RVIZVisualMarker*>::iterator oit;
