@@ -26,7 +26,7 @@ int main( int argc, char** argv )
 	ros::NodeHandle n;
 	ros::Rate r(1);
 	ros::Subscriber subscriber;
-	plan=true;
+	plan=false;
 
 	subscriber = n.subscribe("/planner/stop", 100, &update);
 
