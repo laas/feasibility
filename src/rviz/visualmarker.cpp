@@ -124,7 +124,7 @@ namespace ros{
 		control.orientation.z = 0;
 		control.always_visible = true;
 		control.name = "move_xy";
-		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_PLANE;
+		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE;
 		active_marker.controls.push_back(control);
 
 		//control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;
