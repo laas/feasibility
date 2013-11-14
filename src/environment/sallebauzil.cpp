@@ -2,9 +2,10 @@
 
 void EnvironmentSalleBauzil::setDecorations(){
 	ros::RVIZVisualMarker *c;
-	c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
+	c = new ros::ColladaObject("package://feasibility/data/wall_laas9.obj");
 
-	c->setXYZ(1.5,-2.5,-0.01);
+	//c->setXYZ(1.5,-2.5,-0.01);
+        c->setXYZ(0.0,0,-0.01);
 	c->setRPYRadian(0,0,M_PI);
 
 	decorations.push_back(c);
@@ -30,7 +31,7 @@ void EnvironmentSalleBauzil::setObjects(){
 }
 void EnvironmentSalleBauzil::setGoalObject(){
 	goal = new ros::SphereMarker(2.5, 0.0, 0.2, 0.0);
-	goal->setRPYRadian(0,0,M_PI);
+	//goal->setRPYRadian(0,0,M_PI);
 	goal->make_interactive(0.3);
 	goal->addText("goal");
 	//goal->subscribeToEvart("/evart/helmet2/PO");

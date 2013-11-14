@@ -14,7 +14,7 @@
 #include "planner/constraints_checker_ann.h"
 
 using namespace ros;
-bool plan;
+bool plan=false;
 
 void update(const std_msgs::Bool& stopPlanner){
 	plan = !stopPlanner.data;
@@ -26,7 +26,7 @@ int main( int argc, char** argv )
 	ros::NodeHandle n;
 	ros::Rate r(1);
 	ros::Subscriber subscriber;
-	plan=true;
+	plan=false;
 
 	subscriber = n.subscribe("/planner/stop", 100, &update);
 
