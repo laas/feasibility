@@ -38,9 +38,9 @@ private:
 };
 struct ObjectiveFunctionCylinder: public ObjectiveFunction{
 	ros::TrisTriangleObject *a;
-	ros::CylinderMarkerTriangles *b;
+	ros::PrimitiveMarkerCylinder *b;
 
-	ObjectiveFunctionCylinder(  ros::TrisTriangleObject *obj_a, ros::CylinderMarkerTriangles *obj_b ){
+	ObjectiveFunctionCylinder(  ros::TrisTriangleObject *obj_a, ros::PrimitiveMarkerCylinder *obj_b ){
 		a = obj_a;
 		b = obj_b;
 	}
@@ -90,7 +90,7 @@ ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 	system(command);
 
 	TrisTriangleObject *robot = new TrisTriangleObject(robot_file.c_str(), robot_pos);
-	CylinderMarkerTriangles *cylinder = new CylinderMarkerTriangles(0,0,0.1,0.1);
+	PrimitiveMarkerCylinder *cylinder = new PrimitiveMarkerCylinder(0,0,0.1,0.1);
 
 	E = new ObjectiveFunctionCylinder(robot, cylinder);
 	return E;

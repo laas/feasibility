@@ -154,7 +154,8 @@ set(SOURCE
 	src/rviz/visualmarker_mesh.cpp
 	src/rviz/visualmarker_decorator.cpp
 	src/rviz/visualmarker_common.cpp
-	src/rviz/cylindermarkertriangles.cpp
+	src/rviz/primitive_marker.cpp
+	src/rviz/primitive_marker_cylinder.cpp
 	src/util/util.h 
 	src/util/util.cpp
 	src/util/util_eigen.h 

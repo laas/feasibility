@@ -22,7 +22,7 @@ void EnvironmentFeasibilityTest::setDecorations(){
 }
 void EnvironmentFeasibilityTest::setObjects(){
 	ros::RVIZVisualMarker *c;
-	c=new ros::CylinderMarkerTriangles(0.5,-0.2,0.03,0.03);
+	c=new ros::PrimitiveMarkerCylinder(0.5,-0.2,0.03,0.03);
 	c->set_color(0,0.8,0,1);
 	c->make_interactive();
 	objects.push_back(c);

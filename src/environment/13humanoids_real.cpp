@@ -14,7 +14,7 @@ void Environment13HumanoidsReal::setDecorations(){
 }
 void Environment13HumanoidsReal::createApproxObj(const char* name, double x, double y, double yaw){
 	ros::RVIZVisualMarker *c, *d;
-	c = new ros::CylinderMarkerTriangles(x,y, 0.33, 0.8),
+	c = new ros::PrimitiveMarkerCylinder(x,y, 0.33, 0.8),
 	c->set_color(0,0.8,0,0.2);
 	objects.push_back(c);
 
@@ -35,8 +35,8 @@ void Environment13HumanoidsReal::setObjects(){
 	// otherwise the MLP function is undefined at the moment
 	//seed(Nobjects);
 	for(uint i=0;i<Nobjects;i++){
-		//c=new ros::CylinderMarkerTriangles(rand(0.2,2.8),rand(-0.8,0.8), rand(0.03,0.04), rand(0.03,0.05));
-		c=new ros::CylinderMarkerTriangles(rand(0.3,4.0),rand(-1.2,1.2), rand(0.04,0.06), rand(0.03,0.05));
+		//c=new ros::PrimitiveMarkerCylinder(rand(0.2,2.8),rand(-0.8,0.8), rand(0.03,0.04), rand(0.03,0.05));
+		c=new ros::PrimitiveMarkerCylinder(rand(0.3,4.0),rand(-1.2,1.2), rand(0.04,0.06), rand(0.03,0.05));
 		c->set_color(0,0.8,0,0.8);
 		//c->set_color(0.1,0.1,0.1,1.0);
 		objects.push_back(c);

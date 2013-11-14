@@ -209,18 +209,31 @@ namespace ros{
 
 	};
 
-	struct CylinderMarkerTriangles: public TriangleObject{
-		CylinderMarkerTriangles(double x, double y, double r, double h);
-		virtual std::string name();
-		virtual uint32_t get_shape();
-		virtual Color default_color();
+	struct PrimitiveMarkerTriangle: public TriangleObject{
+		public:
+			uint32_t get_shape();
+			PrimitiveMarkerTriangle();
+		protected:
+			void initPrimitiveMarker( PrimitiveMarkerTriangle *pmt );
+			void primitiveMarker2PQP(PQP_Model *m, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt);
+			void primitiveMarker2BVH(fcl::BVHModel< BoundingVolume > *m, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt);
+			void primitiveMarker2RVIZMarker(visualization_msgs::Marker &marker, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt);
+			uint Ntriangles; //number of triangles
+			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
+							getVerticesAndTriangles() = 0;
+	};
 
-		void cylinder2marker(visualization_msgs::Marker &marker, uint N, double radius, double height);
-		void cylinder2BVH(fcl::BVHModel< BoundingVolume > *m, uint N, double radius, double height);
-		void cylinder2PQP(PQP_Model *m, uint N, double radius, double height);
-		std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
-		getCylinderVerticesAndTriangles(uint N, double radius, double height);
-		void reloadCylinderBVH(double radius, double height);
+	struct PrimitiveMarkerCylinder: public PrimitiveMarkerTriangle{
+		double height;
+		double radius;
+		
+		public:
+			PrimitiveMarkerCylinder(double x, double y, double r, double h);
+			virtual std::string name();
+
+			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
+			getVerticesAndTriangles();
+			void reloadCylinderBVH(double radius, double height);
 	};
 
 	struct TrisTriangleObject: public TriangleObject{
