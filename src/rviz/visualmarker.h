@@ -163,8 +163,8 @@ namespace ros{
 		virtual std::string name();
 	};
 
-	struct CubeMarker: public RVIZVisualMarker{
-		CubeMarker(double x, double y, double w=0.08, double yaw=0);
+	struct CuboidMarker: public RVIZVisualMarker{
+		CuboidMarker(double x, double y, double l=1, double w=0.08, double h=1, double yaw=0);
 		virtual std::string name();
 		virtual uint32_t get_shape();
 	};
@@ -234,6 +234,15 @@ namespace ros{
 			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
 			getVerticesAndTriangles();
 			void reloadCylinderBVH(double radius, double height);
+	};
+	struct PrimitiveMarkerBox: public PrimitiveMarkerTriangle{
+		double l,w,h;
+		
+		public:
+			PrimitiveMarkerBox(double x, double y, double l, double w, double h);
+			virtual std::string name();
+			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
+			getVerticesAndTriangles();
 	};
 
 	struct TrisTriangleObject: public TriangleObject{

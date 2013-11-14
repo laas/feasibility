@@ -38,21 +38,21 @@ namespace ros{
 	uint32_t SphereMarker::get_shape(){
 		return visualization_msgs::Marker::CYLINDER;
 	}
-	CubeMarker::CubeMarker(double x, double y, double r, double yaw): RVIZVisualMarker() {
+	CuboidMarker::CuboidMarker(double x, double y, double l, double w, double h, double yaw): RVIZVisualMarker() {
 		this->g.x = x;
 		this->g.y = y;
 		this->g.setRPYRadian(0,0,yaw);
-		this->g.sx=r;
-		this->g.sy=r;
-		this->g.sz=r;
+		this->g.sx=l;
+		this->g.sy=w;
+		this->g.sz=h;
 		this->g.z = this->g.z + this->g.sz/2; //bottom of cube should be at desired z, not center
 		set_color(ros::MAGENTA);
 		init_marker();
 	}
-	std::string CubeMarker::name(){
+	std::string CuboidMarker::name(){
 		return std::string("cuberizer");
 	}
-	uint32_t CubeMarker::get_shape(){
+	uint32_t CuboidMarker::get_shape(){
 		return visualization_msgs::Marker::CUBE;
 	}
 

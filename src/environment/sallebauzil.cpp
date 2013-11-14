@@ -16,12 +16,12 @@ void EnvironmentSalleBauzil::setObjects(){
 	ros::RVIZVisualMarker *c;
   	
   //c = new ros::TriangleObjectFloor(1.5, 0.5, "data/chairLabo.tris", std::string("fastReplanningData"));
-  c = new ros::PrimitiveMarkerCylinder(1.5, 0.5, 0.3, 1);
+  c = new ros::CuboidMarker(1.5, 0.5, 0.72, 0.5, 0.98);
 	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
-	c->addText("/evart/chair2/PO");
+	c->addText("RandomToolBoxCUBOID");
 	//chair->subscribeToEvart("/evart/chair2/PO");
 	c->set_color(ros::OBSTACLE);
-	c->make_interactive(0.4);
+	c->make_interactive(0.6);
 	objects.push_back(c);
 
 	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
