@@ -8,24 +8,25 @@ void EnvironmentSalleBauzil::setDecorations(){
 	c->setRPYRadian(0,0,M_PI);
 
 	decorations.push_back(c);
-  c = new ros::TriangleObjectFloor(0.0, 0.0, "data/wall.tris", "/evart/chair2/PO", std::string("fastReplanningData"));
+  c = new ros::TriangleObjectFloor(0.0, 0.0, "data/wall.tris", std::string("fastReplanningData"));
 	decorations.push_back(c);
 }
 void EnvironmentSalleBauzil::setObjects(){
-  ros::TriangleObjectFloor *chair = new ros::TriangleObjectFloor(1.5, 0.5, "data/chairLabo.tris", "/evart/chair2/PO", std::string("fastReplanningData"));
+	ros::RVIZVisualMarker *c;
+  	
+  c = new ros::TriangleObjectFloor(1.5, 0.5, "data/chairLabo.tris", std::string("fastReplanningData"));
 	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
-	chair->addText("/evart/chair2/PO");
+	c->addText("/evart/chair2/PO");
 	//chair->subscribeToEvart("/evart/chair2/PO");
-	chair->make_interactive(0.4);
-	objects.push_back(chair);
+	c->make_interactive(0.4);
+	objects.push_back(c);
 
-	//chair = new ros::TriangleObjectFloor(1.5, 1.5, "chairLabo.tris", "/evart/chair3/PO");
+  c = new ros::TriangleObjectFloor(1.5, 0.5, "data/box.tris", std::string("fastReplanningData"));
+	c->addText("/evart/chair2/PO");
+	c->make_interactive(0.4);
+	objects.push_back(c);
+	//
 	//ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
-	//chair->addText("/evart/chair3/PO");
-	//chair->subscribeToEvart("/evart/chair2/PO");
-	//chair->make_interactive(0.4);
-	//objects.push_back(chair);
-
 }
 void EnvironmentSalleBauzil::setGoalObject(){
 	goal = new ros::SphereMarker(2.5, 0.0, 0.2, 0.0);

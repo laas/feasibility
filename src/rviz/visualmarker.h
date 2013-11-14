@@ -272,18 +272,16 @@ namespace ros{
 		virtual std::string name();
 	};
 	struct TriangleObjectFloor: public TrisTriangleObject{
-          TriangleObjectFloor(double x, double y, std::string fname, std::string mocap,std::string package_name="feasibility");
-          TriangleObjectFloor(double x, double y, std::string fname,
-                              std::string package_name="feasibility");
+		TriangleObjectFloor(double x, double y, std::string fname, std::string package_name="feasibility");
 	};
 	struct TriangleObjectCylinder: public TrisTriangleObject{
 		TriangleObjectCylinder(double x, double y);
 	};
 	struct TriangleObjectChair: public TrisTriangleObject{
-		TriangleObjectChair(std::string mocap);
+		TriangleObjectChair();
 	};
 	struct TriangleObjectRobot: public TrisTriangleObject{
-		TriangleObjectRobot(std::string mocap);
+		TriangleObjectRobot();
 	};
 	//augments the triangle object by a mesh with the same size (TODO:
 	//embedding into voronoi hull)

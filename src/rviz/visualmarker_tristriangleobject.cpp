@@ -228,17 +228,7 @@ namespace ros{
 
 		this->init_object(object_file, object_pos);
 	}
-  TriangleObjectFloor::TriangleObjectFloor(double x, double y, std::string fname, std::string mocap,std::string package_name): TrisTriangleObject(){
-    std::string object_file = get_tris_str(fname,package_name);
-
-		Geometry object_pos;
-		object_pos.x = x;
-		object_pos.y = y;
-
-		this->init_object(object_file, object_pos);
-		this->subscribeToEvart( mocap );
-	}
-	TriangleObjectChair::TriangleObjectChair(std::string mocap): TrisTriangleObject(){
+	TriangleObjectChair::TriangleObjectChair(): TrisTriangleObject(){
 		std::string prefix = get_data_path();
 		std::string chair_file = get_chair_str();
 		Geometry chair_pos;
@@ -247,9 +237,8 @@ namespace ros{
 		chair_pos.z = 0.0;
 		chair_pos.setRPYRadian(0,0,0);
 		this->init_object(chair_file, chair_pos);
-		this->subscribeToEvart( mocap );
 	}
-	TriangleObjectRobot::TriangleObjectRobot(std::string mocap): TrisTriangleObject(){
+	TriangleObjectRobot::TriangleObjectRobot(): TrisTriangleObject(){
 		std::string prefix = get_data_path();
 		std::string robot_file = get_robot_str();
 		Geometry robot_pos;
@@ -257,7 +246,6 @@ namespace ros{
 		robot_pos.y = 0;
 		robot_pos.setRPYRadian(0,0,0);
 		this->init_object(robot_file, robot_pos);
-		this->subscribeToEvart( mocap );
 	}
 }
 
