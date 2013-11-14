@@ -124,7 +124,7 @@ namespace ros{
 		control.orientation.z = 0;
 		control.always_visible = true;
 		control.name = "move_xy";
-		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_ROTATE;
+		control.interaction_mode = visualization_msgs::InteractiveMarkerControl::MOVE_PLANE;
 		active_marker.controls.push_back(control);
 
 		//control.orientation_mode = visualization_msgs::InteractiveMarkerControl::FIXED;
@@ -366,12 +366,22 @@ namespace ros{
 		line.lifetime = ros::Duration();
 		this->rviz->publish(line, true);
 	}
+	void RVIZVisualMarker::set_constant_offset( double x, double y){
+		this->const_offset_x = x;
+		this->const_offset_y = y;
+	}
+	void RVIZVisualMarker::set_constant_rotation_radian( double r, double p, double yaw){
+		this->const_offset_yaw = yaw;
+	}
 	void RVIZVisualMarker::Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
 		geometry_msgs::Transform t = tf.transform;
 		std::string name_id = tf.child_frame_id;
 
-		g.x = t.translation.x;
-		g.y = t.translation.y;
+		g.x = t.translation.x + const_offset_x;
+		g.y = t.translation.y + const_offset_y;
+
+		g.x =  cos(const_offset_yaw)*g.x + sin(const_offset_yaw)*g.y;
+		g.y = -sin(const_offset_yaw)*g.x + cos(const_offset_yaw)*g.y;
 
 		double qx = t.rotation.x;
 		double qy = t.rotation.y;
@@ -393,7 +403,7 @@ namespace ros{
 
 	void RVIZVisualMarker::thread_evart(){
 		assert(m_subscriber.getNumPublishers()==0);
-		ros::Rate r(10); //Hz
+		ros::Rate r(20); //Hz
 		m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 		std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
 		THREAD_DEBUG(ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str()));

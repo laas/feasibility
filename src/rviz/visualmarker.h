@@ -118,9 +118,13 @@ namespace ros{
 		void thread_interactive_marker_start();
 		void thread_interactive_marker_stop();
 		Geometry g_old;
+		double const_offset_x, const_offset_y; //additional offset for evart simulation
+		double const_offset_yaw;
 	public:
 		Geometry g;
 		void setScale(double sx, double sy, double sz);
+		void set_constant_offset( double x, double y);
+		void set_constant_rotation_radian( double r, double p, double yaw);
 		void setXYZ(double x, double y, double z);
 		void setXYT(double x, double y, double yaw_rad);
 		void setRPYRadian(double roll, double pitch, double yaw);
