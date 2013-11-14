@@ -2,12 +2,12 @@
 
 void EnvironmentSalleBauzil::setDecorations(){
 	ros::RVIZVisualMarker *c;
-	//c = new ros::ColladaObject("package://feasibility/data/wall_laas8.obj");
+	c = new ros::ColladaObject("package://feasibility/data/wall_laas9.obj");
 
 	//c->setXYZ(1.5,-2.5,-0.01);
-	//c->setXYZ(0.0,0,-0.01);
-	//c->setRPYRadian(0,0,M_PI);
-	//decorations.push_back(c);
+	c->setXYZ(0.0,0,-0.01);
+	c->setRPYRadian(0,0,M_PI);
+	decorations.push_back(c);
 
   c = new ros::TriangleObjectFloor(0.0, 0.0, "data/wall.tris", std::string("fastReplanningData"));
 	decorations.push_back(c);
