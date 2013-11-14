@@ -55,6 +55,9 @@ namespace ros{
 	uint32_t CuboidMarker::get_shape(){
 		return visualization_msgs::Marker::CUBE;
 	}
+	double CuboidMarker::getTextZ(){
+		return this->g.sz + 0.10;
+	}
 
 
 }
