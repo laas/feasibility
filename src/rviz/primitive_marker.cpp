@@ -32,19 +32,20 @@ namespace ros{
 		m->BeginModel();
 			
 		uint counter=0;
+		double safety_scale = 1.2;
 		for (uint i = 0; i < vertices.size(); i+=3){
 			PQP_REAL p1[3],p2[3],p3[3];
-			p1[0] = vertices.at(i)[0];
-			p1[1] = vertices.at(i)[1];
-			p1[2] = vertices.at(i)[2];
+			p1[0] = safety_scale*vertices.at(i)[0];
+			p1[1] = safety_scale*vertices.at(i)[1];
+			p1[2] = safety_scale*vertices.at(i)[2];
 
-			p2[0] = vertices.at(i+1)[0];
-			p2[1] = vertices.at(i+1)[1];
-			p2[2] = vertices.at(i+1)[2];
+			p2[0] = safety_scale*vertices.at(i+1)[0];
+			p2[1] = safety_scale*vertices.at(i+1)[1];
+			p2[2] = safety_scale*vertices.at(i+1)[2];
 
-			p3[0] = vertices.at(i+2)[0];
-			p3[1] = vertices.at(i+2)[1];
-			p3[2] = vertices.at(i+2)[2];
+			p3[0] = safety_scale*vertices.at(i+2)[0];
+			p3[1] = safety_scale*vertices.at(i+2)[1];
+			p3[2] = safety_scale*vertices.at(i+2)[2];
 
 			m->AddTri(p1,p2,p3,counter);
 			counter++;

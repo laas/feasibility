@@ -156,6 +156,7 @@ set(SOURCE
 	src/rviz/visualmarker_common.cpp
 	src/rviz/primitive_marker.cpp
 	src/rviz/primitive_marker_cylinder.cpp
+	src/rviz/primitive_marker_box.cpp
 	src/util/util.h 
 	src/util/util.cpp
 	src/util/util_eigen.h 
