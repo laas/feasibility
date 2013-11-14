@@ -47,8 +47,8 @@ void EnvironmentSalleBauzil::setObjects(){
   //c->make_interactive(0.6);
   objects.push_back(c);
   
-  //ros::BlenderMeshTriangleObject *chair = new ros::BlenderMeshTriangleObject("package://feasibility/data/AluminumChair.dae","chairLabo.tris",1.2,0.5,M_PI);
 }
+
 void EnvironmentSalleBauzil::setGoalObject(){
   goal = new ros::SphereMarker(-2.75, 1.75, 0.2, 0.0);
   //goal->setRPYRadian(0,0,M_PI);
