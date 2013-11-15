@@ -49,7 +49,7 @@ void EnvironmentSalleBauzil::setGoalObject(){
 	//goal->subscribeToEvart("/evart/red_airbus_screw/PO");
 }
 void EnvironmentSalleBauzil::setStartObject(){
-	start = new ros::SphereMarker(0.0, 0.0, 0.2, 0.0);
-	start->setRPYRadian(0,0,M_PI/6);
+	start = new ros::SphereMarker(-1.0, -1.0, 0.2, 0.0);
+	start->setRPYRadian(0,0,3*M_PI/4);
 	start->addText("<START>");
 }

@@ -229,9 +229,9 @@ bool TrajectoryVisualizer::next()
   }
   
   double CoM[3];
-  CoM[0]=q_->at(offset_ + ctrFrames_*17 + 12) + com_offset_x_;
-  CoM[1]=q_->at(offset_ + ctrFrames_*17 + 13) + com_offset_y_;
-  CoM[2]=q_->at(offset_ + ctrFrames_*17 + 14) + com_offset_t_;
+  CoM[0]=q_->at(offset_ + ctrFrames_*17 + 12);// + com_offset_x_;
+  CoM[1]=q_->at(offset_ + ctrFrames_*17 + 13);// + com_offset_y_;
+  CoM[2]=q_->at(offset_ + ctrFrames_*17 + 14);// + com_offset_t_;
   
   cur_com_offset_x_ = CoM[0];
   cur_com_offset_y_ = CoM[1];
@@ -280,11 +280,13 @@ setTranslationTransform(
     double roll, double pitch, double yaw)
 {
   tf::Transform tf_trans;
-  double tmp_x =  cos(-yaw)*x + sin(-yaw)*y;
-  double tmp_y = -sin(-yaw)*x + cos(-yaw)*y;
+  double yaw_start = com_offset_t_;
+  double tmp_x = cos(yaw_start)*x - sin(yaw_start)*y + com_offset_x_;
+  double tmp_y = sin(yaw_start)*x + cos(yaw_start)*y + com_offset_y_;
+
   tf_trans.setOrigin( tf::Vector3(tmp_x, tmp_y, z) ); //in frame base_link
   tf::Quaternion rot;
-  rot.setRPY(roll, pitch, yaw);
+  rot.setRPY(roll, pitch, yaw+com_offset_t_);
   tf_trans.setRotation( rot );
 
   //tf::Transform tf_rot;

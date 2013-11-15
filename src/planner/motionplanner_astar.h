@@ -273,7 +273,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       ROS_INFO("configuration vector: %d", q.size());
       //Replay trajectory
       tv->init(q);
-      ros::Rate rq(80); //300
+      ros::Rate rq(200); //300
       while(tv->next()){
         ros::spinOnce();
         rq.sleep();
