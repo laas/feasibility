@@ -84,7 +84,6 @@ TrajectoryVisualizer(double x, double y, double t)
   com_offset_x_ = x;
   com_offset_y_ = y;
   com_offset_t_ = t;
-  ros::Rate r(10);
   
   KDL::Tree tree("/base_link");
   urdf::Model my_model;
@@ -93,13 +92,11 @@ TrajectoryVisualizer(double x, double y, double t)
   {
     ROS_ERROR("Failed to construct kdl tree");
   }
-  //if (publish_configurations)
-    this->setPlanarWorldBaseTransform(x,y,0);
   
   this->rsp_ = new robot_state_publisher::RobotStatePublisher(tree);
   this->reset();
   //  if (publish_configurations)
-    this->setPlanarWorldBaseTransform(x,y,0);
+	this->setPlanarWorldBaseTransform(x,y,t);
   
   trajectory_pub_ = nh.advertise<trajectory_msgs::JointTrajectory>("/planner/trajectory",2);
   seq_id_ = 0;
@@ -192,41 +189,6 @@ void TrajectoryVisualizer::setUpperBodyJointsDefault( std::map<std::string, doub
   
   q["CHEST_JOINT0"] = 0.0;
   q["CHEST_JOINT1"] = 0.0;
-  /*
-    q["RARM_JOINT0"] = 0.0;
-    q["RARM_JOINT1"] = -0.1;
-    q["RARM_JOINT2"] = 0.0;
-    q["RARM_JOINT3"] = -0.8;
-    q["RARM_JOINT4"] = 0.0;
-    q["RARM_JOINT5"] = -0.2;
-    q["RARM_JOINT6"] = 0.0;
-    
-    q["LARM_JOINT0"] = 0.0;
-    q["LARM_JOINT1"] = -0.1;
-    q["LARM_JOINT2"] = 0.0;
-    q["LARM_JOINT3"] = -0.8;
-    q["LARM_JOINT4"] = 0.0;
-    q["LARM_JOINT5"] = -0.2;
-    q["LARM_JOINT6"] = 0.0;
-    
-    q["RHAND_JOINT0"] = 0.0;
-    q["RHAND_JOINT1"] = 0.0;
-    q["RHAND_JOINT2"] = 0.0;
-    q["RHAND_JOINT3"] = 0.0;
-    q["RHAND_JOINT4"] = 0.0;
-    
-    q["LHAND_JOINT0"] = 0.0;
-    q["LHAND_JOINT1"] = 0.0;
-    q["LHAND_JOINT2"] = 0.0;
-    q["LHAND_JOINT3"] = 0.0;
-    q["LHAND_JOINT4"] = 0.0;
-
-    q["HEAD_JOINT0"] = 0.0;
-    q["HEAD_JOINT1"] = 0.0;
-    
-    q["CHEST_JOINT0"] = 0.0;
-    q["CHEST_JOINT1"] = 0.0;
-  */
 }
 
 void TrajectoryVisualizer::
@@ -305,7 +267,9 @@ setPlanarWorldBaseTransform(
     double x, double y, double yaw)
 {
   //use constant offset of CoM to origin of robot
+
   setTranslationTransform("/world_frame", "/base_link", x, y-0.1, 0.650, 0, 0, yaw);
+  //setTranslationTransform("/base_link", "/world_frame", x, y-0.1, 0.650, 0, 0, yaw);
 }
 
 // deprecated transformation functions
@@ -315,13 +279,25 @@ setTranslationTransform(
     const char* from, const char* to, double x, double y, double z, 
     double roll, double pitch, double yaw)
 {
-  tf::Transform transform;
-  transform.setOrigin( tf::Vector3(x,y,z) ); //in frame base_link
-  tf::Quaternion com_rot;
-  com_rot.setRPY(roll, pitch, yaw);
-  transform.setRotation(com_rot);
+  tf::Transform tf_trans;
+  double tmp_x =  cos(-yaw)*x + sin(-yaw)*y;
+  double tmp_y = -sin(-yaw)*x + cos(-yaw)*y;
+  tf_trans.setOrigin( tf::Vector3(tmp_x, tmp_y, z) ); //in frame base_link
+  tf::Quaternion rot;
+  rot.setRPY(roll, pitch, yaw);
+  tf_trans.setRotation( rot );
+
+  //tf::Transform tf_rot;
+  //tf_rot.setOrigin( tf::Vector3(0,0,0) ); //in frame base_link
+  //tf::Quaternion com_rot;
+  //com_rot.setRPY(roll, pitch, yaw);
+  //tf_rot.setRotation(com_rot);
+
+  //tf::Transform transform;
+  //transform.setBasis( tf_rot.getBasis().transpose() );
+  //transform.setOrigin( btVector3(0,0,0) - tf_rot.getBasis().transpose()*tf_trans.getOrigin() );
   
-  br_.sendTransform(tf::StampedTransform(transform, ros::Time::now(), from, to));
+  br_.sendTransform(tf::StampedTransform(tf_trans, ros::Time::now(), from, to));
 }
 
 void 

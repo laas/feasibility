@@ -17,6 +17,7 @@ struct MotionPlannerAStar: public MotionPlanner{
   std::vector<std::vector<double> > fsi;
 
   double sf_x, sf_y, sf_t;
+  double init_sf_x, init_sf_y, init_sf_t;
   char sf_f;
   uint current_step_index_;
   TrajectoryVisualizer *tv;
@@ -65,8 +66,12 @@ struct MotionPlannerAStar: public MotionPlanner{
       this->start.g = start;
       this->start.rel_x_parent = 0;
       this->start.rel_y_parent = 0;
-      this->start.rel_yaw_parent = start.getYawRadian();
+      this->start.rel_yaw_parent = 0;//start.getYawRadian();
       this->start.L_or_R = 'L';
+      init_sf_x = this->start.g.x;
+      init_sf_y = this->start.g.y;
+      init_sf_t = this->start.g.getYawRadian();
+      //ROS_INFO("%f %f %f %f %f %f", this->start.g.x, this->start.g.y, this->start.g.getYawRadian(), start.x, start.y, start.getYawRadian());
       tv = new TrajectoryVisualizer(start.x, start.y, start.getYawRadian()); //visualize q with CoM offset
     }
   }
@@ -135,6 +140,11 @@ struct MotionPlannerAStar: public MotionPlanner{
     if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
       {
         ContactTransition *node = astarsearch->GetSolutionStart();
+        //double offset_t = node->g.getYawRadian();
+				//node = astarsearch->GetSolutionNext();
+				//std::vector<double> tmp_fsi = 
+					//vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
+				//fs_vector.push_back(tmp_fsi);
         for( ;; )
           {
             node = astarsearch->GetSolutionNext();
@@ -258,12 +268,12 @@ struct MotionPlannerAStar: public MotionPlanner{
     publish_footstep_vector();
     MotionGenerator *mg = new MotionGenerator(this->environment); //generate q
     std::vector<double> q = 
-      mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_);
+      mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
     if(q.size()>0){
       ROS_INFO("configuration vector: %d", q.size());
       //Replay trajectory
       tv->init(q);
-      ros::Rate rq(300);
+      ros::Rate rq(80); //300
       while(tv->next()){
         ros::spinOnce();
         rq.sleep();

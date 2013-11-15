@@ -703,8 +703,8 @@ int MotionGenerator::checkCollisions(vector<vector<double> >& trajTimedRadQ, Ste
 }
 
 std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
-                                                                           std::vector<step> &vectStep, int lastStepSmoothed, 
-                                                                           double sf_x, double sf_y, double sf_t, char sf_f){
+													 std::vector<step> &vectStep, int lastStepSmoothed, 
+													 double sf_x, double sf_y, double sf_t, char sf_f){
 
   //###############################################################################
   //###############################################################################

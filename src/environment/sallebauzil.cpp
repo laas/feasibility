@@ -41,15 +41,15 @@ void EnvironmentSalleBauzil::setObjects(){
 }
 
 void EnvironmentSalleBauzil::setGoalObject(){
-	goal = new ros::SphereMarker(2.5, 1.5, 0.2, 0.0);
-	goal->make_interactive(0.3);
+	goal = new ros::SphereMarker(0.0, 2.0, 0.2, 0.0);
+	//goal->make_interactive(0.3);
 	goal->addText("<GOAL>");
 	goal->set_constant_offset(0.8, 0);
 	//goal->set_constant_rotation_radian(0,0,M_PI);
-	goal->subscribeToEvart("/evart/red_airbus_screw/PO");
+	//goal->subscribeToEvart("/evart/red_airbus_screw/PO");
 }
 void EnvironmentSalleBauzil::setStartObject(){
 	start = new ros::SphereMarker(0.0, 0.0, 0.2, 0.0);
-	//start->setRPYRadian(0,0,M_PI/2);
+	start->setRPYRadian(0,0,M_PI/6);
 	start->addText("<START>");
 }
