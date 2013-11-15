@@ -26,9 +26,9 @@ void EnvironmentSalleBauzil::setObjects(){
   //c = new ros::TriangleObjectFloor(1.5, 0.5, "data/chairLabo.tris", std::string("fastReplanningData"));
   c = new ros::PrimitiveMarkerBox(-1.5, 0.5, 0.72, 0.5, 0.98);
 	c->addText("FACOM<<(o,,,o)>>");
-	c->make_interactive(0.7);
+	//c->make_interactive(0.7);
 	//c->set_constant_rotation_radian(0,0,M_PI);
-	//c->subscribeToEvart("/evart/facom_box/PO");
+	c->subscribeToEvart("/evart/facom_box/PO");
 	c->set_color(ros::OBSTACLE);
 	objects.push_back(c);
 
@@ -41,12 +41,11 @@ void EnvironmentSalleBauzil::setObjects(){
 }
 
 void EnvironmentSalleBauzil::setGoalObject(){
-	goal = new ros::SphereMarker(0.0, 2.0, 0.2, 0.0);
-	//goal->make_interactive(0.3);
+	goal = new ros::SphereMarker(-2.0, 2.0, 0.2, 0.0);
+	goal->make_interactive(0.3);
 	goal->addText("<GOAL>");
-	goal->set_constant_offset(0.8, 0);
-	//goal->set_constant_rotation_radian(0,0,M_PI);
-	goal->subscribeToEvart("/evart/red_airbus_screw/PO");
+	goal->set_constant_offset(0.9, 0);
+	//goal->subscribeToEvart("/evart/red_airbus_screw/PO");
 }
 void EnvironmentSalleBauzil::setStartObject(){
 	start = new ros::SphereMarker(0, 0, 0.2, 0.0);
