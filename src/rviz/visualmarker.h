@@ -160,6 +160,7 @@ namespace ros{
 
 		virtual double getTextZ();
 	};
+
 	struct ColladaObject: public RVIZVisualMarker{
 		std::string filename;
 		ColladaObject(const char *cfilename);

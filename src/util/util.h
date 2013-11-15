@@ -1,6 +1,7 @@
 #pragma once
 #include <ostream>
 #include <vector>
+#include <boost/thread.hpp>
 #include "util_timer.h"
 #include "util_eigen.h"
 
@@ -19,6 +20,7 @@
 //##########################################################################
 // stable utility functions (misc)
 //##########################################################################
+static boost::mutex util_mutex;
 
 FILE *fopen_s(const char *path, const char *mode);
 void std_seed();

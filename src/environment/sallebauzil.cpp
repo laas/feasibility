@@ -27,31 +27,29 @@ void EnvironmentSalleBauzil::setObjects(){
   c = new ros::PrimitiveMarkerBox(1.5, 0.5, 0.72, 0.5, 0.98);
 	c->addText("FACOM<<(o,,,o)>>");
 	c->set_constant_offset(0, 0);
-	c->set_constant_rotation_radian(0,0,M_PI);
+	//c->set_constant_rotation_radian(0,0,M_PI);
 	c->subscribeToEvart("/evart/facom_box/PO");
 	c->set_color(ros::OBSTACLE);
-	//c->setRPYRadian(0,0,M_PI);
 	objects.push_back(c);
 
   c = new ros::PrimitiveMarkerBox(2.75, -1.5, 0.6, 0.8, 1.1);
 	c->addText("AIRPLANE<@GOAL>");
 	//c->set_constant_rotation_radian(0,0,M_PI);
-	//c->subscribeToEvart("/evart/red_airbus_screw/PO");
+	c->subscribeToEvart("/evart/red_airbus_screw/PO");
 	c->set_color(ros::OBSTACLE);
 	objects.push_back(c);
 }
 
 void EnvironmentSalleBauzil::setGoalObject(){
 	goal = new ros::SphereMarker(2.5, 1.5, 0.2, 0.0);
-	//goal->setRPYRadian(0,0,M_PI);
-	//goal->make_interactive(0.3);
+	goal->make_interactive(0.3);
 	goal->addText("<GOAL>");
 	goal->set_constant_offset(0.8, 0);
-	goal->set_constant_rotation_radian(0,0,M_PI);
+	//goal->set_constant_rotation_radian(0,0,M_PI);
 	goal->subscribeToEvart("/evart/red_airbus_screw/PO");
 }
 void EnvironmentSalleBauzil::setStartObject(){
 	start = new ros::SphereMarker(0.0, 0.0, 0.2, 0.0);
-	//start->setRPYRadian(0,0,M_PI);
+	//start->setRPYRadian(0,0,M_PI/2);
 	start->addText("<START>");
 }

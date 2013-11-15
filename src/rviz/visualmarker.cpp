@@ -1,5 +1,4 @@
 #include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
 
 #define DEBUG(x)
 #define THREAD_DEBUG(x) 
@@ -14,6 +13,7 @@ namespace ros{
 	Color::Color(double r, double g, double b, double a){
 		this->r = r;this->g=g;this->b=b;this->a=a;
 	}
+
 	RVIZVisualMarker::RVIZVisualMarker(){
 		id=global_id;
 		textHover = false;
@@ -22,7 +22,11 @@ namespace ros{
 			rviz = new RVIZInterface();
 		}
 		changedPosition = false;
+		const_offset_x = 0;
+		const_offset_y = 0;
+		const_offset_yaw = 0;
 	}
+
 	void RVIZVisualMarker::setScale(double sx, double sy, double sz){
 		this->g.sx = sx;
 		this->g.sy = sy;
@@ -374,6 +378,7 @@ namespace ros{
 		this->const_offset_yaw = yaw;
 	}
 	void RVIZVisualMarker::Callback_updatePosition( const geometry_msgs::TransformStamped& tf){
+		boost::mutex::scoped_lock lock(util_mutex);
 		geometry_msgs::Transform t = tf.transform;
 		std::string name_id = tf.child_frame_id;
 
@@ -397,13 +402,20 @@ namespace ros{
 		g.setQuaternionZ(q.getZ());
 		g.setQuaternionW(q.getW());
 
+		DEBUG(
+			if( g.x > 10000 || g.y > 10000 ){
+				std::cout << "[" << tf.child_frame_id << "] " << g.x << " " << g.y << " " << yaw << std::endl;
+				std::cout << "[" << tf.child_frame_id << "] " << t.translation.x << " " << t.translation.y << " " << yaw << std::endl;
+			}
+		)
+
 		update_marker();
 		boost::this_thread::interruption_point();
 	}
 
 	void RVIZVisualMarker::thread_evart(){
 		assert(m_subscriber.getNumPublishers()==0);
-		ros::Rate r(20); //Hz
+		//ros::Rate r(1); //Hz
 		m_subscriber = rviz->n.subscribe(geometry_subscribe_topic.c_str(), 1000, &RVIZVisualMarker::Callback_updatePosition, this);
 		std::string name_id = boost::lexical_cast<std::string>(m_thread->get_id());
 		THREAD_DEBUG(ROS_INFO("thread %s subscribed to topic %s", name_id.c_str(), geometry_subscribe_topic.c_str()));

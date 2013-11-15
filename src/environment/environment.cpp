@@ -1,12 +1,11 @@
 #include <string>
 #include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
 #include "environment/environment.h"
 #include "util/util.h"
 
 Environment* Environment::singleton = NULL;
 uint Environment::Nobjects = 10;
-#define DEBUG(x) x
+#define DEBUG(x)
 Environment* Environment::get13HumanoidsReal(){
   return getInstance("13humanoidsReal");
 }
@@ -56,28 +55,33 @@ void Environment::reloadObjects(){
   thread_start();
 }
 void Environment::thread_publish(){
-  ros::Rate r(10); //Hz
+  ros::Rate r(20); //Hz
   while(1){
-    bool change = false;
-    std::vector<ros::RVIZVisualMarker*>::iterator obj;
-    for(obj = objects.begin();obj!=objects.end();obj++){
-      (*obj)->publish();
-      change |= (*obj)->isChanged();
-    }
-    for(obj = decorations.begin();obj!=decorations.end();obj++){
-      (*obj)->publish();
-    }
-    this->goal->publish();
-    this->start->publish();
-    change |= this->start->isChanged();
-    change |= this->goal->isChanged();
+		{
+			boost::mutex::scoped_lock lock(util_mutex);
+			DEBUG(std::cout << "[ENV] >>>>>>||" << std::flush;)
+			bool change = false;
+			std::vector<ros::RVIZVisualMarker*>::iterator obj;
+			for(obj = objects.begin();obj!=objects.end();obj++){
+				(*obj)->publish();
+				change |= (*obj)->isChanged();
+			}
+			for(obj = decorations.begin();obj!=decorations.end();obj++){
+				(*obj)->publish();
+			}
+			this->goal->publish();
+			this->start->publish();
+			change |= this->start->isChanged();
+			change |= this->goal->isChanged();
 
-    if(change && !changedEnv){
-      changedEnv = true;
-      ROS_INFO("Environment changed!");
-    }
+			if(change && !changedEnv){
+				changedEnv = true;
+				ROS_INFO("Environment changed!");
+			}
 
-    boost::this_thread::interruption_point();
+			DEBUG( std::cout << "<<<<<<" << std::endl; )
+			boost::this_thread::interruption_point();
+		}
     r.sleep();
   }
 }
@@ -91,7 +95,7 @@ void Environment::thread_stop(){
     this->m_thread->interrupt();
     std::string id = boost::lexical_cast<std::string>(this->m_thread->get_id());
     DEBUG(ROS_INFO("waiting for thread %s to terminate", id.c_str());)
-      this->m_thread->join();
+		this->m_thread->join();
     //this->m_thread.reset();
   }
 }

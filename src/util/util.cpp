@@ -17,6 +17,7 @@ using std::endl;
 using std::cout;
 using std::string;
 
+
 FILE *fopen_s(const char *path, const char *mode){
 	errno=0;
 	FILE *tmp = fopen(path,mode);

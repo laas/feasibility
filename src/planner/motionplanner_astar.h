@@ -65,7 +65,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       this->start.g = start;
       this->start.rel_x_parent = 0;
       this->start.rel_y_parent = 0;
-      this->start.rel_yaw_parent = 0;
+      this->start.rel_yaw_parent = start.getYawRadian();
       this->start.L_or_R = 'L';
       tv = new TrajectoryVisualizer(start.x, start.y, start.getYawRadian()); //visualize q with CoM offset
     }
@@ -222,7 +222,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       this->start.g.x=x;
       this->start.g.y=y;
       this->start.g.setRPYRadian(0,0,t);
-      this->start.L_or_R = f=='R'?'L':'R'; //starting pos is omitted
+      this->start.L_or_R = (f=='R'?'L':'R'); //starting pos is omitted
       ros::ColorFootMarker m(x,y,t,"blue");
       m.publish();
     }
