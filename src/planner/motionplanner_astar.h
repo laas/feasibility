@@ -11,16 +11,18 @@ const char *colorLeft = "red";
 const char *colorRight = "green";
 struct MotionPlannerAStar: public MotionPlanner{
 
-  ContactTransition goal;
-  ContactTransition start;
-  AStarSearch<ContactTransition> *astarsearch;
-  std::vector<std::vector<double> > fsi;
+  static ContactTransition goal;
+  static ContactTransition start;
+  static AStarSearch<ContactTransition> *astarsearch;
+  static std::vector<std::vector<double> > fsi;
+	static boost::mutex footstep_mutex;
+	static boost::mutex current_step_mutex;
 
-  double sf_x, sf_y, sf_t;
-  double init_sf_x, init_sf_y, init_sf_t;
-  char sf_f;
-  uint current_step_index_;
-  TrajectoryVisualizer *tv;
+  static double sf_x, sf_y, sf_t;
+  static double init_sf_x, init_sf_y, init_sf_t;
+  static char sf_f;
+  static uint current_step_index_;
+  static TrajectoryVisualizer *tv;
 
   //to publish footsteps on ros topic
   ros::NodeHandle n;
@@ -83,7 +85,10 @@ struct MotionPlannerAStar: public MotionPlanner{
   }
 
   void start_planner(){
-    astarsearch->SetStartAndGoalStates( start, goal );
+		{
+			boost::mutex::scoped_lock lock(current_step_mutex);
+			astarsearch->SetStartAndGoalStates( start, goal );
+		}
     ContactTransition::feasibilityChecks = 0;
     unsigned int SearchSteps = 0;
     uint SearchState;
@@ -92,7 +97,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       {
         SearchState = astarsearch->SearchStep();
         SearchSteps++;
-        if(SearchSteps > 100){
+        if(SearchSteps > 10000){
           astarsearch->CancelSearch();
           break;
         }
@@ -169,10 +174,12 @@ struct MotionPlannerAStar: public MotionPlanner{
   }
 
   void update_planner(){
-    uint step_horizon = 3;
+		boost::mutex::scoped_lock lock(footstep_mutex);
+		boost::mutex::scoped_lock lock2(current_step_mutex);
+    uint step_horizon = 4;
 
     if(!environment_changed && success()){
-			ROS_INFO("Unchanged environment -> reusing old trajectory");
+			//ROS_INFO("Unchanged environment -> reusing old trajectory");
 			return;
 		}
 
@@ -196,11 +203,14 @@ struct MotionPlannerAStar: public MotionPlanner{
     fsi.erase(min(fsi.begin() + current_step_index_ + step_horizon, fsi.end()), fsi.end());
     fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
 
+
   }
   void steps_to_results(){
     results.step_vector = &fsi;
   }
   void publish_footstep_vector(){
+		boost::mutex::scoped_lock lock(footstep_mutex);
+		boost::mutex::scoped_lock lock2(current_step_mutex);
     if(current_step_index_ >= fsi.size()){
       ROS_INFO("Finished trajectory");
       return;
@@ -261,14 +271,19 @@ struct MotionPlannerAStar: public MotionPlanner{
 
   }
   bool publish_onestep_next(){
-    if(current_step_index_ >= fsi.size()){
-      return false;
-    }
 
-    publish_footstep_vector();
-    MotionGenerator *mg = new MotionGenerator(this->environment); //generate q
-    std::vector<double> q = 
-      mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
+		MotionGenerator *mg;
+    std::vector<double> q;
+		{
+			if(current_step_index_ >= fsi.size()){
+				return false;
+			}
+			clean_publish();
+			publish_footstep_vector();
+			boost::mutex::scoped_lock lock(footstep_mutex);
+			mg = new MotionGenerator(this->environment); //generate q
+			q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
+		}
 
     if(q.size()>0){
       ROS_INFO("configuration vector: %d", q.size());
@@ -281,7 +296,11 @@ struct MotionPlannerAStar: public MotionPlanner{
       }
     }
 
-    current_step_index_++;
+		{
+			boost::mutex::scoped_lock lock(current_step_mutex);
+			current_step_index_++;
+			ROS_INFO("step_index: %d -> %d", current_step_index_-1, current_step_index_);
+		}
     return true;
   }
 
@@ -334,3 +353,14 @@ struct MotionPlannerAStar: public MotionPlanner{
     ContactTransition::objects.clear();
   }
 };
+ContactTransition MotionPlannerAStar::goal;
+ContactTransition MotionPlannerAStar::start;
+AStarSearch<ContactTransition> *MotionPlannerAStar::astarsearch;
+std::vector<std::vector<double> > MotionPlannerAStar::fsi;
+boost::mutex MotionPlannerAStar::footstep_mutex;
+boost::mutex MotionPlannerAStar::current_step_mutex;
+uint MotionPlannerAStar::current_step_index_;
+TrajectoryVisualizer *MotionPlannerAStar::tv;
+double MotionPlannerAStar::sf_x, MotionPlannerAStar::sf_y, MotionPlannerAStar::sf_t;
+double MotionPlannerAStar::init_sf_x, MotionPlannerAStar::init_sf_y, MotionPlannerAStar::init_sf_t;
+char MotionPlannerAStar::sf_f;
