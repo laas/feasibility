@@ -269,6 +269,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     MotionGenerator *mg = new MotionGenerator(this->environment); //generate q
     std::vector<double> q = 
       mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
+
     if(q.size()>0){
       ROS_INFO("configuration vector: %d", q.size());
       //Replay trajectory
