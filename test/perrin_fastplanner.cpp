@@ -8,7 +8,6 @@
 
 #include "rviz/visualmarker.h"
 #include "util/util.h"
-#include "perrin_fastplanner.h"
 #include "planner/constraints_checker_swept_volumer.h"
 #include "planner/constraints_checker_ann.h"
 #include "planner/constraints_checker.h"
