@@ -30,6 +30,7 @@
 #include "util/util.h"
 #include "rviz/rviz_interface.h"
 
+
 struct FCLInterface;
 
 namespace ros{
@@ -120,11 +121,20 @@ namespace ros{
 		Geometry g_old;
 		double const_offset_x, const_offset_y; //additional offset for evart simulation
 		double const_offset_yaw;
+
+                bool evart_freeze_;
+                unsigned int evart_it_before_freezing_;
+                unsigned int evart_it_current_;
+
+                double csf_in_chest_yaw_;
+
 	public:
 		Geometry g;
 		void setScale(double sx, double sy, double sz);
 		void set_constant_offset( double x, double y);
 		void set_constant_rotation_radian( double r, double p, double yaw);
+                void set_csf_in_chest_yaw(double csf_yaw);
+
 		void setXYZ(double x, double y, double z);
 		void setXYT(double x, double y, double yaw_rad);
 		void setRPYRadian(double roll, double pitch, double yaw);
@@ -139,8 +149,8 @@ namespace ros{
 		void set_color(double r, double g, double b, double a=1.0);
 		Color get_color();
 		void addText( std::string s );
-		void subscribeToEvart(std::string &topic);
-		void subscribeToEvart(const char *c);
+		void subscribeToEvart(std::string &topic, bool freeze=false, unsigned int it_before_freezing=0);
+		void subscribeToEvart(const char *c, bool freeze=false, unsigned int it_before_freezing=0);
 		void drawLine(double x_in, double y_in);
 
 		void reset();
