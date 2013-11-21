@@ -55,19 +55,19 @@ namespace ros{
 
 		//tried to stay as close as possible to the implementation in fast-replanning from Perrin,2012
 		PQP_REAL R1[3][3], R2[3][3], T1[3], T2[3];
-		double t = g.getYawRadian();
-		double tr = rhs.g.getYawRadian();
+		double t = g_.getYawRadian();
+		double tr = rhs.g_.getYawRadian();
 
 		MRotZ(R1, t);
 		MRotZ(R2, tr);
 
-		T1[0] = g.x;
-		T1[1] = g.y;
-		T1[2] = g.z;
+		T1[0] = g_.x_;
+		T1[1] = g_.y_;
+		T1[2] = g_.z_;
 
-		T2[0] = rhs.g.x;
-		T2[1] = rhs.g.y;
-		T2[2] = rhs.g.z;
+		T2[0] = rhs.g_.x_;
+		T2[1] = rhs.g_.y_;
+		T2[2] = rhs.g_.z_;
 
 		PQP_CollideResult cres;
 		//ROS_INFO("%d <-> %d", this->pqp_model->num_tris, rhs.pqp_model->num_tris);
@@ -81,8 +81,8 @@ namespace ros{
 	double TriangleObject::fast_distance_to(TriangleObject &rhs){
 		
 #ifdef FCL_COLLISION_CHECKING
-		double t = g.getYawRadian();
-		double tr = rhs.g.getYawRadian();
+		double t = g_.getYawRadian();
+		double tr = rhs.g_.getYawRadian();
 		fcl::Matrix3f r1 (cos(t),-sin(t),0,
 				  sin(t),cos(t) ,0,
 				  0     ,0      ,1);
@@ -90,8 +90,8 @@ namespace ros{
 				  sin(tr),cos(tr) ,0,
 				  0     ,0      ,1);
 
-		fcl::Vec3f d1(g.x,g.y,g.z);
-		fcl::Vec3f d2(rhs.g.x,rhs.g.y,rhs.g.z);
+		fcl::Vec3f d1(g_.x_,g_.y_,g_.z_);
+		fcl::Vec3f d2(rhs.g_.x_,rhs.g_.y_,rhs.g_.z_);
 
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);
@@ -114,8 +114,8 @@ namespace ros{
 		//rotation z-axis (as visualized in rviz)
 		
 #ifdef FCL_COLLISION_CHECKING
-		double t = g.getYawRadian();
-		double tr = rhs.g.getYawRadian();
+		double t = g_.getYawRadian();
+		double tr = rhs.g_.getYawRadian();
 		fcl::Matrix3f r1 (cos(t),-sin(t),0,
 				  sin(t),cos(t) ,0,
 				  0     ,0      ,1);
@@ -123,8 +123,8 @@ namespace ros{
 				  sin(tr),cos(tr) ,0,
 				  0     ,0      ,1);
 
-		fcl::Vec3f d1(g.x,g.y,g.z);
-		fcl::Vec3f d2(rhs.g.x,rhs.g.y,rhs.g.z);
+		fcl::Vec3f d1(g_.x_,g_.y_,g_.z_);
+		fcl::Vec3f d2(rhs.g_.x_,rhs.g_.y_,rhs.g_.z_);
 
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);
@@ -225,10 +225,10 @@ namespace ros{
 
 		Color cc = get_color();
 		std_msgs::ColorRGBA c;
-		c.r = cc.r;
-		c.g = cc.g;
-		c.b = cc.b;
-		c.a = cc.a;
+		c.r = cc.r_;
+		c.g = cc.g_;
+		c.b = cc.b_;
+		c.a = cc.a_;
 
 		for (int i = 0; i < 3*ntris; i+=3){
 			geometry_msgs::Point p;

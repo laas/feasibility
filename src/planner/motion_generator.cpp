@@ -37,10 +37,10 @@ MotionGenerator(Environment *environment)
       PQPobject PQPobj;
       ros::TriangleObject *tri = dynamic_cast<ros::TriangleObject*>(*it);
       PQPobj.model = (tri)->get_pqp_ptr();
-      PQPobj.T[0] = (tri)->g.x;
-      PQPobj.T[1] = (tri)->g.y;
-      PQPobj.T[2] = (tri)->g.z;
-      MRotZ(PQPobj.R, (tri)->g.getYawRadian());
+      PQPobj.T[0] = (tri)->g_.x_;
+      PQPobj.T[1] = (tri)->g_.y_;
+      PQPobj.T[2] = (tri)->g_.z_;
+      MRotZ(PQPobj.R, (tri)->g_.getYawRadian());
       mp_Obstacles.push_back(PQPobj);
     }
   nbObs = mp_Obstacles.size();

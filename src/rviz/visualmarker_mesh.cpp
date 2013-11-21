@@ -4,16 +4,16 @@
 namespace ros{
 
 	BlenderMeshTriangleObject::BlenderMeshTriangleObject(const char *cfilename, const char *trisname, double x, double y, double tz): TrisTriangleObject(){
-		filename = std::string(cfilename);
+		filename_ = std::string(cfilename);
 
 		tris_file_name = get_tris_str(trisname);
 
-		this->g.x = x;
-		this->g.y = y;
+		this->g_.x_ = x;
+		this->g_.y_ = y;
 
-		this->g.sx = 1.0;
-		this->g.sy = 1.0;
-		this->g.sz = 1.0;
+		this->g_.sx_ = 1.0;
+		this->g_.sy_ = 1.0;
+		this->g_.sz_ = 1.0;
 
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;
@@ -21,8 +21,8 @@ namespace ros{
 
 		set_color(0,0,0,0);
 		init_marker();
-		marker.mesh_resource = filename;
-		marker.mesh_use_embedded_materials=true;
+		marker_.mesh_resource = filename_;
+		marker_.mesh_use_embedded_materials=true;
 	}
 	uint32_t BlenderMeshTriangleObject::get_shape(){
 		return visualization_msgs::Marker::MESH_RESOURCE;

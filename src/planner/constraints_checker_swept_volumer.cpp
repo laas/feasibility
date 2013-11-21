@@ -56,9 +56,9 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 	std::vector<ros::RVIZVisualMarker*>::iterator oit;
 	objects_.clear();
 	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
-		double x = (*oit)->g.x;
-		double y = (*oit)->g.y;
-		double yaw = (*oit)->g.getYawRadian();
+		double x = (*oit)->g_.x_;
+		double y = (*oit)->g_.y_;
+		double yaw = (*oit)->g_.getYawRadian();
 
 		//translate object, so that origin and sf origin conincide
 		double tx = x - sf_x;
@@ -92,12 +92,12 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 
 			ros::RVIZVisualMarker *t = *oit;
 			ros::TriangleObject *o = new ros::SweptVolumeObject(); //ligthweight object, such that we can only copy pointer
-			o->g = t->g;
+			o->g_ = t->g_;
 			//o->set_bvh_ptr( t->get_bvh_ptr() );
 			o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
 
-			o->g.x = rx;
-			o->g.y=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
+			o->g_.x_ = rx;
+			o->g_.y_=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
 			objects_.push_back(o);
 		}
 	}
@@ -142,9 +142,9 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 				rel_file_path += file.c_str();
 
 				ros::Geometry g;
-				g.x = v.at(0);
-				g.y = v.at(1);
-				g.z = 0.0;
+				g.x_ = v.at(0);
+				g.y_ = v.at(1);
+				g.z_ = 0.0;
 				g.setRPYRadian(0,0, v.at(2) );
 				ros::SweptVolumeObject* sv = new ros::SweptVolumeObject(rel_file_path.c_str(), g);
 

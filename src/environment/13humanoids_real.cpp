@@ -19,7 +19,7 @@ void Environment13HumanoidsReal::createApproxObj(const char* name, double x, dou
 	objects.push_back(c);
 
 	d = new ros::ColladaObject(name);
-	d->setXYZ( c->g.x, c->g.y, c->g.z);
+	d->setXYZ( c->g_.x_, c->g_.y_, c->g_.z_);
 	d->setScale( 0.4,0.4,0.4);
 	d->setRPYRadian( M_PI/2, 0, yaw);
 	decorations.push_back(d);

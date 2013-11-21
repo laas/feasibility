@@ -2,12 +2,12 @@
 #include "rviz/visualmarker.h"
 namespace ros{
 	FootMarker::FootMarker(double x, double y, double yaw): RVIZVisualMarker(){
-		this->g.x = x;
-		this->g.y = y;
-		this->g.setRPYRadian(0,0,yaw);
-		this->g.sx=0.24;
-		this->g.sy=0.14;
-		this->g.sz=0.03;
+		this->g_.x_ = x;
+		this->g_.y_ = y;
+		this->g_.setRPYRadian(0,0,yaw);
+		this->g_.sx_=0.24;
+		this->g_.sy_=0.14;
+		this->g_.sz_=0.03;
 		set_color(0.9,0.9,0.9,0.8);
 		init_marker();
 	}
@@ -18,12 +18,12 @@ namespace ros{
 		return visualization_msgs::Marker::CUBE;
 	}
 	void FootMarker::publish(){
-		marker.header.frame_id = FRAME_NAME;
-		marker.lifetime = ros::Duration(ROS_DURATION);
-		rviz->publish(marker, true);
+		marker_.header.frame_id = FRAME_NAME;
+		marker_.lifetime = ros::Duration(ROS_DURATION);
+		rviz_->publish(marker_, true);
 		if(textHover){
 			visualization_msgs::Marker cmarker = createTextMarker();
-			rviz->publish(cmarker);
+			rviz_->publish(cmarker);
 		}
 	}
 
@@ -56,10 +56,10 @@ namespace ros{
 		int i;
 		for (i=0; registerMap[i].str != NULL; i++){
 			if(strcmp(color, registerMap[i].str)==0){
-				c.r=registerMap[i].r;
-				c.g=registerMap[i].g;
-				c.b=registerMap[i].b;
-				c.a=registerMap[i].a;
+				c_.r_=registerMap[i].r;
+				c_.g_=registerMap[i].g;
+				c_.b_=registerMap[i].b;
+				c_.a_=registerMap[i].a;
 			}
 		}
 		init_marker();

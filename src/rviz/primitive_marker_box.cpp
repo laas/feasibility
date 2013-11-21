@@ -2,13 +2,13 @@
 
 namespace ros{
 PrimitiveMarkerBox::PrimitiveMarkerBox(double x, double y, double w, double l, double h): PrimitiveMarkerTriangle() {
-  this->g.x = x;
-  this->g.y = y;
-  this->g.z = 0.0;
-  this->g.setRPYRadian(0,0,0);
-  this->g.sx=w;
-  this->g.sy=l;
-  this->g.sz=h;
+  this->g_.x_ = x;
+  this->g_.y_ = y;
+  this->g_.z_ = 0.0;
+  this->g_.setRPYRadian(0,0,0);
+  this->g_.sx_=w;
+  this->g_.sy_=l;
+  this->g_.sz_=h;
 
   initPrimitiveMarker(this);
 }
@@ -22,13 +22,13 @@ std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > PrimitiveMarker
   std::vector<fcl::Triangle> triangles;
 
   //ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
-  double x = this->g.x;
-  double y = this->g.y;
-  double z = this->g.z;
-  double sx = this->g.sx;
-  double sy = this->g.sy;
-  double sz = this->g.sz;
-  double yaw = this->g.getYawRadian();
+  double x = this->g_.x_;
+  double y = this->g_.y_;
+  double z = this->g_.z_;
+  double sx = this->g_.sx_;
+  double sy = this->g_.sy_;
+  double sz = this->g_.sz_;
+  double yaw = this->g_.getYawRadian();
 
   //bottom
   uint i = 0;

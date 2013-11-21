@@ -35,8 +35,8 @@ ConstraintsCheckerNaive::prepareObjectPosition(std::vector<ros::RVIZVisualMarker
 	std::vector<ros::RVIZVisualMarker*>::const_iterator oit;
 	uint c=0;
 	for(  oit = objects.begin(); oit != objects.end(); ++oit ){
-		double obj_x = (*oit)->g.x;
-		double obj_y = (*oit)->g.y;
+		double obj_x = (*oit)->g_.x_;
+		double obj_y = (*oit)->g_.y_;
 
 		//translate object, so that origin and sf origin conincide
 		double tx = obj_x - sf_x;
@@ -55,8 +55,8 @@ ConstraintsCheckerNaive::prepareObjectPosition(std::vector<ros::RVIZVisualMarker
 		//X,Y,R,H
 		d.at(0)=rx;
 		d.at(1)=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-		d.at(2)=(*oit)->g.getRadius();
-		d.at(3)=(*oit)->g.getHeight();
+		d.at(2)=(*oit)->g_.getRadius();
+		d.at(3)=(*oit)->g_.getHeight();
 
 		double dist = sqrtf(rx*rx+ry*ry);
 		DEBUGOBJ(ROS_INFO("object (%f,%f) -> (%f,%f) (angle:%f)", obj_x, obj_y, d.at(0), d.at(1), toDeg(sf_yaw));)

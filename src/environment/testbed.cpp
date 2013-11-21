@@ -12,8 +12,8 @@ void EnvironmentFeasibilityTest::setDecorations(){
 //%../fastReplanningData/data/fullBodyApprox/fullbody_35_-11_29.tris
 
 	ros::Geometry robot_pos;
-	robot_pos.x = 0;
-	robot_pos.y = 0;
+	robot_pos.x_ = 0;
+	robot_pos.y_ = 0;
 
 	ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), robot_pos);
 	robot->set_color(0.6,0.0,0.6,0.3);

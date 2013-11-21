@@ -5,7 +5,8 @@
 
 namespace ros{
 	double Geometry::getYawRadian(){
-		tf::Quaternion q(this->rx, this->ry, this->rz, this->rw);
+		tf::Quaternion q(this->rx_, this->ry_, 
+                                 this->rz_, this->rw_);
 		double roll, pitch, yaw;
 
 #if ROS_VERSION_MINIMUM(1,8,0)
@@ -17,52 +18,52 @@ namespace ros{
 		return yaw;
 	}
 	double Geometry::getQuaternionX(){
-		return rx;
+		return rx_;
 	}
 	double Geometry::getQuaternionY(){
-		return ry;
+		return ry_;
 	}
 	double Geometry::getQuaternionZ(){
-		return rz;
+		return rz_;
 	}
 	double Geometry::getQuaternionW(){
-		return rw;
+		return rw_;
 	}
 	void Geometry::setQuaternionX(double r){
-		this->rx=r;
+		this->rx_=r;
 	}
 	void Geometry::setQuaternionY(double r){
-		this->ry=r;
+		this->ry_=r;
 	}
 	void Geometry::setQuaternionZ(double r){
-		this->rz=r;
+		this->rz_=r;
 	}
 	void Geometry::setQuaternionW(double r){
-		this->rw=r;
+		this->rw_=r;
 	}
 	void Geometry::setRPYRadian(double roll, double pitch, double yaw){
 		tf::Quaternion q;
 		q.setRPY(roll, pitch, yaw); //in radian
-		this->rx = q.getX();
-		this->ry = q.getY();
-		this->rz = q.getZ();
-		this->rw = q.getW();
+		this->rx_ = q.getX();
+		this->ry_ = q.getY();
+		this->rz_ = q.getZ();
+		this->rw_ = q.getW();
 	}
 	Geometry::Geometry(){
-		x=0;y=0;z=0;
-		rx=0;ry=0;rz=0;rw=1;
-		sx=1;sy=1;sz=1;
+		x_=0;y_=0;z_=0;
+		rx_=0;ry_=0;rz_=0;rw_=1;
+		sx_=1;sy_=1;sz_=1;
 	}
 	void Geometry::print(){
-		printf("X %f|Y %f|Z %f\n",x,y,z);
-		printf("rx %f|ry %f|rz %f|rw %f\n",rx,ry,rz,rw);
-		printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
+		printf("X %f|Y %f|Z %f\n",x_,y_,z_);
+		printf("rx %f|ry %f|rz %f|rw %f\n",rx_,ry_,rz_,rw_);
+		printf("SX %f|SY %f|SZ %f\n",sx_,sy_,sz_);
 		std::cout << std::endl;
 	}
 	double Geometry::getHeight(){
-		return this->height;
+		return this->height_;
 	}
 	double Geometry::getRadius(){
-		return this->radius;
+		return this->radius_;
 	}
 };

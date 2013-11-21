@@ -2,8 +2,8 @@
 
 #define DEBUG(x)
 namespace ros{
-RVIZInterface *RVIZVisualMarker::rviz = NULL;
-uint RVIZVisualMarker::global_id = 0;
+RVIZInterface *RVIZVisualMarker::rviz_ = NULL;
+uint RVIZVisualMarker::global_id_ = 0;
 
 RVIZInterface::RVIZInterface(){
   std::string topic_name = "visualization_marker";

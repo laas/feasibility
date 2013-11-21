@@ -11,7 +11,7 @@
 #define DEBUG(x)
 
 namespace ros{
-	uint TrisTriangleObject::mesh_counter=0;
+	uint TrisTriangleObject::mesh_counter_=0;
 	TrisTriangleObject::TrisTriangleObject(): TriangleObject(){
 	}
 	TrisTriangleObject::TrisTriangleObject(const char *c, Geometry &in): TriangleObject() {
@@ -27,10 +27,10 @@ namespace ros{
 		init_object(f, in, mirror_y);
 	}
 	TrisTriangleObject::TrisTriangleObject(const char *c): TriangleObject() {
-		init_object(std::string(c), this->g);
+		init_object(std::string(c), this->g_);
 	}
 	TrisTriangleObject::TrisTriangleObject(std::string f): TriangleObject() {
-		init_object(f, this->g);
+		init_object(f, this->g_);
 	}
 	void TrisTriangleObject::reloadBVH(){
 		this->bvh = NULL;
@@ -39,12 +39,12 @@ namespace ros{
 	}
 
 	void TrisTriangleObject::init_object( std::string f, Geometry &in, bool mirror_y){
-		this->g = in;
+		this->g_ = in;
 
 		double scale = 1.0;
-		this->g.sx = scale;
-		this->g.sy = scale;
-		this->g.sz = scale;
+		this->g_.sx_ = scale;
+		this->g_.sy_ = scale;
+		this->g_.sz_ = scale;
 		this->tris_file_name=f;
 
 		this->pqp_model = new PQP_Model;
@@ -54,7 +54,7 @@ namespace ros{
 		this->bvh = new fcl::BVHModel< BoundingVolume >();
 		this->tris2BVH(this->bvh, tris_file_name.c_str(), mirror_y);
 #endif
-		this->tris2marker( this->marker, tris_file_name.c_str(), mirror_y);
+		this->tris2marker( this->marker_, tris_file_name.c_str(), mirror_y);
 		set_color(ros::OBSTACLE);
 		init_marker();
 
@@ -185,15 +185,15 @@ namespace ros{
 
 	//Only load BVH structure for distance checking
 	SweptVolumeVisual::SweptVolumeVisual(std::string f, Geometry &in): TrisTriangleObject() {
-		this->g = in;
+		this->g_ = in;
 
 		double scale = 1.0;
-		this->g.sx = scale;
-		this->g.sy = scale;
-		this->g.sz = scale;
+		this->g_.sx_ = scale;
+		this->g_.sy_ = scale;
+		this->g_.sz_ = scale;
 		this->tris_file_name=f;
 
-		this->tris2marker( this->marker, tris_file_name.c_str() );
+		this->tris2marker( this->marker_, tris_file_name.c_str() );
 		set_color(ros::SWEPT_VOLUME);
 		init_marker();
 	}
@@ -201,12 +201,12 @@ namespace ros{
 		//NOTHING is initialized with intent! 
 	}
 	SweptVolumeObject::SweptVolumeObject(std::string f, Geometry &in): TrisTriangleObject() {
-		this->g = in;
+		this->g_ = in;
 
 		double scale = 1.0;
-		this->g.sx = scale;
-		this->g.sy = scale;
-		this->g.sz = scale;
+		this->g_.sx_ = scale;
+		this->g_.sy_ = scale;
+		this->g_.sz_ = scale;
 		this->tris_file_name=f;
 		//this->bvh = new fcl::BVHModel< BoundingVolume >();
 		//this->tris2BVH(this->bvh, tris_file_name.c_str() );
@@ -223,8 +223,8 @@ namespace ros{
     std::string object_file = get_tris_str(fname,package_name);
 
 		Geometry object_pos;
-		object_pos.x = x;
-		object_pos.y = y;
+		object_pos.x_ = x;
+		object_pos.y_ = y;
 
 		this->init_object(object_file, object_pos);
 	}
@@ -232,9 +232,9 @@ namespace ros{
 		std::string prefix = get_data_path();
 		std::string chair_file = get_chair_str();
 		Geometry chair_pos;
-		chair_pos.x = 0.49;
-		chair_pos.y = -0.1;
-		chair_pos.z = 0.0;
+		chair_pos.x_ = 0.49;
+		chair_pos.y_ = -0.1;
+		chair_pos.z_ = 0.0;
 		chair_pos.setRPYRadian(0,0,0);
 		this->init_object(chair_file, chair_pos);
 	}
@@ -242,8 +242,8 @@ namespace ros{
 		std::string prefix = get_data_path();
 		std::string robot_file = get_robot_str();
 		Geometry robot_pos;
-		robot_pos.x = -2;
-		robot_pos.y = 0;
+		robot_pos.x_ = -2;
+		robot_pos.y_ = 0;
 		robot_pos.setRPYRadian(0,0,0);
 		this->init_object(robot_file, robot_pos);
 	}

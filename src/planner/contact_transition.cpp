@@ -23,10 +23,10 @@ ContactTransition::ContactTransition( ros::Geometry &g){
 }
 double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	//heuristic = distance to goal (classical l2 norm)
-	double xg = nodeGoal.g.x;
-	double yg = nodeGoal.g.y;
-	double x = this->g.x;
-	double y = this->g.y;
+	double xg = nodeGoal.g.x_;
+	double yg = nodeGoal.g.y_;
+	double x = this->g.x_;
+	double y = this->g.y_;
 	//return norml1(x,xg,y,yg);
 	return norml2(x,xg,y,yg) + 0.02*this->rel_yaw*this->rel_yaw;
 }
@@ -38,10 +38,10 @@ void ContactTransition::cleanStatic(){
 	objects.clear();
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
-	double x = this->g.x;
-	double xg = nodeGoal.g.x;
-	double y = this->g.y;
-	double yg = nodeGoal.g.y;
+	double x = this->g.x_;
+	double xg = nodeGoal.g.x_;
+	double y = this->g.y_;
+	double yg = nodeGoal.g.y_;
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	return sqrtf( (x-xg)*(x-xg) + (y-yg)*(y-yg) ) < 0.22 && sqrtf( (t-tg)*(t-tg))<M_PI;
@@ -76,8 +76,8 @@ ros::Geometry ContactTransition::computeRelFFfromAbsFF(
 	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
 
 	ros::Geometry ff_rel;
-	ff_rel.x = ff_rel_x;
-	ff_rel.y = ff_rel_y;
+	ff_rel.x_ = ff_rel_x;
+	ff_rel.y_ = ff_rel_y;
 	ff_rel.setRPYRadian(0,0,ff_rel_yaw);
 
 	return ff_rel;
@@ -107,8 +107,8 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
 
 	ros::Geometry ff_abs;
-	ff_abs.x = ff_abs_x;
-	ff_abs.y = ff_abs_y;
+	ff_abs.x_ = ff_abs_x;
+	ff_abs.y_ = ff_abs_y;
 	ff_abs.setRPYRadian(0,0,ff_abs_yaw);
 
 	return ff_abs;
@@ -177,10 +177,10 @@ void ContactTransition::feasibilityVisualizer(){
 					double next_ff_rel_yaw = it->second.at(2);
 					ros::Geometry ng = this->computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, sf_foot);
 					if(sf_foot=='L'){
-						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "green");
+						ros::ColorFootMarker rp(ng.x_, ng.y_, ng.getYawRadian(), "green");
 						rp.publish();
 					}else{
-						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "red");
+						ros::ColorFootMarker rp(ng.x_, ng.y_, ng.getYawRadian(), "red");
 						rp.publish();
 					}
 				}
@@ -200,8 +200,8 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	//absolute means the position in the global world coordinate frame
 
 	//get absolute position of support foot (SF)
-	double sf_abs_x = parent->g.x;
-	double sf_abs_y = parent->g.y;
+	double sf_abs_x = parent->g.x_;
+	double sf_abs_y = parent->g.y_;
 	double sf_abs_yaw = parent->g.getYawRadian();
 
 	TIMER_DEBUG(timer->begin("prepare"));
@@ -297,11 +297,11 @@ double ContactTransition::GetCost( ContactTransition &successor ){
 	return successor.cost_so_far;
 }
 bool ContactTransition::IsSameState( ContactTransition &rhs ){
-	double xg = rhs.g.x;
-	double yg = rhs.g.y;
+	double xg = rhs.g.x_;
+	double yg = rhs.g.y_;
 	double yawg = rhs.g.getYawRadian();
-	double x = this->g.x;
-	double y = this->g.y;
+	double x = this->g.x_;
+	double y = this->g.y_;
 	double yaw = this->g.getYawRadian();
 	return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg) + (yaw-yawg)*(yaw-yawg))<0.01;
 }

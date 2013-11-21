@@ -3,32 +3,32 @@
 
 namespace ros{
 	Text::Text(double x, double y, double z, char *c): RVIZVisualMarker(){
-		this->g.x = x;
-		this->g.y = y;
-		this->g.z = z;
-		this->g.setRPYRadian(0,0,0);
-		this->g.sz=0.1;
+		this->g_.x_ = x;
+		this->g_.y_ = y;
+		this->g_.z_ = z;
+		this->g_.setRPYRadian(0,0,0);
+		this->g_.sz_=0.1;
 		set_color(ros::TEXT_COLOR);
 
 		init_marker();
-		marker.text = std::string(c);
-		text = marker.text;
+		marker_.text = std::string(c);
+		text_ = marker_.text;
 	}
 	std::string Text::name(){
-		return text;
+		return text_;
 	}
 	uint32_t Text::get_shape(){
 		return visualization_msgs::Marker::TEXT_VIEW_FACING;
 	}
 	SphereMarker::SphereMarker(double x, double y, double r, double z): RVIZVisualMarker() {
-		this->g.x = x;
-		this->g.y = y;
-		this->g.z = z;
-		this->g.setRPYRadian(0,0,0);
-		this->g.sx=r;
-		this->g.sy=r;
-		this->g.sz=0.05;
-		this->g.z = this->g.z + this->g.sz/2;
+		this->g_.x_ = x;
+		this->g_.y_ = y;
+		this->g_.z_ = z;
+		this->g_.setRPYRadian(0,0,0);
+		this->g_.sx_=r;
+		this->g_.sy_=r;
+		this->g_.sz_=0.05;
+		this->g_.z_ = this->g_.z_ + this->g_.sz_/2;
 		set_color(ros::MAGENTA);
 		init_marker();
 	}
@@ -39,13 +39,13 @@ namespace ros{
 		return visualization_msgs::Marker::CYLINDER;
 	}
 	CuboidMarker::CuboidMarker(double x, double y, double l, double w, double h, double yaw): RVIZVisualMarker() {
-		this->g.x = x;
-		this->g.y = y;
-		this->g.setRPYRadian(0,0,yaw);
-		this->g.sx=l;
-		this->g.sy=w;
-		this->g.sz=h;
-		this->g.z = this->g.z + this->g.sz/2; //bottom of cube should be at desired z, not center
+		this->g_.x_ = x;
+		this->g_.y_ = y;
+		this->g_.setRPYRadian(0,0,yaw);
+		this->g_.sx_=l;
+		this->g_.sy_=w;
+		this->g_.sz_=h;
+		this->g_.z_ = this->g_.z_ + this->g_.sz_/2; //bottom of cube should be at desired z, not center
 		set_color(ros::MAGENTA);
 		init_marker();
 	}
@@ -56,7 +56,7 @@ namespace ros{
 		return visualization_msgs::Marker::CUBE;
 	}
 	double CuboidMarker::getTextZ(){
-		return this->g.sz + 0.10;
+		return this->g_.sz_ + 0.10;
 	}
 
 

@@ -10,18 +10,18 @@ namespace ros{
 		this->primitiveMarker2BVH(this->bvh, vt);
 	}
 	PrimitiveMarkerCylinder::PrimitiveMarkerCylinder(double x, double y, double r, double h): PrimitiveMarkerTriangle() {
-		this->g.x = x;
-		this->g.y = y;
-		this->g.z = 0.0;
-		this->g.setRPYRadian(0,0,0);
-		this->g.sx=1;
-		this->g.sy=1;
-		this->g.sz=1;
-		this->g.z = 0.0;
-		this->g.radius = r;
-		this->g.height = h;
-		height=h;
-		radius=r;
+		this->g_.x_ = x;
+		this->g_.y_ = y;
+		this->g_.z_ = 0.0;
+		this->g_.setRPYRadian(0,0,0);
+		this->g_.sx_=1;
+		this->g_.sy_=1;
+		this->g_.sz_=1;
+		this->g_.z_ = 0.0;
+		this->g_.radius_ = r;
+		this->g_.height_ = h;
+		height_=h;
+		radius_=r;
 		Ntriangles = 20;
 
 		initPrimitiveMarker(this);
@@ -39,8 +39,8 @@ namespace ros{
 		uint Nvertices = Ntriangles+Ntriangles+2*Ntriangles; //top,bottom and connect the points by double triangles
 
 		uint i=0;//counter of vertices
-		for(double h=0;h<=height;h+=height){
-			double oldx = radius;
+		for(double h=0;h<=height_;h+=height_){
+			double oldx = radius_;
 			double oldy = 0.0;
 			for(double t=0;t<=2*M_PI;t+=2*M_PI/Ntriangles){
 				
@@ -50,8 +50,8 @@ namespace ros{
 				fcl::Vec3f b(oldx, oldy, h);
 				//third vertex at next pos
 				//t= 2*M_PI/(N-i-1);
-				double newx = cos(t)*radius;
-				double newy = sin(t)*radius;
+				double newx = cos(t)*radius_;
+				double newy = sin(t)*radius_;
 				fcl::Vec3f c(newx, newy, h);
 
 				vertices.push_back(a);
@@ -68,14 +68,14 @@ namespace ros{
 		}
 
 
-		double oldx = radius;
+		double oldx = radius_;
 		double oldy = 0.0;
 		for(double t=0;t<=2*M_PI;t+=2*M_PI/Ntriangles){
-			double newx = cos(t)*radius;
-			double newy = sin(t)*radius;
+			double newx = cos(t)*radius_;
+			double newy = sin(t)*radius_;
 
 			fcl::Vec3f a(oldx, oldy, 0);
-			fcl::Vec3f b(oldx, oldy, height);
+			fcl::Vec3f b(oldx, oldy, height_);
 			fcl::Vec3f c(newx, newy, 0);
 
 			vertices.push_back(a);
@@ -87,8 +87,8 @@ namespace ros{
 			i=i+3;
 
 			fcl::Vec3f d(newx, newy, 0);
-			fcl::Vec3f e(oldx, oldy, height);
-			fcl::Vec3f f(newx, newy, height);
+			fcl::Vec3f e(oldx, oldy, height_);
+			fcl::Vec3f f(newx, newy, height_);
 
 			vertices.push_back(d);
 			vertices.push_back(e);

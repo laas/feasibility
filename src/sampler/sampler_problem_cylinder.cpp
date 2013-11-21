@@ -82,8 +82,8 @@ ObjectiveFunction* SamplingCTOCylinder::getObjectiveFunction(){
 	std::string robot_file = get_tris_str(this->robot);
 
 	Geometry robot_pos;
-	robot_pos.x = 0;
-	robot_pos.y = 0;
+	robot_pos.x_ = 0;
+	robot_pos.y_ = 0;
 
 	char command[100];
 	sprintf(command, "octave -q scripts/create_tris_cylinderXYRH.m %f %f", 1.0,1.0);
