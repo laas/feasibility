@@ -34,7 +34,6 @@ void thread_publish(){
 			if(astar->success()){
 				astar->update_planner();
 			}
-			//r.sleep();
   }
 }
 
@@ -67,6 +66,7 @@ int main( int argc, char** argv )
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
 	cc = new ConstraintsCheckerSweptVolume();
+	//cc = new ConstraintsCheckerANN(16);
 	astar->setConstraintsChecker(cc);
 
 	while (ros::ok())

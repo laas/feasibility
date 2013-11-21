@@ -67,39 +67,34 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 		//sf
 		//sf
 		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
-		double ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
+		double ry = -sin(sf_yaw)*tx + cos(sf_yaw)*ty;
 		double ryaw = yaw - sf_yaw;
 
 		if(sf_foot == 'R'){
 		}else{
-			ry = -ry;
+			ry = -ry;//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
 		}
 
 		//swept vlumes are always tested on the right side
 		while(ryaw>M_PI) ryaw-=2*M_PI;
 		while(ryaw<-M_PI) ryaw+=2*M_PI;
 
-		double dist = sqrtf(rx*rx+ry*ry);
+		//ATTENTION: no 'deep' copy is created, all pointers are
+		//copied 'as is'. this is exactly what we intend to do:
+		//we only want to change the position of the object
+		//according to its geometry. this will be used in the
+		//distance function to compute the neccessary
+		//transformation
 
-		//prune objects, which are far away
-		if(dist<MAX_SWEPT_VOLUME_LIMIT){
-			//ATTENTION: no 'deep' copy is created, all pointers are
-			//copied 'as is'. this is exactly what we intend to do:
-			//we only want to change the position of the object
-			//according to its geometry. this will be used in the
-			//distance function to compute the neccessary
-			//transformation
+		ros::RVIZVisualMarker *t = *oit;
+		ros::TriangleObject *o = new ros::SweptVolumeObject(); //ligthweight object, such that we can only copy pointer
+		o->g = t->g;
+		//o->set_bvh_ptr( t->get_bvh_ptr() );
+		o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
 
-			ros::RVIZVisualMarker *t = *oit;
-			ros::TriangleObject *o = new ros::SweptVolumeObject(); //ligthweight object, such that we can only copy pointer
-			o->g = t->g;
-			//o->set_bvh_ptr( t->get_bvh_ptr() );
-			o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
-
-			o->g.x = rx;
-			o->g.y=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-			objects_.push_back(o);
-		}
+		o->g.x = rx;
+		o->g.y = ry;
+		objects_.push_back(o);
 	}
 	return v;
 }//prepare objects

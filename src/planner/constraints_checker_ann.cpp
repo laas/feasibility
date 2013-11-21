@@ -66,8 +66,8 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 		double ty = obj_y - sf_y;
 		//rotate object around origin, such that object is aligned with
 		//sf
-		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
-		double ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
+		double rx = cos(sf_yaw)*tx - sin(sf_yaw)*ty;
+		double ry = -sin(sf_yaw)*tx + cos(sf_yaw)*ty;
 
 		if(sf_foot == 'R'){
 		}else{

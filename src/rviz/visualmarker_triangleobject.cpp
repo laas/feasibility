@@ -70,7 +70,7 @@ namespace ros{
 		T2[2] = rhs.g.z;
 
 		PQP_CollideResult cres;
-		//ROS_INFO("%d <-> %d", this->pqp_model->num_tris, rhs.pqp_model->num_tris);
+		DEBUG(ROS_INFO("[PQP] %d <-> %d", this->pqp_model->num_tris, rhs.pqp_model->num_tris);)
 		PQP_Collide( &cres, R1, T1, this->pqp_model, R2, T2, rhs.pqp_model, PQP_FIRST_CONTACT);
 		if(cres.Colliding()){
 			return -1;
@@ -101,7 +101,6 @@ namespace ros{
 		//########################################################################
 		fcl::DistanceRequest request;
 		fcl::DistanceResult result;
-		//ROS_INFO("%d <-> %d", this->bvh->num_tris, rhs.bvh->num_tris);
 		double d = fcl::distance (this->bvh, Tlhs, rhs.bvh, Trhs, request, result);
 
 		return d;

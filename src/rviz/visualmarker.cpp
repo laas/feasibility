@@ -5,7 +5,7 @@
 namespace ros{
   boost::shared_ptr<interactive_markers::InteractiveMarkerServer> RVIZVisualMarker::server;
   Color::Color(){
-    r=1;g=0;b=0;a=1;
+    r=0.6;g=0;b=0.6;a=0.4;
   }
   Color::Color(const Color& c){
     r=c.r;g=c.g;b=c.b;a=c.a;

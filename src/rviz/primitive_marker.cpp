@@ -32,25 +32,44 @@ namespace ros{
 		m->BeginModel();
 			
 		uint counter=0;
-		double safety_scale = 1.2;
+		double safety_scale = 1.5;
 		for (uint i = 0; i < vertices.size(); i+=3){
 			PQP_REAL p1[3],p2[3],p3[3];
 			p1[0] = safety_scale*vertices.at(i)[0];
 			p1[1] = safety_scale*vertices.at(i)[1];
 			p1[2] = safety_scale*vertices.at(i)[2];
+			if(i==0 || i==3){
+				ROS_INFO("1: x %f, y %f, z %f", p1[0], p1[1], p1[2]);
+			}
+				ROS_INFO("1: x %f, y %f, z %f", p1[0], p1[1], p1[2]);
 
 			p2[0] = safety_scale*vertices.at(i+1)[0];
 			p2[1] = safety_scale*vertices.at(i+1)[1];
 			p2[2] = safety_scale*vertices.at(i+1)[2];
+			if(i==0 || i==3){
+				ROS_INFO("2: x %f, y %f, z %f", p2[0], p2[1], p2[2]);
+			}
+				ROS_INFO("2: x %f, y %f, z %f", p2[0], p2[1], p2[2]);
 
 			p3[0] = safety_scale*vertices.at(i+2)[0];
 			p3[1] = safety_scale*vertices.at(i+2)[1];
 			p3[2] = safety_scale*vertices.at(i+2)[2];
+			if(i==0 || i==3){
+				ROS_INFO("3: x %f, y %f, z %f", p3[0], p3[1], p3[2]);
+			}
+				ROS_INFO("3: x %f, y %f, z %f", p3[0], p3[1], p3[2]);
+				ROS_INFO("-------------------------------");
 
-			m->AddTri(p1,p2,p3,counter);
+			int err = m->AddTri(p1,p2,p3,counter);
+			if(err){
+				ROS_INFO("ERROR %d", err);
+			}
 			counter++;
 		}
-		m->EndModel();
+		int err = m->EndModel();
+			if(err){
+				ROS_INFO("ERROR %d", err);
+			}
 
 	}
 	void PrimitiveMarkerTriangle::primitiveMarker2BVH(fcl::BVHModel< BoundingVolume > *m, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt){
