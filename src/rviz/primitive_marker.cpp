@@ -32,7 +32,7 @@ namespace ros{
 		m->BeginModel();
 			
 		uint counter=0;
-		double safety_scale = 1.5;
+		double safety_scale = 1.0;
 		for (uint i = 0; i < vertices.size(); i+=3){
 			PQP_REAL p1[3],p2[3],p3[3];
 			p1[0] = safety_scale*vertices.at(i)[0];
