@@ -252,8 +252,6 @@ namespace ros{
 			void reloadCylinderBVH(double radius, double height);
 	};
 	struct PrimitiveMarkerBox: public PrimitiveMarkerTriangle{
-		double l,w,h;
-		
 		public:
 			PrimitiveMarkerBox(double x, double y, double l, double w, double h);
 			virtual std::string name();
