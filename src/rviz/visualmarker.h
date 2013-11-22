@@ -122,11 +122,11 @@ namespace ros{
 		double const_offset_x, const_offset_y; //additional offset for evart simulation
 		double const_offset_yaw;
 
-                bool evart_freeze_;
-                unsigned int evart_it_before_freezing_;
-                unsigned int evart_it_current_;
+    bool evart_freeze_;
+    unsigned int evart_it_before_freezing_;
+    unsigned int evart_it_current_;
 
-                double csf_in_chest_yaw_;
+    double csf_in_chest_yaw_;
 
 	public:
 		Geometry g;
@@ -144,7 +144,7 @@ namespace ros{
 		void print();
 		RVIZVisualMarker();
 		virtual ~RVIZVisualMarker();
-		bool isChanged(double threshold=0.01);
+		bool isChanged(double threshold=0.1);
 		void set_color(const Color& rhs);
 		void set_color(double r, double g, double b, double a=1.0);
 		Color get_color();

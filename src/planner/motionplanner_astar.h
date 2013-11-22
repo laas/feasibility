@@ -287,7 +287,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 			  return false;
       }
 			boost::mutex::scoped_lock lock(footstep_mutex);
-			mg = new MotionGenerator(this->environment); //generate q
+			mg = new MotionGenerator(ContactTransition::objects); //generate q
 			q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
 		}
 

@@ -31,7 +31,7 @@ public:
 			environment=NULL; //only delete pointer not object, so that we can handle multiple environments in the main loop
 		}
 		environment = env;
-		environment_changed=true;
+		environment_changed = true;
 	}
 	void changeEnvironment(){
 	  environment_changed = true;

@@ -72,7 +72,7 @@ private:
 
 public:
 
-	MotionGenerator(Environment *environment);
+  MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects);
 	std::vector<double> generateWholeBodyMotionFromAbsoluteFootsteps(
 			std::vector<std::vector<double> > &fsi, int lastStepSmoothed,
 			double sf_x, double sf_y, double sf_t, char sf_f);

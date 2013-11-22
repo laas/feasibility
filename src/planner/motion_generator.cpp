@@ -21,7 +21,7 @@
 #define DEBUG(x) x
 
 MotionGenerator::
-MotionGenerator(Environment *environment)
+MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects)
 {
   NPSS = new CnewPGstepStudy(STEP_LENGTH); 
   CGFBT = new CgenFullBodyTrajectory();
@@ -30,7 +30,6 @@ MotionGenerator(Environment *environment)
   
   //add object as PQP pointers to motion generator
   mp_Obstacles.clear();
-  std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
   std::vector<ros::RVIZVisualMarker*>::iterator it;
   for(it=objects.begin(); it!=objects.end(); it++)
     {
