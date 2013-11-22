@@ -49,6 +49,7 @@ namespace ros{
     double x_,y_,z_;
     double sx_,sy_,sz_; //scale
     double radius_,height_;
+
     void print();
     double getQuaternionX();
     double getQuaternionY(); 
@@ -252,6 +253,9 @@ namespace ros{
     void reloadCylinderBVH(double radius, double height);
   };
   struct PrimitiveMarkerBox: public PrimitiveMarkerTriangle{
+  protected:
+    double box_w_, box_l_, box_h_;
+
   public:
     PrimitiveMarkerBox(double x, double y, double l, double w, double h);
     virtual std::string name();

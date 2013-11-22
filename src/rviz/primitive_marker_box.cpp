@@ -2,13 +2,18 @@
 
 namespace ros{
 PrimitiveMarkerBox::PrimitiveMarkerBox(double x, double y, double w, double l, double h): PrimitiveMarkerTriangle() {
-  this->g_.x_ = x;
-  this->g_.y_ = y;
-  this->g_.z_ = 0.0;
-  this->g_.setRPYRadian(0,0,0);
-  this->g_.sx_=w;
-  this->g_.sy_=l;
-  this->g_.sz_=h;
+  g_.x_ = x;
+  g_.y_ = y;
+  g_.z_ = 0.0;
+  g_.setRPYRadian(0,0,0);
+
+  box_h_ = h;
+  box_w_ = w;
+  box_l_ = l;
+
+  g_.sx_=1.0;
+  g_.sy_=1.0;
+  g_.sz_=1.0;
 
   initPrimitiveMarker(this);
 }
@@ -22,32 +27,32 @@ std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > PrimitiveMarker
   std::vector<fcl::Triangle> triangles;
 
   //ROS_INFO("created object in FCL with %d triangles and %d vertices.\n", bvh->num_tris, bvh->num_vertices);
-  double x = this->g_.x_;
-  double y = this->g_.y_;
-  double z = this->g_.z_;
-  double sx = this->g_.sx_;
-  double sy = this->g_.sy_;
-  double sz = this->g_.sz_;
-  double yaw = this->g_.getYawRadian();
+  double x = g_.x_;
+  double y = g_.y_;
+  double z = g_.z_;
+  double sx = g_.sx_;
+  double sy = g_.sy_;
+  double sz = g_.sz_;
+  double yaw = g_.getYawRadian();
 
   //bottom
   uint i = 0;
 
   //xlu - x left up, xrd - x right down
-  double xlu = sx/2;
-  double ylu = sy/2;
+  double xlu = box_l_/2;
+  double ylu = box_w_/2;
   double zlu = 0;
 
-  double xru = sx/2;
-  double yru = -sy/2;
+  double xru = box_l_/2;
+  double yru = -box_w_/2;
   double zru = 0;
 
-  double xld = -sx/2;
-  double yld = sy/2;
+  double xld = -box_l_/2;
+  double yld = box_w_/2;
   double zld = 0;
 
-  double xrd = -sx/2;
-  double yrd = -sy/2;
+  double xrd = -box_l_/2;
+  double yrd = -box_w_/2;
   double zrd = 0;
 
   ROS_INFO("%f %f %f %f", xlu, xru, xld, xrd);
@@ -57,21 +62,21 @@ std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > PrimitiveMarker
   fcl::Vec3f ldB(xld, yld, zld);
   fcl::Vec3f rdB(xrd, yrd, zrd);
 
-  double xlut = sx/2;
-  double ylut = sy/2;
-  double zlut = sz;
+  double xlut = box_l_/2;
+  double ylut = box_w_/2;
+  double zlut = box_h_;
 
-  double xrut = sx/2;
-  double yrut = -sy/2;
-  double zrut = sz;
+  double xrut = box_l_/2;
+  double yrut = -box_w_/2;
+  double zrut = box_h_;
 
-  double xldt = -sx/2;
-  double yldt = sy/2;
-  double zldt = sz;
+  double xldt = -box_l_/2;
+  double yldt = box_w_/2;
+  double zldt = box_h_;
 
-  double xrdt = -sx/2;
-  double yrdt = -sy/2;
-  double zrdt = sz;
+  double xrdt = -box_l_/2;
+  double yrdt = -box_w_/2;
+  double zrdt = box_h_;
 
   fcl::Vec3f luT(xlut, ylut, zlut);
   fcl::Vec3f ruT(xrut, yrut, zrut);
