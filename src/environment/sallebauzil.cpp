@@ -17,6 +17,15 @@ void EnvironmentSalleBauzil::setDecorations(){
   c = new ros::ColladaObject("package://feasibility/data/blue_column.obj");
   c->setXYZ(4.96,3.3,-0.01);
   decorations.push_back(c);
+
+  c = new ros::ColladaObject("package://feasibility/data/estrade.obj");
+  c->setXYZ(0.0,0,-0.01);
+  decorations.push_back(c);
+
+  c = new ros::ColladaObject("package://feasibility/data/barrier.obj");
+  c->setXYZ(0.0,0,-0.01);
+  decorations.push_back(c);
+
 }
 
 void EnvironmentSalleBauzil::setObjects(){
