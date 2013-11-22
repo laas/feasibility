@@ -86,6 +86,8 @@ public:
 	std::vector<double> generateWholeBodyMotionFromStepVector(
 				std::vector<step> &vectStep, int lastStepSmoothed, 
 				double sf_x, double sf_y, double sf_t, char sf_f);
+  bool
+  isInCollision(std::vector<std::vector<double> > &fsi);
 private:
   std::vector<double> generateWholeBodyMotionFromStepVector(
       std::vector<step> &vectStep, int lastStepSmoothed);

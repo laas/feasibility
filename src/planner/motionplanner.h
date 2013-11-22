@@ -33,6 +33,9 @@ public:
 		environment = env;
 		environment_changed=true;
 	}
+	void changeEnvironment(){
+	  environment_changed = true;
+  }
 	virtual ~MotionPlanner(){}
 	
 	void update(){
@@ -53,10 +56,15 @@ public:
 		if(environment->isChanged()){
 			environment_changed=true;
 			update();
-			ROS_INFO("replanning");
+			ROS_INFO("replanning (ENV CHANGED)");
 			start_planner();
 		}else{
 			environment_changed=false;
+		  //if(results.success==false){
+        //update();
+        //ROS_INFO("replanning (NO PREVIOUS PLAN)");
+        //start_planner();
+      //}
 		}
 	}
 

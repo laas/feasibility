@@ -47,6 +47,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     ContactTransition::timer->register_stopper("a*", "a* algorithm");
     ContactTransition::feasibilityChecks=0;
     current_step_index_=0;
+    results.success=false;
 
   }
   ~MotionPlannerAStar(){
@@ -246,7 +247,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       ros::ColorFootMarker m(x,y,t,"blue");
       m.publish();
     }
-    ROS_INFO("step %d/%d", current_step_index_, fsi.size());
+    //ROS_INFO("step %d/%d", current_step_index_, fsi.size());
 
     //publish footsteps over ros topic
     std_msgs::Float64MultiArray ros_steps;
@@ -270,16 +271,21 @@ struct MotionPlannerAStar: public MotionPlanner{
     pub.publish(ros_steps);
 
   }
+
   bool publish_onestep_next(){
 
 		MotionGenerator *mg;
     std::vector<double> q;
 		{
 			if(current_step_index_ >= fsi.size()){
+        results.success=false;
 				return false;
 			}
 			clean_publish();
 			publish_footstep_vector();
+			if( ContactTransition::isInCollision(fsi, current_step_index_ ) ){
+			  return false;
+      }
 			boost::mutex::scoped_lock lock(footstep_mutex);
 			mg = new MotionGenerator(this->environment); //generate q
 			q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(fsi, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
@@ -289,7 +295,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       ROS_INFO("configuration vector: %d", q.size());
       //Replay trajectory
       tv->init(q);
-      ros::Rate rq(200); //300
+      ros::Rate rq(400); //300
       while(tv->next()){
         ros::spinOnce();
         rq.sleep();

@@ -1,12 +1,11 @@
 #include "planner/constraints_checker_swept_volumer.h"
 #include <dirent.h>
 
-#define DEBUG(x)
+#define DEBUG(x) x
 #define LIGHT_DEBUG(x)
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
   std::string pkg_path = get_data_path(std::string("feasibility"));
   std::string svfn = pkg_path + "/model/fullBodyApprox/";
-  
   this->loadSweptVolumesToHashMap(svfn.c_str());
 }
 
@@ -23,6 +22,42 @@ bool ConstraintsCheckerSweptVolume::isFeasible(
 }
 ros::SweptVolumeObject* ConstraintsCheckerSweptVolume::get_sv_from_hash( uint hash ){
 	return sweptvolumeMap.find(hash)->second;
+}
+bool 
+ConstraintsCheckerSweptVolume::
+isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index ){
+  NYI();
+  /*
+	for(uint i=current_step_index; i< fsi.size(); i++){
+
+    std::vector<double> p = vecD(fsi.at(i).at(0), fsi.at(i).at(1), fsi.at(i).at(2) );
+    uint hash = hashit<double>(p);
+    ros::TriangleObject *sv = sweptvolumeMap.find(hash)->second;
+    //sv->g.x = fsi.at(i).at(4);
+    //sv->g.y = fsi.at(i).at(5);
+    //sv->g.setRPYRadian(0,0,fsi.at(i).at(6));
+    std::vector<ros::TriangleObject*>::iterator oit;
+
+    double x = fsi.at(i).at(4);
+    double y = fsi.at(i).at(5);
+    double t = fsi.at(i).at(6);
+    double f = fsi.at(i).at(3);
+
+    for(oit = obj_rel.begin(); oit != obj_rel.end(); ++oit ){
+      if( sv->pqp_distance_to(**oit) <= 0 ){
+        ROS_INFO("****************************");
+        ROS_INFO("[WARNING] COLLISION AT STEP %d/%d",i,fsi.size());
+        ROS_INFO("[WARNING] ( %f , %f , %f )", sv->g.x, sv->g.y, sv->g.getYawRadian()); 
+        ROS_INFO("****************************");
+        ros::ColorFootMarker m(x,y,t,"yellow");
+        m.publish();
+        return true;
+      }
+    }
+  }
+  */
+  return false;
+
 }
 double ConstraintsCheckerSweptVolume::computeSVOutput( 
 		const std::vector<double> &p, 
@@ -72,6 +107,9 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 
 		//while(ryaw>M_PI) ryaw-=2*M_PI;
 		//while(ryaw<-M_PI) ryaw+=2*M_PI;
+		if(sf_foot=='L'){
+		  //ry=-ry;
+    }
 
 		//ATTENTION: no 'deep' copy is created, all pointers are
 		//copied 'as is'. this is exactly what we intend to do:

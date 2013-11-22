@@ -9,7 +9,7 @@
 #include "rviz/visualmarker.h"
 #include "util/util.h"
 #include "planner/constraints_checker_swept_volumer.h"
-#include "planner/constraints_checker_ann.h"
+#include "planner/constraints_checker_naive.h"
 #include "planner/constraints_checker.h"
 #include "environment/environment.h"
 #include "planner/motionplanner_astar.h"
@@ -65,8 +65,8 @@ int main( int argc, char** argv )
 	environment = Environment::getSalleBauzil();
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
-	cc = new ConstraintsCheckerSweptVolume();
-	//cc = new ConstraintsCheckerANN(16);
+	//cc = new ConstraintsCheckerSweptVolume();
+	cc = new ConstraintsCheckerNaive();
 	astar->setConstraintsChecker(cc);
 
 	while (ros::ok())

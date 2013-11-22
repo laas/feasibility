@@ -114,6 +114,34 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	return ff_abs;
 }
 
+bool ContactTransition::isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index ){
+  //return constraints->isInCollision(fsi, current_step_index);
+	std::vector<ros::RVIZVisualMarker*>::iterator oit;
+  for(uint i=current_step_index; i<fsi.size(); i++){
+    double xr = fsi.at(i).at(4);
+    double yr = fsi.at(i).at(5);
+    double tr = fsi.at(i).at(6);
+    double robo_cylinder = 0.0;
+    for(  oit = objects.begin(); oit != objects.end(); ++oit ){
+      ros::PrimitiveMarkerBox *box = static_cast<ros::PrimitiveMarkerBox*>(*oit);
+      double xo = box->g.x;
+      double yo = box->g.y;
+      double ro = std::max(box->w, box->l);
+
+      double dist_robo_obj = dist(xo, xr, yo, yr);
+      if(dist_robo_obj <= ro + robo_cylinder){
+        //ROS_INFO("****************************");
+        //ROS_INFO("[WARNING] COLLISION AT STEP %d/%d",i,fsi.size());
+        //ROS_INFO("[WARNING] robo=( %f , %f ), obj=( %f, %f [%f]), dist=%f", xr, yr, xo, yo, ro, dist_robo_obj);
+        //ROS_INFO("****************************");
+        ros::ColorFootMarker m(xr,yr,tr,"yellow");
+        m.publish();
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 std::string ContactTransition::get_swept_volume_file_name( uint hash ){
 	if(constraints->sweptvolumes_file_names.find(hash)!=constraints->sweptvolumes_file_names.end()){

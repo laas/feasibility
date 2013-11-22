@@ -6,6 +6,11 @@ ConstraintsChecker::ConstraintsChecker(){
   std::string svfn = pkg_path + "/model/fullBodyApprox/";
   this->loadSweptVolumeFileNames(svfn.c_str());
 }
+bool 
+ConstraintsChecker::
+isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index ){
+  NYI();
+}
 void ConstraintsChecker::loadSweptVolumeFileNames(const char *path){
 	bool collision=false;
 	//uint Nfiles = get_num_files_in_dir(path, ".tris");

@@ -55,7 +55,7 @@ void Environment::reloadObjects(){
   thread_start();
 }
 void Environment::thread_publish(){
-  ros::Rate r(20); //Hz
+  ros::Rate r(10); //Hz
   while(1){
 		{
 			boost::mutex::scoped_lock lock(util_mutex);
@@ -156,6 +156,7 @@ void Environment::clean(){
 }
 
 std::vector<ros::RVIZVisualMarker*> Environment::getObjects(){
+  boost::mutex::scoped_lock lock(util_mutex);
   return objects;
 }
 

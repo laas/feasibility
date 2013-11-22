@@ -45,6 +45,8 @@ struct ContactTransition
 	bool IsSameState( ContactTransition &rhs );
 	void showSuccessors( double x, double y, double t, char L_or_R);
 	void feasibilityVisualizer();
+	static bool isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index );
+	//bool isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index );
 	static void setConstraintsChecker( ConstraintsChecker *c );
 
 	ros::Geometry computeAbsFFfromRelFF(

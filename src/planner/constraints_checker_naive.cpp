@@ -1,10 +1,13 @@
 #include <dirent.h>
+#include <algorithm> //max
 #include "planner/constraints_checker_naive.h"
 
 #define DEBUG(x)
-#define DEBUGOBJ(x)
+#define DEBUGOBJ(x) x
 ConstraintsCheckerNaive::ConstraintsCheckerNaive(){
-	this->loadActionSpace("extern/fann/datasets/humanoids/");
+  std::string pkg_path = get_data_path(std::string("feasibility"));
+  std::string svfn = pkg_path + "/model/fullBodyApprox/";
+  this->loadActionSpace(svfn.c_str());
 }
 
 bool ConstraintsCheckerNaive::isFeasible(  
@@ -12,17 +15,19 @@ bool ConstraintsCheckerNaive::isFeasible(
 		const std::vector< std::vector<double> > &obj){
 
 	std::vector<std::vector<double> > v;
-	double x=p.at(0);
-	double y=p.at(1);
-	//DEBUGOBJ(ROS_INFO("x %f, y %f", x, y);)
+	double xr=p.at(0);
+	double yr=p.at(1);
+  double robo_cylinder = 0.4;
 	std::vector< std::vector<double> >::const_iterator oit;
 	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
-		double ox = (*oit).at(0);
-		double oy = (*oit).at(1);
-		double radius = (*oit).at(2);
-		if( norml2(ox,x,oy,y) < (radius+0.132) ){ //0.132m radius of foot
-			return false;
-		}
+    double xo = (*oit).at(0);
+    double yo = (*oit).at(1);
+    double ro = (*oit).at(2);
+    double dist_robo_obj = dist(xo,xr, yo, yr);
+    if(dist_robo_obj <= ro + robo_cylinder){
+      ROS_INFO("[WARNING] robo=( %f , %f ), obj=( %f, %f [%f]), dist=%f", xr, yr, xo, yo, ro, dist_robo_obj);
+      return false;
+    }
 	}
 	return true;
 }
@@ -43,49 +48,42 @@ ConstraintsCheckerNaive::prepareObjectPosition(std::vector<ros::RVIZVisualMarker
 		double ty = obj_y - sf_y;
 		//rotate object around origin, such that object is aligned with
 		//sf
-		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
-		double ry = sin(sf_yaw)*tx - cos(sf_yaw)*ty;
+		//double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
+		//double ry = -sin(sf_yaw)*tx + cos(sf_yaw)*ty;
+		double rx = tx;
+		double ry = ty;
 
-		if(sf_foot == 'R'){
-		}else{
-			ry = -ry;
-		}
-
-		std::vector<double> d(4);
+		std::vector<double> d(3);
 		//X,Y,R,H
-		d.at(0)=rx;
-		d.at(1)=ry;//(foot=='R'?-ry:ry);//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-		d.at(2)=(*oit)->g.getRadius();
-		d.at(3)=(*oit)->g.getHeight();
+    ros::PrimitiveMarkerBox *box = static_cast<ros::PrimitiveMarkerBox*>(*oit);
+		d.at(0)=tx;
+		d.at(1)=ty;
+		//d.at(2)=(*oit)->g.getRadius();
+		//d.at(3)=(*oit)->g.getHeight();
+		d.at(2) = std::max(box->w,box->l);
 
-		double dist = sqrtf(rx*rx+ry*ry);
-		DEBUGOBJ(ROS_INFO("object (%f,%f) -> (%f,%f) (angle:%f)", obj_x, obj_y, d.at(0), d.at(1), toDeg(sf_yaw));)
-		if(dist<MAX_SWEPT_VOLUME_LIMIT){
-			v.push_back(d);
-		}
-		//DEBUG( ROS_INFO("object transformed from %f %f %f --> %f %f %f (rel to %f %f %f)", x, y, yaw, rx, ry, ryaw, sf_x, sf_y, sf_yaw) );
+		DEBUGOBJ(ROS_INFO("object (%f,%f) -> (%f,%f) (radius:%f)", obj_x, obj_y, d.at(0), d.at(1), d.at(2));)
+    v.push_back(d);
 
 	}
 	return v;
 }//prepare objects
 void ConstraintsCheckerNaive::loadActionSpace(const char *path){
-	char postfix[20];
-	sprintf(postfix, "%d%s", 16, "neuron.net");
 	bool collision=false;
-	uint Nfiles = get_num_files_in_dir(path, postfix);
+	uint Nfiles = get_num_files_in_dir(path, ".tris");
+	ROS_INFO("Opening %d files", Nfiles);
 	DIR* dpath = opendir( path );
 	if ( dpath ) 
 	{
 		struct dirent* hFile;
 		errno = 0;
 		uint number = 0;
-		actionSpace.clear();
 		while (( hFile = readdir( dpath )) != NULL ){
 			if( !strcmp( hFile->d_name, "."  )) continue;
 			if( !strcmp( hFile->d_name, ".." )) continue;
 			if( hFile->d_name[0] == '.' ) continue; //hidden files
 
-			if( strstr( hFile->d_name, postfix )){
+			if( strstr( hFile->d_name, ".tris" )){
 				std::string file = hFile->d_name;
 				std::vector<double> v = extract_num_from_string(file);
 				v.at(0)/=100.0;
@@ -99,9 +97,15 @@ void ConstraintsCheckerNaive::loadActionSpace(const char *path){
 					collision=true;
 				}
 
+				std::string rel_file_path = path;
+				rel_file_path += file.c_str();
+
+
 				actionSpace[hash] = v;
+				printf("[%d/%d] loaded %s\n", number++, Nfiles, hFile->d_name);
 			}
 		} 
+		ROS_INFO("Loaded Swept Volumes");
 		closedir( dpath );
 	}
 	if(collision){
