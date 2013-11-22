@@ -63,21 +63,15 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 		//translate object, so that origin and sf origin conincide
 		double tx = x - sf_x;
 		double ty = y - sf_y;
-		//rotate object around origin, such that object is aligned with
-		//sf
-		//sf
+		////rotate object around origin, such that object is aligned with
+		////sf
+		////sf
 		double rx = cos(sf_yaw)*tx + sin(sf_yaw)*ty;
 		double ry = -sin(sf_yaw)*tx + cos(sf_yaw)*ty;
-		double ryaw = yaw - sf_yaw;
+		//double ryaw = yaw - sf_yaw;
 
-		if(sf_foot == 'R'){
-		}else{
-			ry = -ry;//if the support foot is the right one, we have to invert the object position (precomputation did only take place in the left foot space)
-		}
-
-		//swept vlumes are always tested on the right side
-		while(ryaw>M_PI) ryaw-=2*M_PI;
-		while(ryaw<-M_PI) ryaw+=2*M_PI;
+		//while(ryaw>M_PI) ryaw-=2*M_PI;
+		//while(ryaw<-M_PI) ryaw+=2*M_PI;
 
 		//ATTENTION: no 'deep' copy is created, all pointers are
 		//copied 'as is'. this is exactly what we intend to do:
