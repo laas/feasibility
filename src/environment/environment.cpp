@@ -157,7 +157,6 @@ void Environment::clean(){
 
 std::vector<ros::RVIZVisualMarker*> Environment::getObjects(){
   boost::mutex::scoped_lock lock(util_mutex);
-  std::vector<ros::RVIZVisualMarker*> new_obj;
   return objects;
 }
 
