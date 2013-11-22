@@ -17,7 +17,7 @@ bool ConstraintsCheckerNaive::isFeasible(
 	std::vector<std::vector<double> > v;
 	double xr=p.at(0);
 	double yr=p.at(1);
-  double robo_cylinder = 0.4;
+  double robo_cylinder = 0.7;
 	std::vector< std::vector<double> >::const_iterator oit;
 	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
     double xo = (*oit).at(0);
