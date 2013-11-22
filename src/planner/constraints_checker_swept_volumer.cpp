@@ -1,7 +1,7 @@
 #include "planner/constraints_checker_swept_volumer.h"
 #include <dirent.h>
 
-#define DEBUG(x) x
+#define DEBUG(x)
 #define LIGHT_DEBUG(x)
 ConstraintsCheckerSweptVolume::ConstraintsCheckerSweptVolume(){
   std::string pkg_path = get_data_path(std::string("feasibility"));

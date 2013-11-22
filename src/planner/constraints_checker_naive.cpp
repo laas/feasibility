@@ -3,7 +3,7 @@
 #include "planner/constraints_checker_naive.h"
 
 #define DEBUG(x)
-#define DEBUGOBJ(x) x
+#define DEBUGOBJ(x) 
 ConstraintsCheckerNaive::ConstraintsCheckerNaive(){
   std::string pkg_path = get_data_path(std::string("feasibility"));
   std::string svfn = pkg_path + "/model/fullBodyApprox/";
@@ -25,7 +25,7 @@ bool ConstraintsCheckerNaive::isFeasible(
     double ro = (*oit).at(2);
     double dist_robo_obj = dist(xo,xr, yo, yr);
     if(dist_robo_obj <= ro + robo_cylinder){
-      ROS_INFO("[WARNING] robo=( %f , %f ), obj=( %f, %f [%f]), dist=%f", xr, yr, xo, yo, ro, dist_robo_obj);
+      //ROS_INFO("[WARNING] robo=( %f , %f ), obj=( %f, %f [%f]), dist=%f", xr, yr, xo, yo, ro, dist_robo_obj);
       return false;
     }
 	}
