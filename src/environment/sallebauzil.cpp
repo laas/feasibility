@@ -1,4 +1,5 @@
 #include "environment/environment.h"
+#include "rviz/primitive_marker.h"
 
 void EnvironmentSalleBauzil::setDecorations(){
   ros::RVIZVisualMarker *c;

@@ -1,4 +1,5 @@
 #include "environment/environment.h"
+#include "rviz/primitive_marker.h"
 
 void Environment13Humanoids::setDecorations(){
 	ros::RVIZVisualMarker *c;

@@ -1,4 +1,4 @@
-#include "rviz/visualmarker.h"
+#include "rviz/primitive_marker.h"
 
 namespace ros{
 	uint32_t PrimitiveMarkerTriangle::get_shape(){

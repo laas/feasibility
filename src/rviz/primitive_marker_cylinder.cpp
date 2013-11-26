@@ -1,4 +1,4 @@
-#include "rviz/visualmarker.h"
+#include "rviz/primitive_marker.h"
 
 namespace ros{
 	void PrimitiveMarkerCylinder::reloadCylinderBVH(double radius, double height){
@@ -10,16 +10,15 @@ namespace ros{
 		this->primitiveMarker2BVH(this->bvh, vt);
 	}
 	PrimitiveMarkerCylinder::PrimitiveMarkerCylinder(double x, double y, double r, double h): PrimitiveMarkerTriangle() {
-		this->g.x = x;
-		this->g.y = y;
-		this->g.z = 0.0;
+		this->g.setX(x);
+		this->g.setY(y);
+		this->g.setZ(0.0);
 		this->g.setRPYRadian(0,0,0);
-		this->g.sx=1;
-		this->g.sy=1;
-		this->g.sz=1;
-		this->g.z = 0.0;
-		this->g.radius = r;
-		this->g.height = h;
+		this->g.setSX(1);
+		this->g.setSY(1);
+		this->g.setSZ(1);
+		this->g.setRadius(r);
+		this->g.setHeight(h);
 		height=h;
 		radius=r;
 		Ntriangles = 20;

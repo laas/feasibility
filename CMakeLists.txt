@@ -143,9 +143,13 @@ set(SOURCE
 	src/planner/motion_generator.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/src/robot_path.cpp
 	src/rviz/visualmarker.h
+	src/rviz/color.hh
+	src/rviz/color.cpp
 	src/rviz/visualmarker.cpp
+	src/rviz/geometry.h
 	src/rviz/geometry.cpp
 	src/rviz/rviz_interface.h
+	src/rviz/definitions.hh
 	src/rviz/rviz_interface.cpp
 	src/rviz/visualmarker_triangleobject.cpp
 	src/rviz/visualmarker_tristriangleobject.cpp
@@ -154,6 +158,7 @@ set(SOURCE
 	src/rviz/visualmarker_mesh.cpp
 	src/rviz/visualmarker_decorator.cpp
 	src/rviz/visualmarker_common.cpp
+	src/rviz/primitive_marker.h
 	src/rviz/primitive_marker.cpp
 	src/rviz/primitive_marker_cylinder.cpp
 	src/rviz/primitive_marker_box.cpp

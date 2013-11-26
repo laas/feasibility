@@ -58,8 +58,8 @@ ConstraintsCheckerANN::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*>
 	std::vector<ros::RVIZVisualMarker*>::const_iterator oit;
 	uint c=0;
 	for(  oit = objects.begin(); oit != objects.end(); ++oit ){
-		double obj_x = (*oit)->g.x;
-		double obj_y = (*oit)->g.y;
+		double obj_x = (*oit)->g.getX();
+		double obj_y = (*oit)->g.getY();
 
 		//translate object, so that origin and sf origin conincide
 		double tx = obj_x - sf_x;

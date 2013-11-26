@@ -6,11 +6,11 @@ namespace ros{
 	ColladaObject::ColladaObject(const char *cfilename): RVIZVisualMarker(){
 		filename = std::string(cfilename);
 
-		this->g.x = 0;
-		this->g.y = 0;
-		this->g.sx = 1.0;
-		this->g.sy = 1.0;
-		this->g.sz = 1.0;
+		this->g.setX(0);
+		this->g.setY(0);
+		this->g.setSX(1.0);
+		this->g.setSY(1.0);
+		this->g.setSZ(1.0);
 		set_color(0,0,0,0);//texture is not shown, if any color!=0
 
 		init_marker();

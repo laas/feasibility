@@ -42,9 +42,9 @@ namespace ros{
 		this->g = in;
 
 		double scale = 1.0;
-		this->g.sx = scale;
-		this->g.sy = scale;
-		this->g.sz = scale;
+		this->g.setX(scale);
+		this->g.setY(scale);
+		this->g.setZ(scale);
 		this->tris_file_name=f;
 
 		this->pqp_model = new PQP_Model;
@@ -86,7 +86,7 @@ namespace ros{
 			       &p1x,&p1y,&p1z,&p2x,&p2y,&p2z,&p3x,&p3y,&p3z);
 			CHECK(res==9, "fscanf failed");
 
-			PQP_REAL p1[3],p2[3],p3[3],p4[3],p5[3],p6[3];
+			PQP_REAL p1[3],p2[3],p3[3];
 			p1[0] = (PQP_REAL)scale*p1x; p1[1] = (PQP_REAL)sy*scale*p1y; p1[2] = (PQP_REAL)scale*p1z;
 			p2[0] = (PQP_REAL)scale*p2x; p2[1] = (PQP_REAL)sy*scale*p2y; p2[2] = (PQP_REAL)scale*p2z;
 			p3[0] = (PQP_REAL)scale*p3x; p3[1] = (PQP_REAL)sy*scale*p3y; p3[2] = (PQP_REAL)scale*p3z;
@@ -188,9 +188,9 @@ namespace ros{
 		this->g = in;
 
 		double scale = 1.0;
-		this->g.sx = scale;
-		this->g.sy = scale;
-		this->g.sz = scale;
+		this->g.setX(scale);
+		this->g.setY(scale);
+		this->g.setZ(scale);
 		this->tris_file_name=f;
 
 		this->tris2marker( this->marker, tris_file_name.c_str() );
@@ -204,9 +204,9 @@ namespace ros{
 		this->g = in;
 
 		double scale = 1.0;
-		this->g.sx = scale;
-		this->g.sy = scale;
-		this->g.sz = scale;
+		this->g.setX(scale);
+		this->g.setY(scale);
+		this->g.setZ(scale);
 		this->tris_file_name=f;
 		//this->bvh = new fcl::BVHModel< BoundingVolume >();
 		//this->tris2BVH(this->bvh, tris_file_name.c_str() );
@@ -223,8 +223,8 @@ namespace ros{
     std::string object_file = get_tris_str(fname,package_name);
 
 		Geometry object_pos;
-		object_pos.x = x;
-		object_pos.y = y;
+		object_pos.setX(x);
+		object_pos.setY(y);
 
 		this->init_object(object_file, object_pos);
 	}
@@ -232,9 +232,9 @@ namespace ros{
 		std::string prefix = get_data_path();
 		std::string chair_file = get_chair_str();
 		Geometry chair_pos;
-		chair_pos.x = 0.49;
-		chair_pos.y = -0.1;
-		chair_pos.z = 0.0;
+		chair_pos.setX(0.49);
+		chair_pos.setY(-0.1);
+		chair_pos.setZ(0.0);
 		chair_pos.setRPYRadian(0,0,0);
 		this->init_object(chair_file, chair_pos);
 	}
@@ -242,8 +242,8 @@ namespace ros{
 		std::string prefix = get_data_path();
 		std::string robot_file = get_robot_str();
 		Geometry robot_pos;
-		robot_pos.x = -2;
-		robot_pos.y = 0;
+		robot_pos.setX(-2);
+		robot_pos.setY(0);
 		robot_pos.setRPYRadian(0,0,0);
 		this->init_object(robot_file, robot_pos);
 	}

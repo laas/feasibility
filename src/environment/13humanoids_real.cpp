@@ -1,5 +1,6 @@
 #include <algorithm>    // std::min
 #include "environment/environment.h"
+#include "rviz/primitive_marker.h"
 
 void Environment13HumanoidsReal::setDecorations(){
 	ros::RVIZVisualMarker *c;
@@ -19,7 +20,7 @@ void Environment13HumanoidsReal::createApproxObj(const char* name, double x, dou
 	objects.push_back(c);
 
 	d = new ros::ColladaObject(name);
-	d->setXYZ( c->g.x, c->g.y, c->g.z);
+	d->setXYZ( c->g.getX(), c->g.getY(), c->g.getZ());
 	d->setScale( 0.4,0.4,0.4);
 	d->setRPYRadian( M_PI/2, 0, yaw);
 	decorations.push_back(d);

@@ -71,11 +71,11 @@ struct MotionPlannerAStar: public MotionPlanner{
       this->start.rel_y_parent = 0;
       this->start.rel_yaw_parent = 0;//start.getYawRadian();
       this->start.L_or_R = 'L';
-      init_sf_x = this->start.g.x;
-      init_sf_y = this->start.g.y;
+      init_sf_x = this->start.g.getX();
+      init_sf_y = this->start.g.getY();
       init_sf_t = this->start.g.getYawRadian();
       //ROS_INFO("%f %f %f %f %f %f", this->start.g.x, this->start.g.y, this->start.g.getYawRadian(), start.x, start.y, start.getYawRadian());
-      tv = new TrajectoryVisualizer(start.x, start.y, start.getYawRadian()); //visualize q with CoM offset
+      tv = new TrajectoryVisualizer(start.getX(), start.getY(), start.getYawRadian()); //visualize q with CoM offset
     }
   }
 
@@ -157,7 +157,7 @@ struct MotionPlannerAStar: public MotionPlanner{
             if( !node ) break;
 
             std::vector<double> tmp_fsi = 
-              vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
+              vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.getX(), node->g.getY(), node->g.getYawRadian());
             fs_vector.push_back(tmp_fsi);
           };
         astarsearch->FreeSolutionNodes();
@@ -240,8 +240,8 @@ struct MotionPlannerAStar: public MotionPlanner{
       double y = fsi.at(i).at(5);
       double t = fsi.at(i).at(6);
       char f = fsi.at(i).at(3);
-      this->start.g.x=x;
-      this->start.g.y=y;
+      this->start.g.setX(x);
+      this->start.g.setY(y);
       this->start.g.setRPYRadian(0,0,t);
       this->start.L_or_R = (f=='R'?'L':'R'); //starting pos is omitted
       ros::ColorFootMarker m(x,y,t,"blue");
@@ -326,8 +326,8 @@ struct MotionPlannerAStar: public MotionPlanner{
 
     ROS_INFO("step[%d] %f %f %f", 0, x, y, yaw);
     ros::Geometry sv_pos;
-    sv_pos.x = x;
-    sv_pos.y = y;
+    sv_pos.setX(x);
+    sv_pos.setY(y);
     sv_pos.setRPYRadian( 0,0, yaw );
 
     ROS_INFO("loading swept volume %s",robot_file.c_str());

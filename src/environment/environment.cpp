@@ -165,18 +165,18 @@ void Environment::setObjectPosition(uint id, double x, double y, double yaw){
     ROS_INFO("WARNING: setObjectPosition, ID not existant");
     return;
   }
-  objects.at(id)->g.x = x;
-  objects.at(id)->g.y = y;
+  objects.at(id)->g.setX(x);
+  objects.at(id)->g.setY(y);
   objects.at(id)->g.setRPYRadian(0,0,yaw);
 }
 
 void Environment::setStart(double x, double y){
-  this->start->g.x = x;
-  this->start->g.y = y;
+  this->start->g.setX(x);
+  this->start->g.setY(x);
 }
 void Environment::setGoal(double x, double y){
-  this->goal->g.x = x;
-  this->goal->g.y = y;
+  this->goal->g.setX(x);
+  this->goal->g.setY(x);
 }
 ros::Geometry Environment::getGoal(){
   assert(goal);

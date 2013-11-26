@@ -36,9 +36,9 @@ MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects)
       PQPobject PQPobj;
       ros::TriangleObject *tri = dynamic_cast<ros::TriangleObject*>(*it);
       PQPobj.model = (tri)->get_pqp_ptr();
-      PQPobj.T[0] = (tri)->g.x;
-      PQPobj.T[1] = (tri)->g.y;
-      PQPobj.T[2] = (tri)->g.z;
+      PQPobj.T[0] = (tri)->g.getX();
+      PQPobj.T[1] = (tri)->g.getY();
+      PQPobj.T[2] = (tri)->g.getZ();
       MRotZ(PQPobj.R, (tri)->g.getYawRadian());
       mp_Obstacles.push_back(PQPobj);
     }

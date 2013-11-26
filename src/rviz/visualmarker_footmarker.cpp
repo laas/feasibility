@@ -2,12 +2,12 @@
 #include "rviz/visualmarker.h"
 namespace ros{
 	FootMarker::FootMarker(double x, double y, double yaw): RVIZVisualMarker(){
-		this->g.x = x;
-		this->g.y = y;
+		this->g.setX(x);
+		this->g.setY(y);
 		this->g.setRPYRadian(0,0,yaw);
-		this->g.sx=0.24;
-		this->g.sy=0.14;
-		this->g.sz=0.03;
+		this->g.setSX(0.24);
+		this->g.setSY(0.14);
+		this->g.setSZ(0.03);
 		set_color(0.9,0.9,0.9,0.8);
 		init_marker();
 	}

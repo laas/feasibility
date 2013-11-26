@@ -1,4 +1,5 @@
 #include "environment/environment.h"
+#include "rviz/primitive_marker.h"
 
 void EnvironmentFeasibilityTest::setDecorations(){
 	ros::RVIZVisualMarker *c;
@@ -12,8 +13,8 @@ void EnvironmentFeasibilityTest::setDecorations(){
 //%../fastReplanningData/data/fullBodyApprox/fullbody_35_-11_29.tris
 
 	ros::Geometry robot_pos;
-	robot_pos.x = 0;
-	robot_pos.y = 0;
+	robot_pos.setX(0);
+	robot_pos.setY(0);
 
 	ros::TrisTriangleObject *robot = new ros::TrisTriangleObject(robot_file.c_str(), robot_pos);
 	robot->set_color(0.6,0.0,0.6,0.3);

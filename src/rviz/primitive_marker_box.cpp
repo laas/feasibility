@@ -1,14 +1,14 @@
-#include "rviz/visualmarker.h"
+#include "rviz/primitive_marker.h"
 
 namespace ros{
 	PrimitiveMarkerBox::PrimitiveMarkerBox(double x, double y, double w, double l, double h): PrimitiveMarkerTriangle() {
-		this->g.x = x;
-		this->g.y = y;
-		this->g.z = 0.0;
+		this->g.setX(x);
+		this->g.setY(y);
+		this->g.setZ(0.0);
 		this->g.setRPYRadian(0,0,0);
-		this->g.sx=1;
-		this->g.sy=1;
-		this->g.sz=1;
+		this->g.setSX(1);
+		this->g.setSY(1);
+		this->g.setSZ(1);
 
 		this->w = w;
 		this->l = l;

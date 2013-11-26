@@ -1,6 +1,6 @@
 #include <tf/tf.h>
-#include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
+#include <ros/ros.h>
+#include "rviz/geometry.h"
 #include "util/util.h"
 
 namespace ros{
@@ -16,30 +16,34 @@ namespace ros{
 
 		return yaw;
 	}
-	double Geometry::getQuaternionX(){
-		return rx;
-	}
-	double Geometry::getQuaternionY(){
-		return ry;
-	}
-	double Geometry::getQuaternionZ(){
-		return rz;
-	}
-	double Geometry::getQuaternionW(){
-		return rw;
-	}
-	void Geometry::setQuaternionX(double r){
-		this->rx=r;
-	}
-	void Geometry::setQuaternionY(double r){
-		this->ry=r;
-	}
-	void Geometry::setQuaternionZ(double r){
-		this->rz=r;
-	}
-	void Geometry::setQuaternionW(double r){
-		this->rw=r;
-	}
+	double Geometry::getX(){ return this->x; }
+	double Geometry::getY(){ return this->y; }
+	double Geometry::getZ(){ return this->z; }
+	double Geometry::getSX(){ return this->sx; }
+	double Geometry::getSY(){ return this->sy; }
+	double Geometry::getSZ(){ return this->sz; }
+	double Geometry::getRadius(){ return this->radius; }
+	double Geometry::getHeight(){ return this->height; }
+
+	double Geometry::getQuaternionX(){ return rx; }
+	double Geometry::getQuaternionY(){ return ry; }
+	double Geometry::getQuaternionZ(){ return rz; }
+	double Geometry::getQuaternionW(){ return rw; }
+
+	void Geometry::setX(double r){ this->x=r; }
+	void Geometry::setY(double r){ this->y=r; }
+	void Geometry::setZ(double r){ this->z=r; }
+	void Geometry::setSX(double r){ this->sx=r; }
+	void Geometry::setSY(double r){ this->sy=r; }
+	void Geometry::setSZ(double r){ this->sz=r; }
+	void Geometry::setRadius(double r){ this->radius=r; }
+	void Geometry::setHeight(double r){ this->height=r; }
+
+	void Geometry::setQuaternionX(double r){ this->rx=r; }
+	void Geometry::setQuaternionY(double r){ this->ry=r; }
+	void Geometry::setQuaternionZ(double r){ this->rz=r; }
+	void Geometry::setQuaternionW(double r){ this->rw=r; }
+
 	void Geometry::setRPYRadian(double roll, double pitch, double yaw){
 		tf::Quaternion q;
 		q.setRPY(roll, pitch, yaw); //in radian
@@ -58,11 +62,5 @@ namespace ros{
 		printf("rx %f|ry %f|rz %f|rw %f\n",rx,ry,rz,rw);
 		printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
 		std::cout << std::endl;
-	}
-	double Geometry::getHeight(){
-		return this->height;
-	}
-	double Geometry::getRadius(){
-		return this->radius;
 	}
 };

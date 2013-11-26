@@ -4,15 +4,6 @@
 #define THREAD_DEBUG(x) 
 namespace ros{
   boost::shared_ptr<interactive_markers::InteractiveMarkerServer> RVIZVisualMarker::server;
-  Color::Color(){
-    r=0.6;g=0;b=0.6;a=0.4;
-  }
-  Color::Color(const Color& c){
-    r=c.r;g=c.g;b=c.b;a=c.a;
-  }
-  Color::Color(double r, double g, double b, double a){
-    this->r = r;this->g=g;this->b=b;this->a=a;
-  }
 
   RVIZVisualMarker::RVIZVisualMarker()
   {
@@ -34,15 +25,15 @@ namespace ros{
   }
   
   void RVIZVisualMarker::setScale(double sx, double sy, double sz){
-    this->g.sx = sx;
-    this->g.sy = sy;
-    this->g.sz = sz;
+    this->g.setSX(sx);
+    this->g.setSY(sy);
+    this->g.setSZ(sz);
     update_marker();
   }
   void RVIZVisualMarker::setXYZ(double x, double y, double z){
-    this->g.x = x;
-    this->g.y = y;
-    this->g.z = z;
+    this->g.setX(x);
+    this->g.setY(y);
+    this->g.setZ(z);
     update_marker();
   }
   void RVIZVisualMarker::setRPYRadian(double roll, double pitch, double yaw){
@@ -54,10 +45,10 @@ namespace ros{
     THREAD_DEBUG(ROS_INFO_STREAM( feedback->marker_name << " is now at "
                                   << feedback->pose.position.x << ", " << feedback->pose.position.y);)
 
-      //update geometry
-      this->g.x = feedback->pose.position.x;
-    this->g.y = feedback->pose.position.y;
-    this->g.z = feedback->pose.position.z;
+    //update geometry
+    this->g.setX(feedback->pose.position.x);
+    this->g.setY(feedback->pose.position.y);
+    this->g.setZ(feedback->pose.position.z);
     update_marker();
     boost::this_thread::interruption_point();
   }
@@ -121,7 +112,7 @@ namespace ros{
     active_marker.name = imarker_name.c_str();
     active_marker.description = "Interactive";
 
-    tf::Vector3 position(this->g.x, this->g.y, this->g.z);
+    tf::Vector3 position(this->g.getX(), this->g.getY(), this->g.getZ());
     tf::pointTFToMsg(position, active_marker.pose.position);
     active_marker.scale = std::max(interaction_radius, g.getRadius());//sqrtf(g.sx*g.sx + g.sy*g.sy);
 
@@ -164,17 +155,17 @@ namespace ros{
     marker.id = this->id;
     marker.type = get_shape();
     marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.position.x = g.x;
-    marker.pose.position.y = g.y;
-    marker.pose.position.z = g.z;
+    marker.pose.position.x = g.getX();
+    marker.pose.position.y = g.getY();
+    marker.pose.position.z = g.getZ();
     marker.pose.orientation.x = g.getQuaternionX();
     marker.pose.orientation.y = g.getQuaternionY();
     marker.pose.orientation.z = g.getQuaternionZ();
     marker.pose.orientation.w = g.getQuaternionW();
 
-    marker.scale.x = g.sx;
-    marker.scale.y = g.sy;
-    marker.scale.z = g.sz;
+    marker.scale.x = g.getSX();
+    marker.scale.y = g.getSY();
+    marker.scale.z = g.getSZ();
 
     Color c = get_color();
     marker.color.r = c.r;
@@ -209,12 +200,12 @@ namespace ros{
     g.print();
   }
   void RVIZVisualMarker::setXYT(double x, double y, double yaw_rad){
-    g.x = x;
-    g.y = y;
+    g.setX(x);
+    g.setY(y);
     g.setRPYRadian(0,0,yaw_rad+csf_in_chest_yaw_);
   }
   bool RVIZVisualMarker::isChanged(double threshold){
-    if( dist(g.x, g_old.x, g.y, g_old.y) > threshold ){
+    if( dist(g.getX(), g_old.getX(), g.getY(), g_old.getY()) > threshold ){
       g_old = g;
       return true;
     }
@@ -230,7 +221,7 @@ namespace ros{
     }
   }
   visualization_msgs::Marker RVIZVisualMarker::createTextMarker(){
-    visualization_msgs::Marker cmarker;// = new Text( this->g.x, this->g.y, this->g.z + 1, cc);
+    visualization_msgs::Marker cmarker;// = new Text( this->g.getX(), this->g.getY(), this->g.z + 1, cc);
     //textMarker->publish();
     char fname[50];
     std::string name = this->name();
@@ -241,8 +232,8 @@ namespace ros{
     cmarker.type =  visualization_msgs::Marker::TEXT_VIEW_FACING;
     cmarker.action = visualization_msgs::Marker::ADD;
     cmarker.text = this->text;
-    cmarker.pose.position.x = g.x;
-    cmarker.pose.position.y = g.y;
+    cmarker.pose.position.x = g.getX();
+    cmarker.pose.position.y = g.getY();
     cmarker.pose.position.z = this->getTextZ();
     cmarker.pose.orientation.x = 0.0;
     cmarker.pose.orientation.y = 0.0;
@@ -281,17 +272,17 @@ namespace ros{
     marker.id = this->id;
     marker.type = get_shape();
     marker.action = visualization_msgs::Marker::ADD;
-    marker.pose.position.x = g.x;
-    marker.pose.position.y = g.y;
-    marker.pose.position.z = g.z;
+    marker.pose.position.x = g.getX();
+    marker.pose.position.y = g.getY();
+    marker.pose.position.z = g.getZ();
     marker.pose.orientation.x = g.getQuaternionX();
     marker.pose.orientation.y = g.getQuaternionY();
     marker.pose.orientation.z = g.getQuaternionZ();
     marker.pose.orientation.w = g.getQuaternionW();
 
-    marker.scale.x = g.sx;
-    marker.scale.y = g.sy;
-    marker.scale.z = g.sz;
+    marker.scale.x = g.getSX();
+    marker.scale.y = g.getSY();
+    marker.scale.z = g.getSZ();
 
     Color c = get_color();
     marker.color.r = c.r;
@@ -308,17 +299,17 @@ namespace ros{
   void RVIZVisualMarker::update_marker( visualization_msgs::Marker &marker ){
     marker.id = this->id;
     marker.type = get_shape();
-    marker.pose.position.x = g.x;
-    marker.pose.position.y = g.y;
-    marker.pose.position.z = g.z;
+    marker.pose.position.x = g.getX();
+    marker.pose.position.y = g.getY();
+    marker.pose.position.z = g.getZ();
     marker.pose.orientation.x = g.getQuaternionX();
     marker.pose.orientation.y = g.getQuaternionY();
     marker.pose.orientation.z = g.getQuaternionZ();
     marker.pose.orientation.w = g.getQuaternionW();
 
-    marker.scale.x = g.sx;
-    marker.scale.y = g.sy;
-    marker.scale.z = g.sz;
+    marker.scale.x = g.getSX();
+    marker.scale.y = g.getSY();
+    marker.scale.z = g.getSZ();
 
     Color cc = get_color();
     std_msgs::ColorRGBA c;
@@ -354,9 +345,9 @@ namespace ros{
 
     line.scale.x = 0.01;
     geometry_msgs::Point p;
-    p.x = g.x;
-    p.y = g.y;
-    p.z = g.z;
+    p.x = g.getX();
+    p.y = g.getY();
+    p.z = g.getZ();
 
     geometry_msgs::Point p2;
     p2.x = x_in;
@@ -400,11 +391,11 @@ namespace ros{
     geometry_msgs::Transform t = tf.transform;
     std::string name_id = tf.child_frame_id;
 
-    g.x = t.translation.x + const_offset_x;
-    g.y = t.translation.y + const_offset_y;
+    g.setX( t.translation.x + const_offset_x );
+    g.setY( t.translation.y + const_offset_y );
 
-    g.x =  cos(const_offset_yaw)*g.x + sin(const_offset_yaw)*g.y;
-    g.y = -sin(const_offset_yaw)*g.x + cos(const_offset_yaw)*g.y;
+    g.setX( cos(const_offset_yaw)*g.getX() + sin(const_offset_yaw)*g.getY() );
+    g.setY( -sin(const_offset_yaw)*g.getX() + cos(const_offset_yaw)*g.getY() );
 
     double qx = t.rotation.x;
     double qy = t.rotation.y;
@@ -421,8 +412,8 @@ namespace ros{
     g.setQuaternionW(q.getW());
           
     DEBUG(
-          if( g.x > 10000 || g.y > 10000 ){
-            std::cout << "[" << tf.child_frame_id << "] " << g.x << " " << g.y << " " << yaw << std::endl;
+          if( g.getX() > 10000 || g.getY() > 10000 ){
+            std::cout << "[" << tf.child_frame_id << "] " << g.getX() << " " << g.getY() << " " << yaw << std::endl;
             std::cout << "[" << tf.child_frame_id << "] " << t.translation.x << " " << t.translation.y << " " << yaw << std::endl;
           }
           )
@@ -469,6 +460,6 @@ namespace ros{
     thread_start();
   }
   double RVIZVisualMarker::getTextZ(){
-    return g.z+g.sz+0.1;
+    return g.getZ()+g.getSZ()+0.1;
   }
 }

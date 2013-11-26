@@ -7,7 +7,7 @@
 #include "contact_transition.h"
 #include "util/util.h"
 #include "rviz/visualmarker.h"
-#include "rviz/visualmarker.h"
+#include "rviz/primitive_marker.h"
 
 #define DEBUG(x)
 #define TIMER_DEBUG(x)
@@ -23,10 +23,10 @@ ContactTransition::ContactTransition( ros::Geometry &g){
 }
 double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	//heuristic = distance to goal (classical l2 norm)
-	double xg = nodeGoal.g.x;
-	double yg = nodeGoal.g.y;
-	double x = this->g.x;
-	double y = this->g.y;
+	double xg = nodeGoal.g.getX();
+	double yg = nodeGoal.g.getY();
+	double x = this->g.getX();
+	double y = this->g.getY();
 	//return norml1(x,xg,y,yg);
 	return norml2(x,xg,y,yg) + 0.02*this->rel_yaw*this->rel_yaw;
 }
@@ -38,14 +38,14 @@ void ContactTransition::cleanStatic(){
 	objects.clear();
 }
 bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
-	double x = this->g.x;
-	double xg = nodeGoal.g.x;
-	double y = this->g.y;
-	double yg = nodeGoal.g.y;
+	double x = this->g.getX();
+	double xg = nodeGoal.g.getX();
+	double y = this->g.getY();
+	double yg = nodeGoal.g.getY();
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	return sqrtf( (x-xg)*(x-xg) + (y-yg)*(y-yg) ) < 0.22 && sqrtf( (t-tg)*(t-tg))<M_PI;
-	//return norml2(this->g.x, nodeGoal.g.x, this->g.y, nodeGoal.g.y) < 0.22;
+	//return norml2(this->g.getX(), nodeGoal.g.getX(), this->g.getY(), nodeGoal.g.getY()) < 0.22;
 }
 
 //
@@ -76,8 +76,8 @@ ros::Geometry ContactTransition::computeRelFFfromAbsFF(
 	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
 
 	ros::Geometry ff_rel;
-	ff_rel.x = ff_rel_x;
-	ff_rel.y = ff_rel_y;
+	ff_rel.setX(ff_rel_x);
+	ff_rel.setY(ff_rel_y);
 	ff_rel.setRPYRadian(0,0,ff_rel_yaw);
 
 	return ff_rel;
@@ -107,8 +107,8 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 	//while(ff_abs_yaw<-M_PI) ff_abs_yaw+=2*M_PI;
 
 	ros::Geometry ff_abs;
-	ff_abs.x = ff_abs_x;
-	ff_abs.y = ff_abs_y;
+	ff_abs.setX(ff_abs_x);
+	ff_abs.setY(ff_abs_y);
 	ff_abs.setRPYRadian(0,0,ff_abs_yaw);
 
 	return ff_abs;
@@ -124,8 +124,8 @@ bool ContactTransition::isInCollision( std::vector< std::vector<double> > &fsi, 
     double robo_cylinder = 0.0;
     for(  oit = objects.begin(); oit != objects.end(); ++oit ){
       ros::PrimitiveMarkerBox *box = static_cast<ros::PrimitiveMarkerBox*>(*oit);
-      double xo = box->g.x;
-      double yo = box->g.y;
+      double xo = box->g.getX();
+      double yo = box->g.getY();
       double ro = std::max(box->w, box->l);
 
       double dist_robo_obj = dist(xo, xr, yo, yr);
@@ -194,7 +194,6 @@ void ContactTransition::feasibilityVisualizer(){
 		}
 
 		if(ff_start_feasible){
-			int c=0;
 			ActionSpace::const_iterator it;
 			for(  it = constraints->actionSpace.begin(); it != constraints->actionSpace.end(); ++it ){
 
@@ -205,10 +204,10 @@ void ContactTransition::feasibilityVisualizer(){
 					double next_ff_rel_yaw = it->second.at(2);
 					ros::Geometry ng = this->computeAbsFFfromRelFF(sf_abs_x, sf_abs_y, sf_abs_yaw, next_ff_rel_x, next_ff_rel_y, next_ff_rel_yaw, sf_foot);
 					if(sf_foot=='L'){
-						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "green");
+						ros::ColorFootMarker rp(ng.getX(), ng.getY(), ng.getYawRadian(), "green");
 						rp.publish();
 					}else{
-						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "red");
+						ros::ColorFootMarker rp(ng.getX(), ng.getY(), ng.getYawRadian(), "red");
 						rp.publish();
 					}
 				}
@@ -228,8 +227,8 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	//absolute means the position in the global world coordinate frame
 
 	//get absolute position of support foot (SF)
-	double sf_abs_x = parent->g.x;
-	double sf_abs_y = parent->g.y;
+	double sf_abs_x = parent->g.getX();
+	double sf_abs_y = parent->g.getY();
 	double sf_abs_yaw = parent->g.getYawRadian();
 
 	TIMER_DEBUG(timer->begin("prepare"));
@@ -265,7 +264,7 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 	if(ff_start_feasible){
 		DEBUG(
 			if(foot=='L'){
-				ros::ColorFootMarker rp(parent->g.x, parent->g.y, parent->g.getYawRadian(),"white");
+				ros::ColorFootMarker rp(parent->g.getX(), parent->g.getY(), parent->g.getYawRadian(),"white");
 				rp.reset();
 				rp.publish();
 			}
@@ -300,10 +299,10 @@ bool ContactTransition::GetSuccessors( AStarSearch<ContactTransition> *astarsear
 
 				DEBUG(
 					if(foot=='L'){
-						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "green");
+						ros::ColorFootMarker rp(ng.getX(), ng.getY(), ng.getYawRadian(), "green");
 						rp.publish();
 					}else{
-						ros::ColorFootMarker rp(ng.x, ng.y, ng.getYawRadian(), "red");
+						ros::ColorFootMarker rp(ng.getX(), ng.getY(), ng.getYawRadian(), "red");
 						rp.publish();
 					}
 				)
@@ -325,11 +324,11 @@ double ContactTransition::GetCost( ContactTransition &successor ){
 	return successor.cost_so_far;
 }
 bool ContactTransition::IsSameState( ContactTransition &rhs ){
-	double xg = rhs.g.x;
-	double yg = rhs.g.y;
+	double xg = rhs.g.getX();
+	double yg = rhs.g.getY();
 	double yawg = rhs.g.getYawRadian();
-	double x = this->g.x;
-	double y = this->g.y;
+	double x = this->g.getX();
+	double y = this->g.getY();
 	double yaw = this->g.getYawRadian();
 	return sqrt( (x-xg)*(x-xg) + (y-yg)*(y-yg) + (yaw-yawg)*(yaw-yawg))<0.01;
 }

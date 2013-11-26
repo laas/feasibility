@@ -8,12 +8,11 @@ namespace ros{
 
 		tris_file_name = get_tris_str(trisname);
 
-		this->g.x = x;
-		this->g.y = y;
-
-		this->g.sx = 1.0;
-		this->g.sy = 1.0;
-		this->g.sz = 1.0;
+		this->g.setX(x);
+		this->g.setY(y);
+		this->g.setSX(1.0);
+		this->g.setSY(1.0);
+		this->g.setSZ(1.0);
 
 		this->pqp_model = new PQP_Model;
 		this->pqp_margin = new PQP_Model;

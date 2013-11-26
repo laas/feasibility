@@ -28,63 +28,14 @@
 #include <pqp/PQP.h>
 
 #include "util/util.h"
+#include "rviz/geometry.h"
+#include "rviz/color.hh"
+#include "rviz/definitions.hh"
 #include "rviz/rviz_interface.h"
-
 
 struct FCLInterface;
 
 namespace ros{
-	//predefined objects
-	typedef fcl::AABB BoundingVolume;
-	//typedef fcl::OBBRSS BoundingVolume;
-	struct TriangleObjectChair;
-	//static const char *FRAME_NAME = "/mocap_world";
-	static const char *FRAME_NAME = "/world_frame";
-	static const double ROS_DURATION = 0;
-
-	class Geometry{
-		double rx,ry,rz,rw; //quaternions
-	public:
-		Geometry();
-		double x,y,z;
-		double sx,sy,sz; //scale
-		double radius,height;
-		void print();
-		double getQuaternionX();
-		double getQuaternionY(); 
-		double getQuaternionZ(); 
-		double getQuaternionW(); 
-		void setQuaternionX(double);
-		void setQuaternionY(double); 
-		void setQuaternionZ(double); 
-		void setQuaternionW(double); 
-		void setRPYRadian(double roll, double pitch, double yaw); //yaw, in radians of course 
-		double getYawRadian(); //yaw, in radians of course 
-		double getHeight();
-		double getRadius();
-	};
-
-	struct Color{
-		Color();
-		Color(const Color&);
-		Color(double r, double g, double b, double a=0.9);
-		double r,g,b,a;
-		void print(){
-			ROS_INFO("COLOR -> %f %f %f %f", r,g,b,a);
-		}
-	};
-	static Color DEFAULT(1.0,0.3,0.0,1.0);
-	static Color RED(1.0,0.2,0.0,1.0);
-	static Color BLUE(0.1,0.9,0.0,1.0);
-	static Color DARKGREEN(0.3,0.7,0.0,1.0);
-	static Color WHITE(1.0,1.0,1.0,1.0);
-	static Color MAGENTA(0.9,0.0,0.9,1.0);
-	static Color SWEPT_VOLUME(0.6,0.0,0.6,0.3);
-	static Color OBSTACLE(0.6,0.0,0.6,0.4);
-
-	//static Color TEXT_COLOR(0.9,0.9,0.9,1.0);
-	static Color TEXT_COLOR(0.1,0.1,0.1,1.0);
-
 	class RVIZVisualMarker{
 	protected:
 		static RVIZInterface *rviz; 
@@ -225,40 +176,6 @@ namespace ros{
 
 	};
 
-	struct PrimitiveMarkerTriangle: public TriangleObject{
-		public:
-			uint32_t get_shape();
-			PrimitiveMarkerTriangle();
-		protected:
-			void initPrimitiveMarker( PrimitiveMarkerTriangle *pmt );
-			void primitiveMarker2PQP(PQP_Model *m, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt);
-			void primitiveMarker2BVH(fcl::BVHModel< BoundingVolume > *m, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt);
-			void primitiveMarker2RVIZMarker(visualization_msgs::Marker &marker, std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > &vt);
-			uint Ntriangles; //number of triangles
-			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
-							getVerticesAndTriangles() = 0;
-	};
-
-	struct PrimitiveMarkerCylinder: public PrimitiveMarkerTriangle{
-		double height;
-		double radius;
-		
-		public:
-			PrimitiveMarkerCylinder(double x, double y, double r, double h);
-			virtual std::string name();
-
-			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
-			getVerticesAndTriangles();
-			void reloadCylinderBVH(double radius, double height);
-	};
-	struct PrimitiveMarkerBox: public PrimitiveMarkerTriangle{
-		public:
-			double w,l,h;
-			PrimitiveMarkerBox(double x, double y, double l, double w, double h);
-			virtual std::string name();
-			virtual std::pair< std::vector<fcl::Vec3f>, std::vector<fcl::Triangle> > 
-			getVerticesAndTriangles();
-	};
 
 	struct TrisTriangleObject: public TriangleObject{
 		static uint mesh_counter;

@@ -61,13 +61,13 @@ namespace ros{
 		MRotZ(R1, t);
 		MRotZ(R2, tr);
 
-		T1[0] = g.x;
-		T1[1] = g.y;
-		T1[2] = g.z;
+		T1[0] = g.getX();
+		T1[1] = g.getY();
+		T1[2] = g.getZ();
 
-		T2[0] = rhs.g.x;
-		T2[1] = rhs.g.y;
-		T2[2] = rhs.g.z;
+		T2[0] = rhs.g.getX();
+		T2[1] = rhs.g.getY();
+		T2[2] = rhs.g.getZ();
 
 		PQP_CollideResult cres;
 		DEBUG(ROS_INFO("[PQP] %d <-> %d", this->pqp_model->num_tris, rhs.pqp_model->num_tris);)
@@ -90,8 +90,8 @@ namespace ros{
 				  sin(tr),cos(tr) ,0,
 				  0     ,0      ,1);
 
-		fcl::Vec3f d1(g.x,g.y,g.z);
-		fcl::Vec3f d2(rhs.g.x,rhs.g.y,rhs.g.z);
+		fcl::Vec3f d1(g.getX(),g.getY(),g.getZ());
+		fcl::Vec3f d2(rhs.g.getX(),rhs.g.getY(),rhs.g.getZ());
 
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);
@@ -122,13 +122,13 @@ namespace ros{
 				  sin(tr),cos(tr) ,0,
 				  0     ,0      ,1);
 
-		fcl::Vec3f d1(g.x,g.y,g.z);
-		fcl::Vec3f d2(rhs.g.x,rhs.g.y,rhs.g.z);
+		fcl::Vec3f d1(g.getX(),g.getY(),g.getZ());
+		fcl::Vec3f d2(rhs.g.getX(),rhs.g.getY(),rhs.g.getZ());
 
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);
 
-		DEBUG(ROS_INFO("objects positions %f %f %f and %f %f %f", g.x, g.y, g.z, rhs.g.x, rhs.g.y, rhs.g.z);)
+		DEBUG(ROS_INFO("objects positions %f %f %f and %f %f %f", g.getX(), g.getY(), g.getZ(), rhs.g.getX(), rhs.g.getY(), rhs.g.getZ());)
 
 		//########################################################################
 		//distance checker

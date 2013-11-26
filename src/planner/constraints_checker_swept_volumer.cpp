@@ -91,8 +91,8 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 	std::vector<ros::RVIZVisualMarker*>::iterator oit;
 	objects_.clear();
 	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
-		double x = (*oit)->g.x;
-		double y = (*oit)->g.y;
+		double x = (*oit)->g.getX();
+		double y = (*oit)->g.getY();
 		double yaw = (*oit)->g.getYawRadian();
 
 		//translate object, so that origin and sf origin conincide
@@ -124,8 +124,8 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition(std::vector<ros::RVIZVisual
 		//o->set_bvh_ptr( t->get_bvh_ptr() );
 		o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
 
-		o->g.x = rx;
-		o->g.y = ry;
+		o->g.setX( rx );
+		o->g.setY( ry );
 		objects_.push_back(o);
 	}
 	return v;
@@ -169,9 +169,9 @@ void ConstraintsCheckerSweptVolume::loadSweptVolumesToHashMap(const char *path){
 				rel_file_path += file.c_str();
 
 				ros::Geometry g;
-				g.x = v.at(0);
-				g.y = v.at(1);
-				g.z = 0.0;
+				g.setX(v.at(0));
+				g.setY(v.at(1));
+				g.setZ(0.0);
 				g.setRPYRadian(0,0, v.at(2) );
 				ros::SweptVolumeObject* sv = new ros::SweptVolumeObject(rel_file_path.c_str(), g);
 
