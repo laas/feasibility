@@ -58,7 +58,6 @@ void Environment::thread_publish(){
   ros::Rate r(10); //Hz
   while(1){
 		{
-			boost::mutex::scoped_lock lock(util_mutex);
 			DEBUG(std::cout << "[ENV] >>>>>>||" << std::flush;)
 			bool change = false;
 			std::vector<ros::RVIZVisualMarker*>::iterator obj;
@@ -156,7 +155,6 @@ void Environment::clean(){
 }
 
 std::vector<ros::RVIZVisualMarker*> Environment::getObjects(){
-  boost::mutex::scoped_lock lock(util_mutex);
   return objects;
 }
 

@@ -4,7 +4,67 @@
 #include "util/util.h"
 
 namespace ros{
-	double Geometry::getYawRadian(){
+  void Geometry::lock(){
+    mutex.lock();
+  }
+  void Geometry::unlock(){
+    mutex.unlock();
+  }
+  Geometry::Geometry( const Geometry& rhs ){
+    this->lock();
+    if(this!=&rhs){
+
+      this->setX( rhs.getX() );
+      this->setY( rhs.getY() );
+      this->setZ( rhs.getZ() );
+      this->setSX( rhs.getSX() );
+      this->setSY( rhs.getSY() );
+      this->setSZ( rhs.getSZ() );
+      this->setQuaternionX( rhs.getQuaternionX() );
+      this->setQuaternionY( rhs.getQuaternionY() );
+      this->setQuaternionZ( rhs.getQuaternionZ() );
+      this->setQuaternionW( rhs.getQuaternionW() );
+      this->setRadius( rhs.getRadius() );
+      this->setHeight( rhs.getHeight() );
+    }
+    this->unlock();
+  }
+
+  Geometry& Geometry::operator=(Geometry rhs){
+    rhs.lock();
+    this->lock();
+    if(this!=&rhs){
+      this->setX( rhs.getX() );
+      this->setY( rhs.getY() );
+      this->setZ( rhs.getZ() );
+      this->setSX( rhs.getSX() );
+      this->setSY( rhs.getSY() );
+      this->setSZ( rhs.getSZ() );
+      this->setQuaternionX( rhs.getQuaternionX() );
+      this->setQuaternionY( rhs.getQuaternionY() );
+      this->setQuaternionZ( rhs.getQuaternionZ() );
+      this->setQuaternionW( rhs.getQuaternionW() );
+      this->setRadius( rhs.getRadius() );
+      this->setHeight( rhs.getHeight() );
+    }
+    rhs.unlock();
+    this->unlock();
+    return *this;
+  }
+
+	double Geometry::getX() const { return this->x; }
+	double Geometry::getY() const { return this->y; }
+	double Geometry::getZ() const { return this->z; }
+	double Geometry::getSX() const { return this->sx; }
+	double Geometry::getSY() const { return this->sy; }
+	double Geometry::getSZ() const { return this->sz; }
+	double Geometry::getRadius() const { return this->radius; }
+	double Geometry::getHeight() const { return this->height; }
+	double Geometry::getQuaternionX() const { return this->rx; }
+	double Geometry::getQuaternionY() const { return this->ry; }
+	double Geometry::getQuaternionZ() const { return this->rz; }
+	double Geometry::getQuaternionW() const { return this->rw; }
+	double Geometry::getYawRadian() const{
 		tf::Quaternion q(this->rx, this->ry, this->rz, this->rw);
 		double roll, pitch, yaw;
 
@@ -16,19 +76,6 @@ namespace ros{
 
 		return yaw;
 	}
-	double Geometry::getX(){ return this->x; }
-	double Geometry::getY(){ return this->y; }
-	double Geometry::getZ(){ return this->z; }
-	double Geometry::getSX(){ return this->sx; }
-	double Geometry::getSY(){ return this->sy; }
-	double Geometry::getSZ(){ return this->sz; }
-	double Geometry::getRadius(){ return this->radius; }
-	double Geometry::getHeight(){ return this->height; }
-
-	double Geometry::getQuaternionX(){ return rx; }
-	double Geometry::getQuaternionY(){ return ry; }
-	double Geometry::getQuaternionZ(){ return rz; }
-	double Geometry::getQuaternionW(){ return rw; }
 
 	void Geometry::setX(double r){ this->x=r; }
 	void Geometry::setY(double r){ this->y=r; }

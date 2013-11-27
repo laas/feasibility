@@ -20,7 +20,6 @@
 //##########################################################################
 // stable utility functions (misc)
 //##########################################################################
-static boost::mutex util_mutex;
 
 FILE *fopen_s(const char *path, const char *mode);
 void std_seed();

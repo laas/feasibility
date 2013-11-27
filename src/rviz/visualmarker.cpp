@@ -46,9 +46,11 @@ namespace ros{
                                   << feedback->pose.position.x << ", " << feedback->pose.position.y);)
 
     //update geometry
+    this->g.lock();
     this->g.setX(feedback->pose.position.x);
     this->g.setY(feedback->pose.position.y);
     this->g.setZ(feedback->pose.position.z);
+    this->g.unlock();
     update_marker();
     boost::this_thread::interruption_point();
   }
@@ -386,8 +388,9 @@ namespace ros{
           return;
         evart_it_current_++;
       }
+
+    g.lock();
             
-    boost::mutex::scoped_lock lock(util_mutex);
     geometry_msgs::Transform t = tf.transform;
     std::string name_id = tf.child_frame_id;
 
@@ -418,7 +421,8 @@ namespace ros{
           }
           )
 
-      update_marker();
+    update_marker();
+    g.unlock();
     boost::this_thread::interruption_point();
   }
 
