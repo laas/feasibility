@@ -31,6 +31,9 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double dn = norml2(x,xg,y,yg);
 
+	//using a penalty term in the vicinity of the goal to align the robot body
+	//with the goal direction. addditional, we assure that the heuristic has a
+	//smooth transition at the threshold
 	double threshold = 0.08;
 	if(dn > threshold){
 	  return dn;

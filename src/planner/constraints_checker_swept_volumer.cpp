@@ -30,7 +30,7 @@ isInCollision(
     std::vector< std::vector<double> > &fsi, 
     uint current_step_index ){
 
-  ROS_INFO("[SWEPTVOLUME] COLLISION CHECK FROM STEP %d",current_step_index);
+  //ROS_INFO("[SWEPTVOLUME] COLLISION CHECK FROM STEP %d",current_step_index);
 	for(uint i=current_step_index; i < fsi.size()-1; i++){ //last steps are prescripted
 
     double sf_rel_x = fsi.at(i).at(0); //relative values
@@ -59,10 +59,10 @@ isInCollision(
       double dist = sv->pqp_distance_to(**oit);
 
       if( dist <= 0 ){
-        ROS_INFO("****************************");
-        ROS_INFO("[WARNING] COLLISION AT STEP %d/%d",i,fsi.size());
-        ROS_INFO("[WARNING] ( %f , %f , %f )", sv->g.getX(), sv->g.getY(), sv->g.getYawRadian()); 
-        ROS_INFO("****************************");
+        //ROS_INFO("****************************");
+        //ROS_INFO("[WARNING] COLLISION AT STEP %d/%d",i,fsi.size());
+        //ROS_INFO("[WARNING] ( %f , %f , %f )", sv->g.getX(), sv->g.getY(), sv->g.getYawRadian()); 
+        //ROS_INFO("****************************");
         ros::ColorFootMarker m(sf_abs_x, sf_abs_y, sf_abs_yaw,"yellow");
         m.g.setSX(0.33); //0.24
         m.g.setSY(0.19); //0.14

@@ -305,9 +305,9 @@ struct MotionPlannerAStar: public MotionPlanner{
 			}
 			publish_footstep_vector();
 			if( ContactTransition::isInCollision(fsi, current_step_index_ ) ){
-        ROS_INFO("********************************");
-        ROS_INFO("COLLISION WARNING");
-        ROS_INFO("********************************");
+        //ROS_INFO("********************************");
+        //ROS_INFO("COLLISION WARNING");
+        //ROS_INFO("********************************");
         lock.unlock();
         //ros::Rate rq(1);
         //rq.sleep();
