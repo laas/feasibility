@@ -25,10 +25,20 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	//heuristic = distance to goal (classical l2 norm)
 	double xg = nodeGoal.g.getX();
 	double yg = nodeGoal.g.getY();
+	double yawg = nodeGoal.g.getYawRadian();
 	double x = this->g.getX();
 	double y = this->g.getY();
-	//return norml1(x,xg,y,yg);
-	return norml2(x,xg,y,yg) + 0.02*this->rel_yaw*this->rel_yaw;
+	double t = this->g.getYawRadian();
+	double dn = norml2(x,xg,y,yg);
+
+	double threshold = 0.5;
+	if(dn > threshold){
+	  return dn;
+  }else{
+    double dy = sqrt((t-yawg)*(t-yawg));
+    double maxy = sqrt((yawg-M_PI)*(yawg-M_PI));
+    return threshold*(dn + dy/maxy)*0.5;
+  }
 }
 void ContactTransition::cleanStatic(){
 	std::vector<ros::RVIZVisualMarker*>::iterator oit;
@@ -44,8 +54,8 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	double yg = nodeGoal.g.getY();
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
-	return sqrtf( (x-xg)*(x-xg) + (y-yg)*(y-yg) ) < 0.22 && sqrtf( (t-tg)*(t-tg))<M_PI;
-	//return norml2(this->g.getX(), nodeGoal.g.getX(), this->g.getY(), nodeGoal.g.getY()) < 0.22;
+	//return norml2(x,xg,y,yg) < 0.22 && sqrtf( (this->rel_yaw-yawg)*(this->rel_yaw-yawg))<M_PI/2;
+	return norml2(x,xg,y,yg) < 0.05 && sqrtf( (t-tg)*(t-tg) ) < M_PI/8;
 }
 
 //

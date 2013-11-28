@@ -172,6 +172,20 @@ struct MotionPlannerAStar: public MotionPlanner{
       }
     if(!fs_vector.empty()){
       fs_vector.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
+
+      char last_sf_f = fs_vector.at( fs_vector.size() -1 ).at(3);
+      char ps_f = (last_sf_f == 'R'?'L':'R');
+
+      double xg = this->goal.g.getX();
+      double yg = this->goal.g.getY();
+      double yawg = this->goal.g.getYawRadian();
+
+      double xl = fs_vector.at(fs_vector.size() -1 ).at(4);
+      double yl = fs_vector.at(fs_vector.size() -1 ).at(5);
+      double yawl = fs_vector.at(fs_vector.size() -1 ).at(6);
+
+      std::vector<double> pre_script_foot = vecD(0,-0.2,0, ps_f, xl, yl, yawl);
+      fs_vector.push_back(pre_script_foot);
     }
     DEBUG(
     		Logger footlogger("footsteps.dat");
