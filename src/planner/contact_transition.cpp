@@ -9,7 +9,7 @@
 #include "rviz/visualmarker.h"
 #include "rviz/primitive_marker.h"
 
-#define DEBUG(x)
+#define DEBUG(x) 
 #define TIMER_DEBUG(x)
 
 ContactTransition::ContactTransition(){
@@ -31,13 +31,15 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double dn = norml2(x,xg,y,yg);
 
-	double threshold = 0.5;
+	double threshold = 0.08;
 	if(dn > threshold){
 	  return dn;
   }else{
     double dy = sqrt((t-yawg)*(t-yawg));
     double maxy = sqrt((yawg-M_PI)*(yawg-M_PI));
-    return threshold*(dn + dy/maxy)*0.5;
+    double weightDist = 0.5;
+    return threshold*(weightDist*dn/threshold+ (1.0-weightDist)*dy/maxy)*0.5;
+    //return threshold*(dy/maxy);
   }
 }
 void ContactTransition::cleanStatic(){
@@ -55,7 +57,7 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	//return norml2(x,xg,y,yg) < 0.22 && sqrtf( (this->rel_yaw-yawg)*(this->rel_yaw-yawg))<M_PI/2;
-	return norml2(x,xg,y,yg) < 0.05 && sqrtf( (t-tg)*(t-tg) ) < M_PI/8;
+	return norml2(x,xg,y,yg) <= 0.1 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/8;
 }
 
 //
