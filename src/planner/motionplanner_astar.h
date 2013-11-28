@@ -221,8 +221,45 @@ struct MotionPlannerAStar: public MotionPlanner{
       return;
     }
 
-    fsi.erase(min(fsi.begin() + current_step_index_ + step_horizon, fsi.end()), fsi.end());
-    fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
+    //check which step in fsi is the fsi start position
+    bool found = false;
+    int fsi_last_element = -1;
+    int fsi_new_first_element = -1;
+    for(uint i = current_step_index_ ; i< fsi.size() ; i++){
+      double x = fsi.at(i).at(4);
+      double y = fsi.at(i).at(5);
+      double t = fsi.at(i).at(6);
+      char f = fsi.at(i).at(3);
+      for(uint j = 0; j< fsi_new.size() ; j++){
+        double xn = fsi_new.at(j).at(4);
+        double yn = fsi_new.at(j).at(5);
+        double tn = fsi_new.at(j).at(6);
+        char fn = fsi_new.at(j).at(3);
+        double d= norml2(x,xn,y,yn);
+        if(d<0.0001 && f==fn){
+          fsi_last_element = i;
+          fsi_new_first_element = j;
+          found = true;
+          break;
+        }
+      }
+      if(found) break;
+    }
+    if(!found){
+      ROS_INFO("*************************************");
+      ROS_INFO("[FATAL_ERROR] Could not connect replanned path to old path");
+      ROS_INFO("*************************************");
+      cout << fsi.size() << endl;
+      cout << fsi_new.size() << endl;
+      cout << fsi << endl;
+      cout << fsi_new << endl;
+      exit(-1);
+    }
+
+    fsi.erase( fsi.begin()+fsi_last_element, fsi.end());
+    fsi.insert( fsi.end(), fsi_new.begin()+fsi_new_first_element, fsi_new.end() );
+    //fsi.erase(min(fsi.begin() + current_step_index_ + step_horizon, fsi.end()), fsi.end());
+    //fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
 
   }
   void steps_to_results(){
@@ -250,7 +287,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       }
     }
     //update start pos for further replanning
-    uint i=current_step_index_+3;
+    uint i=current_step_index_ + 3;
 
     if(i<fsi.size()){
       double x = fsi.at(i).at(4);

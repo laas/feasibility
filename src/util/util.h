@@ -86,7 +86,7 @@ public:
 template<typename T> 
 std::ostream &operator<<(std::ostream &s,std::vector< std::vector<T> > tt) { 
 	for(uint i=0;i<tt.size();i++){
-		s << tt;
+		s << tt.at(i) << std::endl;
 	}
 	return s;
 

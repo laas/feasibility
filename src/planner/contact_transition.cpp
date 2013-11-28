@@ -60,7 +60,7 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	//return norml2(x,xg,y,yg) < 0.22 && sqrtf( (this->rel_yaw-yawg)*(this->rel_yaw-yawg))<M_PI/2;
-	return norml2(x,xg,y,yg) <= 0.1 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/8;
+	return norml2(x,xg,y,yg) <= 0.15 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/8;
 }
 
 //
