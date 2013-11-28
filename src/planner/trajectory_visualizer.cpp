@@ -58,8 +58,6 @@ init(std::vector<double> &q)
   if(publish_configurations){
     ROS_INFO("***********************************************");
     ROS_INFO("WARNING publishing Q !");
-    ROS_INFO("WARNING publishing Q !");
-    ROS_INFO("WARNING publishing Q !");
     ROS_INFO("***********************************************");
 	}
 }

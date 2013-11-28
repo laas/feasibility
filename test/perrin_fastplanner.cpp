@@ -22,7 +22,6 @@ using namespace ros;
 bool plan=false;
 
 boost::shared_ptr<boost::thread> astar_thread;
-
 void update(const std_msgs::Bool& stopPlanner){
 	plan = !stopPlanner.data;
 }
@@ -65,8 +64,8 @@ int main( int argc, char** argv )
 	environment = Environment::getSalleBauzil();
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
-	//cc = new ConstraintsCheckerSweptVolume();
-	cc = new ConstraintsCheckerNaive();
+	cc = new ConstraintsCheckerSweptVolume();
+	//cc = new ConstraintsCheckerNaive();
 	astar->setConstraintsChecker(cc);
 
 	while (ros::ok())

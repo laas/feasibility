@@ -42,9 +42,9 @@ namespace ros{
 		this->g = in;
 
 		double scale = 1.0;
-		this->g.setX(scale);
-		this->g.setY(scale);
-		this->g.setZ(scale);
+		this->g.setSX(scale);
+		this->g.setSY(scale);
+		this->g.setSZ(scale);
 		this->tris_file_name=f;
 
 		this->pqp_model = new PQP_Model;
@@ -188,9 +188,9 @@ namespace ros{
 		this->g = in;
 
 		double scale = 1.0;
-		this->g.setX(scale);
-		this->g.setY(scale);
-		this->g.setZ(scale);
+		this->g.setSX(scale);
+		this->g.setSY(scale);
+		this->g.setSZ(scale);
 		this->tris_file_name=f;
 
 		this->tris2marker( this->marker, tris_file_name.c_str() );
@@ -204,9 +204,9 @@ namespace ros{
 		this->g = in;
 
 		double scale = 1.0;
-		this->g.setX(scale);
-		this->g.setY(scale);
-		this->g.setZ(scale);
+		this->g.setSX(scale);
+		this->g.setSY(scale);
+		this->g.setSZ(scale);
 		this->tris_file_name=f;
 		//this->bvh = new fcl::BVHModel< BoundingVolume >();
 		//this->tris2BVH(this->bvh, tris_file_name.c_str() );

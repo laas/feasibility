@@ -34,6 +34,10 @@ public:
 	prepareObjectPosition(std::vector<ros::RVIZVisualMarker*> &obj, 
 			double sf_x, double sf_y, double sf_yaw, char foot)=0;
 	virtual bool 
-	isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index );
+	isInCollision( 
+      std::vector<ros::RVIZVisualMarker*> &obj, 
+	    std::vector< std::vector<double> > &fsi, 
+	    uint current_step_index 
+  );
 
 };

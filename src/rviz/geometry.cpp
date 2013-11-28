@@ -90,6 +90,9 @@ namespace ros{
 	void Geometry::setQuaternionY(double r){ this->ry=r; }
 	void Geometry::setQuaternionZ(double r){ this->rz=r; }
 	void Geometry::setQuaternionW(double r){ this->rw=r; }
+	void Geometry::setYawRadian(double r){ 
+    setRPYRadian(0,0,r);
+  }
 
 	void Geometry::setRPYRadian(double roll, double pitch, double yaw){
 		tf::Quaternion q;

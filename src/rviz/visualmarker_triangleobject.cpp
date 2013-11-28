@@ -52,6 +52,8 @@ namespace ros{
 		this->pqp_model = pqp_in;
 	}
 	double TriangleObject::pqp_distance_to(TriangleObject &rhs){
+		this->g.lock();
+		rhs.g.lock();
 
 		//tried to stay as close as possible to the implementation in fast-replanning from Perrin,2012
 		PQP_REAL R1[3][3], R2[3][3], T1[3], T2[3];
@@ -69,6 +71,9 @@ namespace ros{
 		T2[1] = rhs.g.getY();
 		T2[2] = rhs.g.getZ();
 
+		this->g.unlock();
+		rhs.g.unlock();
+
 		PQP_CollideResult cres;
 		DEBUG(ROS_INFO("[PQP] %d <-> %d", this->pqp_model->num_tris, rhs.pqp_model->num_tris);)
 		PQP_Collide( &cres, R1, T1, this->pqp_model, R2, T2, rhs.pqp_model, PQP_FIRST_CONTACT);
@@ -81,6 +86,8 @@ namespace ros{
 	double TriangleObject::fast_distance_to(TriangleObject &rhs){
 		
 #ifdef FCL_COLLISION_CHECKING
+		this->g.lock();
+		rhs.g.lock();
 		double t = g.getYawRadian();
 		double tr = rhs.g.getYawRadian();
 		fcl::Matrix3f r1 (cos(t),-sin(t),0,
@@ -92,6 +99,8 @@ namespace ros{
 
 		fcl::Vec3f d1(g.getX(),g.getY(),g.getZ());
 		fcl::Vec3f d2(rhs.g.getX(),rhs.g.getY(),rhs.g.getZ());
+		this->g.unlock();
+		rhs.g.unlock();
 
 		fcl::Transform3f Tlhs(r1, d1);
 		fcl::Transform3f Trhs(r2, d2);

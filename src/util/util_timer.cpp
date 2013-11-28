@@ -39,8 +39,6 @@ void Timer::end(const char* name){
 void Timer::print_summary(){
 	StopperMap::const_iterator it;
 	ROS_INFO("----------------------------------------");
-	ROS_INFO("Time stopper summary -----");
-	ROS_INFO("----------------------------------------");
 	for(it=stoppermap.begin(); it!=stoppermap.end(); ++it){
 		ROS_INFO("Stopper \"%s\" >> %f s", (*it).second.description.c_str(), (*it).second.sum);
 	}

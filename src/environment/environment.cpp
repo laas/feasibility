@@ -55,7 +55,7 @@ void Environment::reloadObjects(){
   thread_start();
 }
 void Environment::thread_publish(){
-  ros::Rate r(10); //Hz
+  ros::Rate r(100); //Hz
   while(1){
 		{
 			DEBUG(std::cout << "[ENV] >>>>>>||" << std::flush;)

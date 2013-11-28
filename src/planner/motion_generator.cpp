@@ -18,7 +18,7 @@
 // with feasibility.  If not, see <http://www.gnu.org/licenses/>.
  
 #include "planner/motion_generator.h"
-#define DEBUG(x) x
+#define DEBUG(x) 
 
 MotionGenerator::
 MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects)
