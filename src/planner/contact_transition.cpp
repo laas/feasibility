@@ -29,7 +29,7 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double x = this->g.getX();
 	double y = this->g.getY();
 	double t = this->g.getYawRadian();
-	double dn = norml2(x,xg,y,yg) + sqrtf((t-yawg)*(t-yawg));
+	double dn = norml2(x,xg,y,yg) + 0.05*sqrtf((t-yawg)*(t-yawg));
 
 	//using a penalty term in the vicinity of the goal to align the robot body
 	//with the goal direction. addditional, we assure that the heuristic has a
