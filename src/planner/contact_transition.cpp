@@ -29,7 +29,7 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double x = this->g.getX();
 	double y = this->g.getY();
 	double t = this->g.getYawRadian();
-	double dn = norml2(x,xg,y,yg);
+	double dn = norml2(x,xg,y,yg) + sqrtf((t-yawg)*(t-yawg));
 
 	//using a penalty term in the vicinity of the goal to align the robot body
 	//with the goal direction. addditional, we assure that the heuristic has a
@@ -41,7 +41,7 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
     double dy = sqrt((t-yawg)*(t-yawg));
     double maxy = sqrt((yawg-M_PI)*(yawg-M_PI));
     double weightDist = 0.8;
-    return threshold*(weightDist*dn/threshold+ (1.0-weightDist)*dy/maxy)*0.5;
+    return dn;//threshold*(weightDist*dn/threshold+ (1.0-weightDist)*dy/maxy)*0.5;
   }
 }
 void ContactTransition::cleanStatic(){
@@ -59,7 +59,7 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	//return norml2(x,xg,y,yg) < 0.22 && sqrtf( (this->rel_yaw-yawg)*(this->rel_yaw-yawg))<M_PI/2;
-	return norml2(x,xg,y,yg) <= 0.15 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/4;
+	return norml2(x,xg,y,yg) <= 0.08 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/4;
 }
 
 //
