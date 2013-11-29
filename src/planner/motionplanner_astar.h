@@ -146,6 +146,21 @@ struct MotionPlannerAStar: public MotionPlanner{
     m.reset();
   }
 
+  void checkSafety( double &xr, double &yr, double &tr){
+    while(tr>M_PI) tr-=2*M_PI;
+    while(tr<-M_PI) tr+=2*M_PI;
+    //security such that feet are not colliding
+    double xr_real = xr;
+    double yr_real = yr;
+
+    while(abs(xr)<0.13 && abs(yr)<0.24){ //w=0.24,l=0.12
+      ROS_INFO("xr %f, yr %f || %f %f", xr, yr, xr_real, yr_real);
+      xr = xr + 0.01*xr_real;
+      yr = yr + 0.01*yr_real;
+    }
+
+  }
+
   std::vector<std::vector<double> > get_footstep_vector(){
 
     std::vector<std::vector<double> > fs_vector;
@@ -183,7 +198,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       double yl = fs_vector.at(fs_vector.size() -1 ).at(5);
       double yawl = fs_vector.at(fs_vector.size() -1 ).at(6);
 
-      double goal_offset_x = 0.0;
+      double goal_offset_x = -0.1;
       double goal_offset_y = -0.1; //offset in L direction
       double step_y = 0.2; //distance between feet in half-sitting
 
@@ -194,12 +209,9 @@ struct MotionPlannerAStar: public MotionPlanner{
         double goal_offset_in_right_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
         double xr = goal_offset_in_right_foot_space_x;
         double yr = goal_offset_in_right_foot_space_y;
-        double tr = - yawg + yawl;
+        double tr = (yawl - yawg);
 
-        //security such that feet are not colliding
-        while(sqrt(xr*xr+yr*yr)<0.3){
-          xr+=0.01;yr+0.02;
-        }
+        checkSafety(xr, yr, tr);
 
         std::vector<double> pre_script_foot = vecD(xr, -yr , tr, 'R', goal_offset_abs_x, goal_offset_abs_y, yawg);
         fs_vector.push_back(pre_script_foot);
@@ -214,14 +226,13 @@ struct MotionPlannerAStar: public MotionPlanner{
         double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y) + goal_y;
         double goal_offset_in_left_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
         double goal_offset_in_left_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
+
         double xr = goal_offset_in_left_foot_space_x;
         double yr = goal_offset_in_left_foot_space_y;
-        double tr = yawg - yawl;
+        double tr = yawg-yawl;
 
-        //security such that feet are not colliding
-        while(sqrt(xr*xr+yr*yr)<0.3){
-          xr+=0.01;yr+0.02;
-        }
+        checkSafety(xr, yr, tr);
+
         std::vector<double> pre_script_foot = vecD(xr, yr , tr, 'L', goal_offset_abs_x, goal_offset_abs_y, yawg);
         fs_vector.push_back(pre_script_foot);
         double goal_left_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y+step_y) + goal_x;
