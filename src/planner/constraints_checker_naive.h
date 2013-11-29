@@ -20,6 +20,11 @@ public:
 		std::vector<ros::RVIZVisualMarker*> &obj, 
 		double sf_x, double sf_y, double sf_yaw, char foot
 	);
+  virtual bool 
+  isInCollision( 
+      std::vector<ros::RVIZVisualMarker*> &objects_absolute, 
+      std::vector< std::vector<double> > &fsi, 
+      uint current_step_index );
 
 };
 

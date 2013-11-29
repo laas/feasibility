@@ -33,7 +33,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     pub = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     DEBUG(ROS_INFO("***** START A_STAR ********");)
                   
-      ContactTransition::cleanStatic();
+    ContactTransition::cleanStatic();
     astarsearch = new AStarSearch<ContactTransition>(10000);
     if(ContactTransition::timer!=NULL){
       delete ContactTransition::timer;
@@ -97,7 +97,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       {
         SearchState = astarsearch->SearchStep();
         SearchSteps++;
-        if(SearchSteps > 10000){
+        if(SearchSteps > 1000){
           astarsearch->CancelSearch();
           break;
         }
@@ -153,12 +153,11 @@ struct MotionPlannerAStar: public MotionPlanner{
     double xr_real = xr;
     double yr_real = yr;
 
-    while(abs(xr)<0.13 && abs(yr)<0.24){ //w=0.24,l=0.12
-      ROS_INFO("xr %f, yr %f || %f %f", xr, yr, xr_real, yr_real);
+    while(abs(xr)<0.28 && abs(yr)<0.16){ //w=0.24,l=0.12
+      //ROS_INFO("xr %f, yr %f || %f %f", xr, yr, xr_real, yr_real);
       xr = xr + 0.01*xr_real;
       yr = yr + 0.01*yr_real;
     }
-
   }
 
   std::vector<std::vector<double> > get_footstep_vector(){
@@ -166,26 +165,26 @@ struct MotionPlannerAStar: public MotionPlanner{
     std::vector<std::vector<double> > fs_vector;
     uint SearchState = astarsearch->SearchStep();
     if( SearchState == AStarSearch<ContactTransition>::SEARCH_STATE_SUCCEEDED )
-      {
-        ContactTransition *node = astarsearch->GetSolutionStart();
-        //double offset_t = node->g.getYawRadian();
-				//node = astarsearch->GetSolutionNext();
-				//std::vector<double> tmp_fsi = 
-					//vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
-				//fs_vector.push_back(tmp_fsi);
-        for( ;; )
-          {
-            node = astarsearch->GetSolutionNext();
-            if( !node ) break;
+    {
+      ContactTransition *node = astarsearch->GetSolutionStart();
+      //double offset_t = node->g.getYawRadian();
+      //node = astarsearch->GetSolutionNext();
+      //std::vector<double> tmp_fsi = 
+        //vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.x, node->g.y, node->g.getYawRadian());
+      //fs_vector.push_back(tmp_fsi);
+      for( ;; )
+        {
+          node = astarsearch->GetSolutionNext();
+          if( !node ) break;
 
-            std::vector<double> tmp_fsi = 
-              vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.getX(), node->g.getY(), node->g.getYawRadian());
-            fs_vector.push_back(tmp_fsi);
-          };
-        astarsearch->FreeSolutionNodes();
+          std::vector<double> tmp_fsi = 
+            vecD(node->rel_x, node->rel_y, node->rel_yaw, node->L_or_R=='L'?'R':'L', node->g.getX(), node->g.getY(), node->g.getYawRadian());
+          fs_vector.push_back(tmp_fsi);
+        };
+      astarsearch->FreeSolutionNodes();
+    }
 
-      }
-    if(!fs_vector.empty()){
+    if(fs_vector.size()>1){
       fs_vector.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
 
       char sf_f = fs_vector.at( fs_vector.size() -1 ).at(3);
@@ -254,7 +253,7 @@ struct MotionPlannerAStar: public MotionPlanner{
   }
 
   void update_planner(){
-    uint step_horizon = 4;
+    uint step_horizon = 3;
 
 		boost::mutex::scoped_lock lock(footstep_mutex);
 
@@ -266,8 +265,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 			//ROS_INFO("Unchanged environment -> reusing old trajectory");
 			return;
 		}
-
-
     std::vector<std::vector<double> > fsi_new;
     fsi_new = get_footstep_vector();
 
@@ -276,47 +273,112 @@ struct MotionPlannerAStar: public MotionPlanner{
       return;
     }
 
+    //*********************************************************
     //check which step in fsi is the fsi start position
+    //*********************************************************
     bool found = false;
+
     int fsi_last_element = -1;
-    int fsi_new_first_element = -1;
-    for(uint i = current_step_index_ ; i< fsi.size() ; i++){
+    int fsi_new_first_element = 0;
+    double xs = this->start.g.getX();
+    double ys = this->start.g.getY();
+    double ts = this->start.g.getYawRadian();
+    char fs = this->start.L_or_R;
+    for(uint i = 0 ; i< fsi.size() ; i++){
       double x = fsi.at(i).at(4);
       double y = fsi.at(i).at(5);
       double t = fsi.at(i).at(6);
       char f = fsi.at(i).at(3);
-      for(uint j = 0; j< fsi_new.size() ; j++){
-        double xn = fsi_new.at(j).at(4);
-        double yn = fsi_new.at(j).at(5);
-        double tn = fsi_new.at(j).at(6);
-        char fn = fsi_new.at(j).at(3);
-        double d= norml2(x,xn,y,yn);
-        if(d<0.0001 && f==fn){
-          fsi_last_element = i;
-          fsi_new_first_element = j;
-          found = true;
-          break;
+      double d= norml2(x,xs,y,ys)+sqrtf((ts-t)*(ts-t));
+      //ROS_INFO("FOOT: %f %f %f VS. START: %f %f %f", x,y,t,xs,ys,ts);
+      if(d<0.001){
+        fsi_last_element = i;
+        /*
+        for(uint j = 0; j< fsi_new.size() ; j++){
+          double xn = fsi_new.at(j).at(4);
+          double yn = fsi_new.at(j).at(5);
+          double tn = fsi_new.at(j).at(6);
+          char fn = fsi_new.at(j).at(3);
+          double d= norml2(x,xn,y,yn)+sqrtf((tn-t)*(tn-t));
+          if(d<0.001 && f==fn){
+            fsi_last_element = i;
+            fsi_new_first_element = j;
+            found = true;
+            break;
+          }
         }
+        */
+        if(fsi.at(fsi_last_element).at(3) == fsi_new.at(fsi_new_first_element).at(3)){
+          ROS_INFO("****************************************");
+          ROS_INFO("****************************************");
+          ROS_INFO("****************************************");
+          ROS_INFO("****************************************");
+          ROS_INFO("CHANGED FSI_NEW");
+          ROS_INFO("****************************************");
+          ROS_INFO("****************************************");
+          ROS_INFO("****************************************");
+          ROS_INFO("****************************************");
+          this->start.g.print();
+          fsi_new.erase( fsi_new.begin() );
+        }
+        found = true;
+        break;
       }
-      if(found) break;
-    }
-    for(uint i=0;i<=fsi_last_element;i++){
-      fsi.at(i)=fsi.at(i);
     }
     if(!found){
       ROS_INFO("*************************************");
       ROS_INFO("[FATAL_ERROR] Could not connect replanned path to old path");
       ROS_INFO("*************************************");
-      cout << fsi.size() << endl;
-      cout << fsi_new.size() << endl;
+      fsi.erase( fsi.begin()+fsi_last_element+1, fsi.end());
       cout << fsi << endl;
       cout << fsi_new << endl;
+      this->start.g.print();
+      cout << this->start.g.getYawRadian() << endl;
       ros::FootMarker m(0,0,0);
       m.reset();
       exit(-1);
     }
+      
+    /*
+    for(uint j = 0; j< fsi_new.size() ; j++){
+      double xn = fsi_new.at(j).at(4);
+      double yn = fsi_new.at(j).at(5);
+      double tn = fsi_new.at(j).at(6);
+      char fn = fsi_new.at(j).at(3);
+      double d= norml2(x,xn,y,yn)+sqrtf((tn-t)*(tn-t));
+      if(d<0.01 && f==fn){
+        fsi_last_element = i;
+        fsi_new_first_element = j;
+        found = true;
+        break;
+      }
+    }
+      if(found) break;
+    }
+  */
+    //for(uint i=0;i<=fsi_last_element;i++){
+      //fsi.at(i)=fsi.at(i);
+    //}
+      ROS_INFO("*************************************");
+      ROS_INFO("%d/%d --> %d/%d", fsi_last_element, fsi.size(), fsi_new_first_element, fsi_new.size());
+      ROS_INFO("*************************************");
 
-    fsi.erase( fsi.begin()+fsi_last_element, fsi.end());
+      if(fsi.at(fsi_last_element).at(3) == fsi_new.at(fsi_new_first_element).at(3)){
+
+        ROS_INFO("*************************************");
+        ROS_INFO("[FATAL_ERROR] SAME FOOT");
+        ROS_INFO("*************************************");
+        fsi.erase( fsi.begin()+fsi_last_element+1, fsi.end());
+        cout << fsi << endl;
+        cout << fsi_new << endl;
+        this->start.g.print();
+        cout << this->start.g.getYawRadian() << endl;
+        ros::FootMarker m(0,0,0);
+        m.reset();
+        exit(-1);
+      }
+
+    fsi.erase( fsi.begin()+fsi_last_element+1, fsi.end());
     fsi.insert( fsi.end(), fsi_new.begin()+fsi_new_first_element, fsi_new.end() );
     //fsi.erase(min(fsi.begin() + current_step_index_ + step_horizon, fsi.end()), fsi.end());
     //fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
@@ -357,11 +419,12 @@ struct MotionPlannerAStar: public MotionPlanner{
       this->start.g.setX(x);
       this->start.g.setY(y);
       this->start.g.setRPYRadian(0,0,t);
+      //ROS_INFO("SET START: %f %f %f", x,y,t);
       this->start.L_or_R = (f=='R'?'L':'R'); //starting pos is omitted
       ros::ColorFootMarker m(x,y,t,"blue");
-      m.g.setSX(0.33); //0.24
-      m.g.setSY(0.19); //0.14
-      m.g.setSZ(0.1); //0.03
+      m.g.setSX(0.28); //0.24
+      m.g.setSY(0.15); //0.14
+      m.g.setSZ(0.08); //0.03
       m.init_marker();
       m.publish();
     }
@@ -402,6 +465,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 			}
 			publish_footstep_vector();
 			if( ContactTransition::isInCollision(fsi, current_step_index_ ) ){
+        results.success=false;
         //ROS_INFO("********************************");
         //ROS_INFO("COLLISION WARNING");
         //ROS_INFO("********************************");
@@ -473,6 +537,10 @@ struct MotionPlannerAStar: public MotionPlanner{
   }
 
   virtual void addObjectToPlanner(ros::RVIZVisualMarker *m){
+    //ros::TriangleObject *obj_sparse = new ros::SweptVolumeObject();
+    //obj_sparse->g = m->g;
+		//obj_sparse->set_pqp_ptr( static_cast<ros::TriangleObject*>(m)->get_pqp_ptr() );
+    //ContactTransition::objects.push_back(obj_sparse);
     ContactTransition::objects.push_back(m);
     //ContactTransition::objects = environment->getObjects();
   }

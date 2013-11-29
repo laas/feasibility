@@ -9,7 +9,7 @@
 #include "rviz/visualmarker.h"
 #include "rviz/primitive_marker.h"
 
-#define DEBUG(x) 
+#define DEBUG(x)
 #define TIMER_DEBUG(x)
 
 ContactTransition::ContactTransition(){
@@ -40,9 +40,8 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
   }else{
     double dy = sqrt((t-yawg)*(t-yawg));
     double maxy = sqrt((yawg-M_PI)*(yawg-M_PI));
-    double weightDist = 0.5;
+    double weightDist = 0.8;
     return threshold*(weightDist*dn/threshold+ (1.0-weightDist)*dy/maxy)*0.5;
-    //return threshold*(dy/maxy);
   }
 }
 void ContactTransition::cleanStatic(){
@@ -60,7 +59,7 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	//return norml2(x,xg,y,yg) < 0.22 && sqrtf( (this->rel_yaw-yawg)*(this->rel_yaw-yawg))<M_PI/2;
-	return norml2(x,xg,y,yg) <= 0.15 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/8;
+	return norml2(x,xg,y,yg) <= 0.15 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/4;
 }
 
 //

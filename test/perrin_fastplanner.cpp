@@ -64,8 +64,8 @@ int main( int argc, char** argv )
 	environment = Environment::getSalleBauzil();
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
-	cc = new ConstraintsCheckerSweptVolume();
 	//cc = new ConstraintsCheckerNaive();
+	cc = new ConstraintsCheckerSweptVolume();
 	astar->setConstraintsChecker(cc);
 
 	while (ros::ok())

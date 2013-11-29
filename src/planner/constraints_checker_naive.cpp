@@ -32,6 +32,55 @@ bool ConstraintsCheckerNaive::isFeasible(
 	}
 	return true;
 }
+bool 
+ConstraintsCheckerNaive::
+isInCollision( 
+    std::vector<ros::RVIZVisualMarker*> &objects_absolute, 
+    std::vector< std::vector<double> > &fsi, 
+    uint current_step_index ){
+
+	for(uint i=current_step_index; i < fsi.size()-2; i++){ //last steps are prescripted
+
+    double sf_rel_x = fsi.at(i).at(0); //relative values
+    double sf_rel_y = fsi.at(i).at(1);
+    double sf_rel_yaw = fsi.at(i).at(2);
+
+    double sf_f = fsi.at(i).at(3)=='R'?'L':'R';
+
+    double sf_abs_x = fsi.at(i).at(4); //absolute values
+    double sf_abs_y = fsi.at(i).at(5);
+    double sf_abs_yaw = fsi.at(i).at(6);
+
+    // relative position of objects to swept volume
+    std::vector<std::vector<double> > objects_relative =
+    prepareObjectPosition(objects_absolute, sf_abs_x, sf_abs_y, sf_abs_yaw, sf_f);
+
+    // corresponding swept volume to relative position
+    for(uint i=0; i<objects_absolute.size(); i++){
+      ros::PrimitiveMarkerBox *box = static_cast<ros::PrimitiveMarkerBox*>(objects_absolute.at(i));
+      double radius = std::max(box->w,box->l);
+      double robot = 0.3;
+
+      double dist = norml2(objects_absolute.at(i)->g.getX(), sf_abs_x, objects_absolute.at(i)->g.getY(), sf_abs_y);
+
+      if( dist <= radius + robot){
+        //ROS_INFO("****************************");
+        //ROS_INFO("[WARNING] COLLISION AT STEP %d/%d",i,fsi.size());
+        //ROS_INFO("[WARNING] ( %f , %f , %f )", sf_abs_x, sf_abs_y, sf_abs_yaw);
+        //ROS_INFO("****************************");
+        ros::ColorFootMarker m(sf_abs_x, sf_abs_y, sf_abs_yaw,"yellow");
+        m.g.setSX(0.33); //0.24
+        m.g.setSY(0.19); //0.14
+        m.g.setSZ(0.1); //0.03
+        m.init_marker();
+        m.publish();
+        return true;
+      }
+    }
+  }
+  return false;
+
+}
 std::vector< std::vector<double> > 
 ConstraintsCheckerNaive::prepareObjectPosition(std::vector<ros::RVIZVisualMarker*> &objects, 
 		double sf_x, double sf_y, double sf_yaw, char sf_foot){
