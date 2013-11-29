@@ -183,17 +183,9 @@ struct MotionPlannerAStar: public MotionPlanner{
       double yl = fs_vector.at(fs_vector.size() -1 ).at(5);
       double yawl = fs_vector.at(fs_vector.size() -1 ).at(6);
 
-      //double xr = cos(yawg)*(0.2);// + (xg-xl);
-      //double yr = -sin(yawg)*(0.2);// + (yg-yl);
-
       double goal_offset_x = 0.0;
       double goal_offset_y = -0.1; //offset in L direction
       double step_y = 0.2; //distance between feet in half-sitting
-       
-      //ros::SphereMarker m(goalx, goaly);
-      //m.publish();
-      //exit(0);
-      //double yr = sin(yawl)*(xg-xl) + cos(yawl)*(1)*(yg-yl) + goaly;
 
       if(sf_f == 'L'){
         double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(-goal_offset_y) + goal_x;
@@ -203,6 +195,11 @@ struct MotionPlannerAStar: public MotionPlanner{
         double xr = goal_offset_in_right_foot_space_x;
         double yr = goal_offset_in_right_foot_space_y;
         double tr = - yawg + yawl;
+
+        //security such that feet are not colliding
+        while(sqrt(xr*xr+yr*yr)<0.3){
+          xr+=0.01;yr+0.02;
+        }
 
         std::vector<double> pre_script_foot = vecD(xr, -yr , tr, 'R', goal_offset_abs_x, goal_offset_abs_y, yawg);
         fs_vector.push_back(pre_script_foot);
@@ -221,6 +218,10 @@ struct MotionPlannerAStar: public MotionPlanner{
         double yr = goal_offset_in_left_foot_space_y;
         double tr = yawg - yawl;
 
+        //security such that feet are not colliding
+        while(sqrt(xr*xr+yr*yr)<0.3){
+          xr+=0.01;yr+0.02;
+        }
         std::vector<double> pre_script_foot = vecD(xr, yr , tr, 'L', goal_offset_abs_x, goal_offset_abs_y, yawg);
         fs_vector.push_back(pre_script_foot);
         double goal_left_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y+step_y) + goal_x;
@@ -255,9 +256,6 @@ struct MotionPlannerAStar: public MotionPlanner{
 			return;
 		}
 
-    for(uint i=0;i<=current_step_index_ + step_horizon && i<fsi.size();i++){
-      fsi.at(i)=fsi.at(i);
-    }
 
     std::vector<std::vector<double> > fsi_new;
     fsi_new = get_footstep_vector();
@@ -290,6 +288,9 @@ struct MotionPlannerAStar: public MotionPlanner{
         }
       }
       if(found) break;
+    }
+    for(uint i=0;i<=fsi_last_element;i++){
+      fsi.at(i)=fsi.at(i);
     }
     if(!found){
       ROS_INFO("*************************************");
