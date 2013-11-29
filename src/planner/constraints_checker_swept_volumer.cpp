@@ -31,7 +31,7 @@ isInCollision(
     uint current_step_index ){
 
   //ROS_INFO("[SWEPTVOLUME] COLLISION CHECK FROM STEP %d",current_step_index);
-	for(uint i=current_step_index; i < fsi.size()-1; i++){ //last steps are prescripted
+	for(uint i=current_step_index; i < fsi.size()-2; i++){ //last steps are prescripted
 
     double sf_rel_x = fsi.at(i).at(0); //relative values
     double sf_rel_y = fsi.at(i).at(1);

@@ -173,20 +173,66 @@ struct MotionPlannerAStar: public MotionPlanner{
     if(!fs_vector.empty()){
       fs_vector.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
 
-      char last_sf_f = fs_vector.at( fs_vector.size() -1 ).at(3);
-      char ps_f = (last_sf_f == 'R'?'L':'R');
+      char sf_f = fs_vector.at( fs_vector.size() -1 ).at(3);
 
-      double xg = this->goal.g.getX();
-      double yg = this->goal.g.getY();
+      double goal_x = this->goal.g.getX();
+      double goal_y = this->goal.g.getY();
       double yawg = this->goal.g.getYawRadian();
 
-      double xl = fs_vector.at(fs_vector.size() -1 ).at(4);
+      double xl = fs_vector.at( fs_vector.size() -1 ).at(4);
       double yl = fs_vector.at(fs_vector.size() -1 ).at(5);
       double yawl = fs_vector.at(fs_vector.size() -1 ).at(6);
 
-      std::vector<double> pre_script_foot = vecD(0,-0.2,0, ps_f, xl, yl, yawl);
-      fs_vector.push_back(pre_script_foot);
+      //double xr = cos(yawg)*(0.2);// + (xg-xl);
+      //double yr = -sin(yawg)*(0.2);// + (yg-yl);
+
+      double goal_offset_x = 0.0;
+      double goal_offset_y = -0.1; //offset in L direction
+      double step_y = 0.2; //distance between feet in half-sitting
+       
+      //ros::SphereMarker m(goalx, goaly);
+      //m.publish();
+      //exit(0);
+      //double yr = sin(yawl)*(xg-xl) + cos(yawl)*(1)*(yg-yl) + goaly;
+
+      if(sf_f == 'L'){
+        double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(-goal_offset_y) + goal_x;
+        double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(-goal_offset_y) + goal_y;
+        double goal_offset_in_right_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
+        double goal_offset_in_right_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
+        double xr = goal_offset_in_right_foot_space_x;
+        double yr = goal_offset_in_right_foot_space_y;
+        double tr = - yawg + yawl;
+
+        std::vector<double> pre_script_foot = vecD(xr, -yr , tr, 'R', goal_offset_abs_x, goal_offset_abs_y, yawg);
+        fs_vector.push_back(pre_script_foot);
+
+        double goal_left_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y+step_y) + goal_x;
+        double goal_left_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y+step_y) + goal_y;
+
+        std::vector<double> pre_script_foot2 = vecD(0, -step_y, 0, 'L', goal_left_offset_abs_x,goal_left_offset_abs_y, yawg);
+        fs_vector.push_back(pre_script_foot2);
+      }else{
+        double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y) + goal_x;
+        double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y) + goal_y;
+        double goal_offset_in_left_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
+        double goal_offset_in_left_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
+        double xr = goal_offset_in_left_foot_space_x;
+        double yr = goal_offset_in_left_foot_space_y;
+        double tr = yawg - yawl;
+
+        std::vector<double> pre_script_foot = vecD(xr, yr , tr, 'L', goal_offset_abs_x, goal_offset_abs_y, yawg);
+        fs_vector.push_back(pre_script_foot);
+        double goal_left_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y+step_y) + goal_x;
+        double goal_left_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y+step_y) + goal_y;
+
+        std::vector<double> pre_script_foot2 = vecD(0, -step_y, 0, 'R', goal_left_offset_abs_x,goal_left_offset_abs_y, yawg);
+        fs_vector.push_back(pre_script_foot2);
+      }
+
+
     }
+
     DEBUG(
     		Logger footlogger("footsteps.dat");
     		footlogger( fs_vector );
@@ -253,6 +299,8 @@ struct MotionPlannerAStar: public MotionPlanner{
       cout << fsi_new.size() << endl;
       cout << fsi << endl;
       cout << fsi_new << endl;
+      ros::FootMarker m(0,0,0);
+      m.reset();
       exit(-1);
     }
 
