@@ -11,18 +11,23 @@
 
 #include "planner/trajectory_footstep.hh"
 
+#define DEBUG(x) x
+
 using namespace std;
 
 FootStepTrajectory::FootStepTrajectory(){
-  bool firsttime = true;
+  static bool firsttime = true;
   if(firsttime){
+    tv_ = new TrajectoryVisualizer(0,0,0); //visualize q with CoM offset
     pub_ = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     firsttime = false;
   }
+  current_step_index_ = 0;
 }
 
 FootStepTrajectory::FootStepTrajectory( const FootStepTrajectory &rhs ){
   this->footsteps_ = rhs.footsteps_;
+  current_step_index_ = 0;
 }
 
 std::vector<std::vector<double> >& FootStepTrajectory::getFootSteps(){
@@ -36,7 +41,7 @@ ros::Geometry& FootStepTrajectory::getStart(){
   //g.setYawRadian( this->start__.at(6) );
   //g.setFoot( this->start__.at(3) );
   //return g;
-return this->start_;
+  return this->start_;
 }
 void FootStepTrajectory::setStart( ros::Geometry &start ){
   this->start_ = start;
@@ -64,6 +69,8 @@ void FootStepTrajectory::execute_one_step(){
     //rq.sleep();
     return;
   }
+
+
   mg = new MotionGenerator(ContactTransition::objects); //generate q
   q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
 
@@ -83,22 +90,33 @@ void FootStepTrajectory::execute_one_step(){
   ROS_INFO("step_index: %d -> %d", current_step_index_-1, current_step_index_);
   return;
 }
-// append a new trajectory from the planner to the current trajectory, thereby
-// making sure that they are consistent
 void FootStepTrajectory::lock(){
   footstep_mutex_.lock();
 }
 void FootStepTrajectory::unlock(){
   footstep_mutex_.unlock();
 }
+
+
+
+// append a new trajectory from the planner to the current trajectory, thereby
+// making sure that they are consistent
 void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs ){
     this->setStart(start);
 
     if(footsteps_.size()==0){
       footsteps_ = rhs.footsteps_;
+      DEBUG( ROS_INFO("TV START %f %f %f", start.getX(), start.getY(), start.getYawRadian()); )
       tv_ = new TrajectoryVisualizer(start.getX(), start.getY(), start.getYawRadian()); //visualize q with CoM offset
       return;
     }
+
+    if( !ContactTransition::isInCollision(footsteps_, current_step_index_ ) ){
+      // No need for updating
+      return;
+    }
+
+
 
     uint step_horizon = 3;
     //if(!environment_changed && success()){
@@ -241,7 +259,7 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
 //  -- publish steps as rostopic
 void FootStepTrajectory::publish(){
   if(current_step_index_ >= footsteps_.size()){
-    ROS_INFO("Finished trajectory");
+    //ROS_INFO("Finished trajectory");
     return;
   }
   ros::FootMarker l(0,0,0);

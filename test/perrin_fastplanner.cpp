@@ -39,12 +39,10 @@ void thread_publish(){
   while(1){
 			astar->plan();
 			if(astar->success()){
-        DEBUG( ROS_INFO("PLANNER SUCCESS"); )
 				FootStepTrajectory fst_new = astar->get_footstep_trajectory();
-        DEBUG( ROS_INFO("LOCK FST"); )
 
 				fst->lock();
-				fst->append(astar->getGoal(), fst_new);
+				fst->append(astar->getStart(), fst_new);
         fst->publish();
 				astar->setStart( fst->getStart() );
         fst->unlock();

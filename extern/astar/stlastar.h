@@ -605,7 +605,7 @@ public: // methods
 	void EnsureMemoryFreed()
 	{
 #if USE_FSA_MEMORY
-		assert(m_AllocateNodeCount == 0);
+		assert(m_AllocateNodeCount <= 0);
 #endif
 
 	}
