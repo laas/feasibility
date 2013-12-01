@@ -10,12 +10,14 @@ struct TrajectoryVisualizer;
 const char *colorLeft = "red";
 const char *colorRight = "green";
 const std::string topic = "/feasibility/footsteps/relative";
+const uint step_horizon = 3;
 
 class FootStepTrajectory{ 
   typedef std::vector<double> FootStepState;
 
 private:
   uint current_step_index_;
+  uint last_planner_start_index_;
   TrajectoryVisualizer *tv_;
 	boost::mutex footstep_mutex_;
   ros::NodeHandle n;

@@ -22,11 +22,13 @@ FootStepTrajectory::FootStepTrajectory(){
     pub_ = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     firsttime = false;
   }
+  last_planner_start_index_=0;
   current_step_index_ = 0;
 }
 
 FootStepTrajectory::FootStepTrajectory( const FootStepTrajectory &rhs ){
   this->footsteps_ = rhs.footsteps_;
+  last_planner_start_index_=0;
   current_step_index_ = 0;
 }
 
@@ -35,12 +37,13 @@ std::vector<std::vector<double> >& FootStepTrajectory::getFootSteps(){
 }
 
 ros::Geometry& FootStepTrajectory::getStart(){
-  //ros::Geometry g;
-  //g.setX( this->start__.at(4) );
-  //g.setY( this->start__.at(5) );
-  //g.setYawRadian( this->start__.at(6) );
-  //g.setFoot( this->start__.at(3) );
-  //return g;
+  ros::Geometry newStart;
+  last_planner_start_index_ = current_step_index_ + step_horizon;
+  newStart.setX( footsteps_.at(last_planner_start_index_).at(4) );
+  newStart.setY( footsteps_.at(last_planner_start_index_).at(5) );
+  newStart.setYawRadian( footsteps_.at(last_planner_start_index_).at(6) );
+  newStart.setFoot( footsteps_.at(last_planner_start_index_).at(3) );
+  this->setStart( newStart );
   return this->start_;
 }
 void FootStepTrajectory::setStart( ros::Geometry &start ){
@@ -51,24 +54,24 @@ void FootStepTrajectory::execute_one_step(){
   boost::mutex::scoped_lock lock(footstep_mutex_);
 
   if(footsteps_.size()<1){
+    //No footsteps avaiable
     return;
   }
   if(current_step_index_ >= footsteps_.size()-1){
+    //we are done
     return;
+  }
+  if(current_step_index_ + step_horizon >= last_planner_start_index_){
+    //if we start to walk further than the standard step horizon, we have to
+    //check for collisions. If we are in collision, we have to wait for the
+    //planner
+    if( ContactTransition::isInCollision(footsteps_, current_step_index_ ) ){
+      return;
+    }
   }
 
   MotionGenerator *mg;
   std::vector<double> q;
-
-  if( ContactTransition::isInCollision(footsteps_, current_step_index_ ) ){
-    //ROS_INFO("********************************");
-    //ROS_INFO("COLLISION WARNING");
-    //ROS_INFO("********************************");
-    lock.unlock();
-    //ros::Rate rq(1);
-    //rq.sleep();
-    return;
-  }
 
 
   mg = new MotionGenerator(ContactTransition::objects); //generate q
@@ -116,76 +119,44 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
       return;
     }
 
-
-
-    uint step_horizon = 3;
-    //if(!environment_changed && success()){
-			//ROS_INFO("Unchanged environment -> reusing old trajectory");
-			//return;
-		//}
-
     if(current_step_index_ + step_horizon >= footsteps_.size() + rhs.footsteps_.size()){
-      //goal is reached in the next three steps, 
+      //goal is reached in the next three steps, so we forget about the new
+      //trajectory
       return;
     }
 
     //*********************************************************
-    //check which step in fsi is the fsi start position
+    //check if start position and last step are consistent
     //*********************************************************
-    bool found = false;
-
-    int fsi_last_element = -1;
-    int fsi_new_first_element = 0;
     double xs = this->start_.getX();
     double ys = this->start_.getY();
     double ts = this->start_.getYawRadian();
     char fs = this->start_.getFoot();
-    for(uint i = 0 ; i< footsteps_.size() ; i++){
-      double x = footsteps_.at(i).at(4);
-      double y = footsteps_.at(i).at(5);
-      double t = footsteps_.at(i).at(6);
-      char f = footsteps_.at(i).at(3);
-      double d= norml2(x,xs,y,ys)+sqrtf((ts-t)*(ts-t));
-      //ROS_INFO("FOOT: %f %f %f VS. START: %f %f %f", x,y,t,xs,ys,ts);
-      if(d<0.001){
-        fsi_last_element = i;
-        /*
-        for(uint j = 0; j< fsi_new.size() ; j++){
-          double xn = fsi_new.at(j).at(4);
-          double yn = fsi_new.at(j).at(5);
-          double tn = fsi_new.at(j).at(6);
-          char fn = fsi_new.at(j).at(3);
-          double d= norml2(x,xn,y,yn)+sqrtf((tn-t)*(tn-t));
-          if(d<0.001 && f==fn){
-            fsi_last_element = i;
-            fsi_new_first_element = j;
-            found = true;
-            break;
-          }
-        }
-        */
-        if(footsteps_.at(fsi_last_element).at(3) == rhs.footsteps_.at(fsi_new_first_element).at(3)){
-          ROS_INFO("****************************************");
-          ROS_INFO("****************************************");
-          ROS_INFO("****************************************");
-          ROS_INFO("****************************************");
-          ROS_INFO("CHANGED FSI_NEW");
-          ROS_INFO("****************************************");
-          ROS_INFO("****************************************");
-          ROS_INFO("****************************************");
-          ROS_INFO("****************************************");
-          this->start_.print();
-          rhs.footsteps_.erase( rhs.footsteps_.begin() );
-        }
-        found = true;
-        break;
-      }
-    }
-    if(!found){
+    double x = footsteps_.at(last_planner_start_index_).at(4);
+    double y = footsteps_.at(last_planner_start_index_).at(5);
+    double t = footsteps_.at(last_planner_start_index_).at(6);
+    char f =   footsteps_.at(last_planner_start_index_).at(3);
+    double d= norml2(x,xs,y,ys)+sqrtf((ts-t)*(ts-t));
+    if(d<0.00001){
+
+    }else{
       ROS_INFO("*************************************");
       ROS_INFO("[FATAL_ERROR] Could not connect replanned path to old path");
       ROS_INFO("*************************************");
-      footsteps_.erase( footsteps_.begin()+fsi_last_element+1, footsteps_.end());
+      cout << footsteps_ << endl;
+      cout << rhs.footsteps_ << endl;
+      this->start_.print();
+      ROS_INFO("FOOT: %f %f %f VS. START: %f %f %f", x,y,t,xs,ys,ts);
+      cout << this->start_.getYawRadian() << endl;
+      ros::FootMarker m(0,0,0);
+      m.reset();
+      exit(-1);
+    }
+      
+    if(footsteps_.at(last_planner_start_index_).at(3) == rhs.footsteps_.at(0).at(3)){
+      ROS_INFO("*************************************");
+      ROS_INFO("[FATAL_ERROR] SAME FOOT");
+      ROS_INFO("*************************************");
       cout << footsteps_ << endl;
       cout << rhs.footsteps_ << endl;
       this->start_.print();
@@ -194,63 +165,14 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
       m.reset();
       exit(-1);
     }
-      
-    /*
-    for(uint j = 0; j< fsi_new.size() ; j++){
-      double xn = fsi_new.at(j).at(4);
-      double yn = fsi_new.at(j).at(5);
-      double tn = fsi_new.at(j).at(6);
-      char fn = fsi_new.at(j).at(3);
-      double d= norml2(x,xn,y,yn)+sqrtf((tn-t)*(tn-t));
-      if(d<0.01 && f==fn){
-        fsi_last_element = i;
-        fsi_new_first_element = j;
-        found = true;
-        break;
-      }
-    }
-      if(found) break;
-    }
-  */
-    //for(uint i=0;i<=fsi_last_element;i++){
-      //fsi.at(i)=fsi.at(i);
-    //}
-      ROS_INFO("*************************************");
-      ROS_INFO("%d/%d --> %d/%d", fsi_last_element, footsteps_.size(), fsi_new_first_element, rhs.footsteps_.size());
-      ROS_INFO("*************************************");
+    //*********************************************************
+    //*********************************************************
 
-      if(footsteps_.at(fsi_last_element).at(3) == rhs.footsteps_.at(fsi_new_first_element).at(3)){
-
-        ROS_INFO("*************************************");
-        ROS_INFO("[FATAL_ERROR] SAME FOOT");
-        ROS_INFO("*************************************");
-        footsteps_.erase( footsteps_.begin()+fsi_last_element+1, footsteps_.end());
-        cout << footsteps_ << endl;
-        cout << rhs.footsteps_ << endl;
-        this->start_.print();
-        cout << this->start_.getYawRadian() << endl;
-        ros::FootMarker m(0,0,0);
-        m.reset();
-        exit(-1);
-      }
-
-    footsteps_.erase( footsteps_.begin()+fsi_last_element+1, footsteps_.end());
-    footsteps_.insert( footsteps_.end(), rhs.footsteps_.begin()+fsi_new_first_element, rhs.footsteps_.end() );
-    //fsi.erase(min(fsi.begin() + current_step_index_ + step_horizon, fsi.end()), fsi.end());
-    //fsi.insert( fsi.end(), fsi_new.begin(), fsi_new.end() );
+    //everything seems fine, lets concatenate the two trajectories
+    footsteps_.erase( footsteps_.begin()+last_planner_start_index_+1, footsteps_.end());
+    footsteps_.insert( footsteps_.end(), rhs.footsteps_.begin(), rhs.footsteps_.end() );
 
     //set START to the third step from now
-    //
-
-    ros::Geometry newStart;
-    uint start_index = current_step_index_ + step_horizon;
-    newStart.setX( footsteps_.at(start_index).at(4) );
-    newStart.setY( footsteps_.at(start_index).at(5) );
-    newStart.setYawRadian( footsteps_.at(start_index).at(6) );
-    newStart.setFoot( footsteps_.at(start_index).at(3) );
-    this->setStart( newStart );
-
-
 }
 
 //publish the whole trajectory, starting at the current_step_index
@@ -258,8 +180,10 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
 //  -- mark the next starting position for the planner as blue
 //  -- publish steps as rostopic
 void FootStepTrajectory::publish(){
+  if(footsteps_.size()==0){
+    return;
+  }
   if(current_step_index_ >= footsteps_.size()){
-    //ROS_INFO("Finished trajectory");
     return;
   }
   ros::FootMarker l(0,0,0);
@@ -278,19 +202,13 @@ void FootStepTrajectory::publish(){
       m.publish();
     }
   }
-  //update start pos for further replanning
-  uint i=current_step_index_ + 3;
 
-  if(i<footsteps_.size()){
-    double x = footsteps_.at(i).at(4);
-    double y = footsteps_.at(i).at(5);
-    double t = footsteps_.at(i).at(6);
-    char f = footsteps_.at(i).at(3);
-    this->start_.setX(x);
-    this->start_.setY(y);
-    this->start_.setRPYRadian(0,0,t);
-    //ROS_INFO("SET START: %f %f %f", x,y,t);
-    this->start_.setFoot( (f=='R'?'L':'R') ); //starting pos is omitted
+  if(last_planner_start_index_<footsteps_.size()){
+    double x = footsteps_.at(last_planner_start_index_).at(4);
+    double y = footsteps_.at(last_planner_start_index_).at(5);
+    double t = footsteps_.at(last_planner_start_index_).at(6);
+    char f = footsteps_.at(last_planner_start_index_).at(3);
+
     ros::ColorFootMarker m(x,y,t,"blue");
     m.g.setSX(0.28); //0.24
     m.g.setSY(0.15); //0.14
