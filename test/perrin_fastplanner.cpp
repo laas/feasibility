@@ -17,6 +17,9 @@
 static Environment* environment;
 static MotionPlannerAStar *astar;
 static ConstraintsChecker *cc;
+static FootStepTrajectory *fst;
+
+#define DEBUG(x) x
 
 using namespace ros;
 bool plan=false;
@@ -28,10 +31,23 @@ void update(const std_msgs::Bool& stopPlanner){
 
 void thread_publish(){
   ros::Rate r(20); //Hz
+
+  ros::Geometry goalG = environment->getGoal();
+  astar->setGoal( goalG );
+  ros::Geometry startG = environment->getStart();
+  astar->setStart( startG );
   while(1){
 			astar->plan();
 			if(astar->success()){
-				astar->update_planner();
+        DEBUG( ROS_INFO("PLANNER SUCCESS"); )
+				FootStepTrajectory fst_new = astar->get_footstep_trajectory();
+        DEBUG( ROS_INFO("LOCK FST"); )
+
+				fst->lock();
+				fst->append(astar->getGoal(), fst_new);
+        fst->publish();
+				astar->setStart( fst->getStart() );
+        fst->unlock();
 			}
   }
 }
@@ -62,17 +78,20 @@ int main( int argc, char** argv )
 	subscriber = n.subscribe("/planner/stop", 100, &update);
 
 	environment = Environment::getSalleBauzil();
+
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
 	//cc = new ConstraintsCheckerNaive();
 	cc = new ConstraintsCheckerSweptVolume();
 	astar->setConstraintsChecker(cc);
 
+  fst = new FootStepTrajectory();
+
 	while (ros::ok())
 	{
 		if(plan){
 			thread_start();
-			astar->publish_onestep_next();
+			fst->execute_one_step();
 		}else{
 			r.sleep();
 			thread_stop();

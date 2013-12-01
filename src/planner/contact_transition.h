@@ -1,3 +1,4 @@
+#pragma once
 //#include <map>
 #include <unordered_map>
 #include <vector>
@@ -58,7 +59,3 @@ struct ContactTransition
 		char sf_foot);
 
 };//contactTransition
-ConstraintsChecker *ContactTransition::constraints;
-std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;
-Timer* ContactTransition::timer;
-uint ContactTransition::feasibilityChecks;

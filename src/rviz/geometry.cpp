@@ -52,6 +52,7 @@ namespace ros{
     return *this;
   }
 
+  char Geometry::getFoot() const { return this->foot; }
 	double Geometry::getX() const { return this->x; }
 	double Geometry::getY() const { return this->y; }
 	double Geometry::getZ() const { return this->z; }
@@ -77,6 +78,7 @@ namespace ros{
 		return yaw;
 	}
 
+  void Geometry::setFoot(char r){ this->foot = r; }
 	void Geometry::setX(double r){ this->x=r; }
 	void Geometry::setY(double r){ this->y=r; }
 	void Geometry::setZ(double r){ this->z=r; }

@@ -1,3 +1,4 @@
+#pragma once
 #include <fast-replanning/fast-replanning-interface.hh>
 #include "motionplanner.h"
 #include "trajectory_visualizer.h"

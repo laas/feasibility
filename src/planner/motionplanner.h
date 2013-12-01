@@ -40,10 +40,10 @@ public:
 	
 	void update(){
 		ROS_INFO("***update environment***");
-		ros::Geometry goalG = environment->getGoal();
-		setGoal( goalG );
-		ros::Geometry start = environment->getStart();
-		setStart( start );
+		//ros::Geometry goalG = environment->getGoal();
+		//setGoal( goalG );
+		//ros::Geometry start = environment->getStart();
+		//setStart( start );
 
 		cleanObjects();
 		std::vector<ros::RVIZVisualMarker*> objects = environment->getObjects();
@@ -52,6 +52,7 @@ public:
 			addObjectToPlanner(*it);
 		}
 	}
+
 	void plan(){
 		if(environment->isChanged()){
 			environment_changed=true;

@@ -139,6 +139,8 @@ set(SOURCE
 	src/planner/contact_transition.cpp 
 	src/planner/trajectory_visualizer.h 
 	src/planner/trajectory_visualizer.cpp
+	src/planner/trajectory_footstep.cpp
+	src/planner/trajectory_footstep.hh
 	src/planner/motion_generator.h
 	src/planner/motion_generator.cpp
         ${CMAKE_CURRENT_BINARY_DIR}/src/robot_path.cpp
@@ -200,17 +202,17 @@ target_link_libraries(${UTIL_LIB} ${Boost_LIBRARIES})
 #PKG_CONFIG_USE_DEPENDENCY(contactPDF jrl-mal)
 #PKG_CONFIG_USE_DEPENDENCY(contactPDF analyticalPG)
 #target_link_libraries(contactPDF ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
-rosbuild_add_executable(OrtheyFastRePlanner test/orthey_fastplanner.cpp )
-PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner jrl-mal)
-PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner analyticalPG)
-PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner hrp2-dynamics)
-target_link_libraries(OrtheyFastRePlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
-
-rosbuild_add_executable(OrtheySVDrawer test/orthey_fastplanner_draw_sv.cpp )
-PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer jrl-mal)
-PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer analyticalPG)
-PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer hrp2-dynamics)
-target_link_libraries(OrtheySVDrawer ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
+#rosbuild_add_executable(OrtheyFastRePlanner test/orthey_fastplanner.cpp )
+#PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner jrl-mal)
+#PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner analyticalPG)
+#PKG_CONFIG_USE_DEPENDENCY(OrtheyFastRePlanner hrp2-dynamics)
+#target_link_libraries(OrtheyFastRePlanner ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
+#
+#rosbuild_add_executable(OrtheySVDrawer test/orthey_fastplanner_draw_sv.cpp )
+#PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer jrl-mal)
+#PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer analyticalPG)
+#PKG_CONFIG_USE_DEPENDENCY(OrtheySVDrawer hrp2-dynamics)
+#target_link_libraries(OrtheySVDrawer ${UTIL_LIB} ${FCLLIB_LIBRARIES} ${PQP_LDFLAGS})
 
 rosbuild_add_executable(FastRePlanner test/perrin_fastplanner.cpp )
 PKG_CONFIG_USE_DEPENDENCY(FastRePlanner jrl-mal)

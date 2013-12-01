@@ -1,0 +1,47 @@
+#pragma once
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+#include <ros/ros.h>
+#include <vector>
+#include "rviz/geometry.h"
+
+struct TrajectoryVisualizer;
+
+const char *colorLeft = "red";
+const char *colorRight = "green";
+const std::string topic = "/feasibility/footsteps/relative";
+
+class FootStepTrajectory{ 
+  typedef std::vector<double> FootStepState;
+
+private:
+  uint current_step_index_;
+  TrajectoryVisualizer *tv_;
+	boost::mutex footstep_mutex_;
+  ros::NodeHandle n;
+  ros::Publisher pub_;
+
+  //std::vector<FootStepState> footsteps_;
+  ros::Geometry start_;
+  std::vector<std::vector<double> > footsteps_;
+
+  void checkSafety( double &xr, double &yr, double &tr);
+public:
+  FootStepTrajectory();
+  void lock();
+  void unlock();
+  FootStepTrajectory( const FootStepTrajectory &rhs );
+
+  ros::Geometry& getStart();
+  void setStart(ros::Geometry &rhs);
+  std::vector<std::vector<double> >& getFootSteps();
+
+  void append( ros::Geometry &start, FootStepTrajectory &rhs );
+  void execute_one_step();
+  void publish();
+
+  void push_back( FootStepState &fss );
+  void add_prescripted_end_sequence(const ros::Geometry &goal);
+};
+//static ros::Publisher FootStepTrajectory::pub_;
+

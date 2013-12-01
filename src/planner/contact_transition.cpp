@@ -4,11 +4,15 @@
 #include <dirent.h>
 #include <Eigen/Geometry>
 #include <Eigen/Core>
-#include "contact_transition.h"
+#include "planner/contact_transition.h"
 #include "util/util.h"
 #include "rviz/visualmarker.h"
 #include "rviz/primitive_marker.h"
 
+ConstraintsChecker *ContactTransition::constraints;
+std::vector<ros::RVIZVisualMarker*> ContactTransition::objects;
+Timer* ContactTransition::timer;
+uint ContactTransition::feasibilityChecks;
 #define DEBUG(x)
 #define TIMER_DEBUG(x)
 

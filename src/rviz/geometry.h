@@ -8,6 +8,7 @@ namespace ros{
 		double sx,sy,sz; //scale
 		double radius,height;
     boost::mutex mutex; //NON-COPYABLE
+    char foot;
 
 	public:
 		Geometry( const ros::Geometry& rhs );
@@ -17,6 +18,7 @@ namespace ros{
 		void lock();
 		void unlock();
 
+    char getFoot() const;
     double getX() const;
     double getY() const;
     double getZ() const;
@@ -31,6 +33,7 @@ namespace ros{
 		double getHeight() const;
 		double getRadius() const;
 
+    void setFoot(char f);
 		void setX(double);
 		void setY(double);
 		void setZ(double);
