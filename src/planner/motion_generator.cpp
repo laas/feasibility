@@ -108,6 +108,13 @@ MotionGenerator::
 convertAbsoluteHalfFootStepToStepVector(std::vector< std::vector<double> > &fsi, 
                                         std::vector<step> &vectStep)
 {
+  //std::vector<double> firstHalfStep = vecD(0,0,0,'R', startG.getX(), startG.getY(), startG.getYawRadian());
+  //fsi.insert( fsi.begin(), firstHalfStep);
+
+  //step t;
+  //t.x=0.0;t.y=0.0;t.theta=0;t.left_or_right='L';
+  //vectStep.push_back(t);
+
   for(uint i=0;i<fsi.size();i++){
     step t;
     t.x = fsi.at(i).at(0);
@@ -372,6 +379,7 @@ computeFeaturesWithSmoothing(
   //Create StepFeatures
   stepUP = stepsVect.at(0).stepFeaturesUP;
   stepF1 = stepUP;
+
 
   for(int i=0; i<startFrom; i++){
     if(i==0){
@@ -729,6 +737,7 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
   bool smoothing=true;
   int size = -1;
   StepFeatures stepF;
+
   if(smoothing){
     stepF = computeFeaturesWithSmoothing(vectStep, lastStepSmoothed, 2);
     size = vectStep[lastStepSmoothed].stepFeaturesUP.size 
@@ -753,7 +762,7 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
   //###############################################################################
   //###############################################################################
 
-  int firstIndex = getFirstIndex( vectStep, lastStepSmoothed);                                                                                                   
+  int firstIndex = getFirstIndex( vectStep, lastStepSmoothed);
   DEBUG(ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);)
 
   if(size>0){

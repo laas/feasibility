@@ -1,6 +1,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
+#include <algorithm>
 
 #include <boost/thread/mutex.hpp>
 #include "std_msgs/Float64MultiArray.h" //pbulish vector<double>
@@ -75,13 +76,18 @@ void FootStepTrajectory::execute_one_step(){
     return;
   }
 
-  if( ContactTransition::isInCollision(footsteps_, current_step_index_, min(current_step_index_+step_horizon, footsteps_.size()-2) ) ){
+  uint collisionStartIndex = std::max(current_step_index_, (uint)1); //firstHalfStep is from start Location, which has no swept volume definition, so we cannot test it
+  uint collisionEndIndex = std::min(current_step_index_+step_horizon, footsteps_.size()-2);
+
+  /*
+  if( ContactTransition::isInCollision(footsteps_, collisionStartIndex, collisionEndIndex) ){
     ROS_INFO("*******************************************");
     ROS_INFO("FATAL_ERROR IN MOTION_PLANNER");
     ROS_INFO("COLLISION IN THE NEXT THREE STEP --- CANNOT REPLAN!");
     ROS_INFO("*******************************************");
     return;
   }
+  */
   if( current_step_index_ > last_planner_start_index_ ){
     return;
   }
@@ -140,7 +146,8 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
       return;
     }
 
-    if( !ContactTransition::isInCollision(footsteps_, current_step_index_ ,footsteps_.size()-2 ) ){ //last two steps are prescripted
+    uint collisionStartIndex = std::max(current_step_index_, (uint)1);
+    if( !ContactTransition::isInCollision(footsteps_, collisionStartIndex ,footsteps_.size()-2 ) ){ //last two steps are prescripted
       if(footsteps_.size() - last_planner_start_index_ <= rhs.size()){
         // No need for updating
         return;

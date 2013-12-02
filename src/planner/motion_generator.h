@@ -106,6 +106,6 @@ private:
   void init_checkCollisionsPQP(std::string path, int ratio=110);
   int checkCollisions(vector<vector<double> >& trajTimedRadQ, StepFeatures& stepF, int start, int offset);
   void createFeatures( step& s0, step& s1 );
-  void recomputeZMP(vector<step>& vectStep, char ,double, double, double);
+  void recomputeZMP(vector<step>& vectStep, char, double, double, double);
 
 };

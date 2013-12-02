@@ -38,6 +38,7 @@ void thread_publish(){
   ros::Geometry startG = environment->getStart();
   startG.setFoot('L');
   astar->setStart( startG );
+
   while(1){
 			astar->plan();
 			//if(astar->success()){
