@@ -19,7 +19,7 @@ using namespace std;
 FootStepTrajectory::FootStepTrajectory(){
   static bool firsttime = true;
   if(firsttime){
-    tv_ = new TrajectoryVisualizer(0,0,0); //visualize q with CoM offset
+    //tv_ = new TrajectoryVisualizer(0,0,0); //visualize q with CoM offset
     pub_ = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     firsttime = false;
   }
@@ -76,10 +76,9 @@ void FootStepTrajectory::execute_one_step(){
     return;
   }
 
+  /*
   uint collisionStartIndex = std::max(current_step_index_, (uint)1); //firstHalfStep is from start Location, which has no swept volume definition, so we cannot test it
   uint collisionEndIndex = std::min(current_step_index_+step_horizon, footsteps_.size()-2);
-
-  /*
   if( ContactTransition::isInCollision(footsteps_, collisionStartIndex, collisionEndIndex) ){
     ROS_INFO("*******************************************");
     ROS_INFO("FATAL_ERROR IN MOTION_PLANNER");
@@ -88,6 +87,7 @@ void FootStepTrajectory::execute_one_step(){
     return;
   }
   */
+
   if( current_step_index_ > last_planner_start_index_ ){
     return;
   }
