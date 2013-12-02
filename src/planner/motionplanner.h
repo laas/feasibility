@@ -54,20 +54,20 @@ public:
 	}
 
 	void plan(){
-		if(environment->isChanged()){
+		//if(environment->isChanged()){
 			environment_changed=true;
 			update();
 			ROS_INFO("[MOTION_PLANNER] replanning (ENV CHANGED)");
 			start_planner();
 			ROS_INFO("[MOTION_PLANNER] finished replanning");
-		}else{
-			environment_changed=false;
+		//}else{
+			//environment_changed=false;
 		  //if(results.success==false){
         //update();
         //ROS_INFO("replanning (NO PREVIOUS PLAN)");
         //start_planner();
       //}
-		}
+		//}
 	}
 
 	virtual void publish() = 0;

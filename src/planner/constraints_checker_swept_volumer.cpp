@@ -28,10 +28,11 @@ ConstraintsCheckerSweptVolume::
 isInCollision( 
     std::vector<ros::RVIZVisualMarker*> &objects_absolute, 
     std::vector< std::vector<double> > &fsi, 
-    uint current_step_index ){
+    uint current_step_index,
+    uint end_step_index){
 
   //ROS_INFO("[SWEPTVOLUME] COLLISION CHECK FROM STEP %d",current_step_index);
-	for(uint i=current_step_index; i < fsi.size()-2; i++){ //last steps are prescripted
+	for(uint i=current_step_index; i < std::min( end_step_index, fsi.size()); i++){ //last steps are prescripted
 
     double sf_rel_x = fsi.at(i).at(0); //relative values
     double sf_rel_y = fsi.at(i).at(1);
@@ -63,12 +64,12 @@ isInCollision(
         //ROS_INFO("[WARNING] COLLISION AT STEP %d/%d",i,fsi.size());
         //ROS_INFO("[WARNING] ( %f , %f , %f )", sv->g.getX(), sv->g.getY(), sv->g.getYawRadian()); 
         //ROS_INFO("****************************");
-        ros::ColorFootMarker m(sf_abs_x, sf_abs_y, sf_abs_yaw,"yellow");
-        m.g.setSX(0.33); //0.24
-        m.g.setSY(0.19); //0.14
-        m.g.setSZ(0.1); //0.03
-        m.init_marker();
-        m.publish();
+        //ros::ColorFootMarker m(sf_abs_x, sf_abs_y, sf_abs_yaw,"yellow");
+        //m.g.setSX(0.33); //0.24
+        //m.g.setSY(0.19); //0.14
+        //m.g.setSZ(0.1); //0.03
+        //m.init_marker();
+        //m.publish();
         return true;
       }
     }
@@ -109,12 +110,16 @@ double ConstraintsCheckerSweptVolume::computeSVOutput(
 std::vector<ros::TriangleObject*> 
 ConstraintsCheckerSweptVolume::prepareObjectPosition_nonThreaded(std::vector<ros::RVIZVisualMarker*> &obj, 
 		double sf_x, double sf_y, double sf_yaw, char sf_foot){
-	std::vector<ros::RVIZVisualMarker*>::iterator oit;
   std::vector<ros::TriangleObject*> objects_relative;
-	for(  oit = obj.begin(); oit != obj.end(); ++oit ){
-		double xobj = (*oit)->g.getX();
-		double yobj = (*oit)->g.getY();
-		double yaw = (*oit)->g.getYawRadian();
+
+
+	for(uint i=0; i<obj.size(); i++){
+		ros::TriangleObject *o = new ros::SweptVolumeObject(); //ligthweight object, such that we can only copy pointer
+		o->g = obj.at(i)->g;
+
+		double xobj = o->g.getX();
+		double yobj = o->g.getY();
+		double yaw = o->g.getYawRadian();
 
 		//translate object, so that origin and sf origin conincide
 		double tx = xobj - sf_x;
@@ -139,11 +144,8 @@ ConstraintsCheckerSweptVolume::prepareObjectPosition_nonThreaded(std::vector<ros
 		//distance function to compute the neccessary
 		//transformation
 
-		ros::RVIZVisualMarker *t = *oit;
-		ros::TriangleObject *o = new ros::SweptVolumeObject(); //ligthweight object, such that we can only copy pointer
-		o->g = t->g;
 		//o->set_bvh_ptr( t->get_bvh_ptr() );
-		o->set_pqp_ptr( static_cast<ros::TriangleObject*>(t)->get_pqp_ptr() );
+		o->set_pqp_ptr( dynamic_cast<ros::TriangleObject*>(obj.at(i))->get_pqp_ptr() );
 
 		o->g.setX( rx );
 		o->g.setY( ry );

@@ -33,19 +33,19 @@ double ContactTransition::GoalDistanceEstimate( ContactTransition &nodeGoal ){
 	double x = this->g.getX();
 	double y = this->g.getY();
 	double t = this->g.getYawRadian();
-	double dn = norml2(x,xg,y,yg) + 0.05*sqrtf((t-yawg)*(t-yawg));
+	double dn = norml2(x,xg,y,yg);// + 0.1*sqrtf((t-yawg)*(t-yawg));
 
 	//using a penalty term in the vicinity of the goal to align the robot body
 	//with the goal direction. addditional, we assure that the heuristic has a
 	//smooth transition at the threshold
-	double threshold = 0.08;
+	double threshold = 0.05;
 	if(dn > threshold){
 	  return dn;
   }else{
     double dy = sqrt((t-yawg)*(t-yawg));
     double maxy = sqrt((yawg-M_PI)*(yawg-M_PI));
-    double weightDist = 0.8;
-    return dn;//threshold*(weightDist*dn/threshold+ (1.0-weightDist)*dy/maxy)*0.5;
+    double weightDist = 0.7;
+    return threshold*(weightDist*dn/threshold+ (1.0-weightDist)*dy/maxy)*0.5;
   }
 }
 void ContactTransition::cleanStatic(){
@@ -63,7 +63,7 @@ bool ContactTransition::IsGoal( ContactTransition &nodeGoal ){
 	double t = this->g.getYawRadian();
 	double tg = nodeGoal.g.getYawRadian();
 	//return norml2(x,xg,y,yg) < 0.22 && sqrtf( (this->rel_yaw-yawg)*(this->rel_yaw-yawg))<M_PI/2;
-	return norml2(x,xg,y,yg) <= 0.08 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/4;
+	return norml2(x,xg,y,yg) <= 0.1 && sqrtf( (t-tg)*(t-tg) ) <= M_PI/4;
 }
 
 //
@@ -133,7 +133,10 @@ ros::Geometry ContactTransition::computeAbsFFfromRelFF(
 }
 
 bool ContactTransition::isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index ){
-  return constraints->isInCollision(ContactTransition::objects, fsi, current_step_index);
+  return constraints->isInCollision(ContactTransition::objects, fsi, current_step_index, fsi.size());
+}
+bool ContactTransition::isInCollision( std::vector< std::vector<double> > &fsi, uint current_step_index, uint end_step_index){
+  return constraints->isInCollision(ContactTransition::objects, fsi, current_step_index, end_step_index);
 }
 
 std::string ContactTransition::get_swept_volume_file_name( uint hash ){

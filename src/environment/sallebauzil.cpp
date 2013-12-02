@@ -40,11 +40,11 @@ void EnvironmentSalleBauzil::setObjects(){
 	c->set_color(ros::OBSTACLE);
 	objects.push_back(c);
 
-  c = new ros::PrimitiveMarkerBox(-3.0, 2.0, 0.6, 0.8, 1.1);
-  c->addText("AIRPLANE<@GOAL>");
-  c->subscribeToEvart("/evart/red_airbus_screw/PO");
-  c->set_color(ros::OBSTACLE);
-  objects.push_back(c);
+  //c = new ros::PrimitiveMarkerBox(-3.0, 2.0, 0.6, 0.8, 1.1);
+  //c->addText("AIRPLANE<@GOAL>");
+  //c->subscribeToEvart("/evart/red_airbus_screw/PO");
+  //c->set_color(ros::OBSTACLE);
+  //objects.push_back(c);
 }
 
 void EnvironmentSalleBauzil::setGoalObject(){

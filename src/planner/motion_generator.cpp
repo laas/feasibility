@@ -754,7 +754,7 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
   //###############################################################################
 
   int firstIndex = getFirstIndex( vectStep, lastStepSmoothed);                                                                                                   
-  ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);
+  DEBUG(ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);)
 
   if(size>0){
     vector<vector<double> > trajTimedRadQ;

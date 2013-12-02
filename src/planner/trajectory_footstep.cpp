@@ -35,19 +35,32 @@ FootStepTrajectory::FootStepTrajectory( const FootStepTrajectory &rhs ){
 std::vector<std::vector<double> >& FootStepTrajectory::getFootSteps(){
   return footsteps_;
 }
+uint FootStepTrajectory::size(){
+  return footsteps_.size();
+}
 
 ros::Geometry& FootStepTrajectory::getStart(){
   ros::Geometry newStart;
   last_planner_start_index_ = current_step_index_ + step_horizon;
+
+  if(last_planner_start_index_ > footsteps_.size()-1){
+    last_planner_start_index_ = footsteps_.size()-1;
+  }
+
   newStart.setX( footsteps_.at(last_planner_start_index_).at(4) );
   newStart.setY( footsteps_.at(last_planner_start_index_).at(5) );
   newStart.setYawRadian( footsteps_.at(last_planner_start_index_).at(6) );
-  newStart.setFoot( footsteps_.at(last_planner_start_index_).at(3) );
+  char flast = footsteps_.at(last_planner_start_index_).at(3);
+  newStart.setFoot( flast=='R'?'L':'R');
+
+  cout << "SETTING NEW START VALUE" << endl;
+  cout<<footsteps_.at(last_planner_start_index_) <<endl;
   this->setStart( newStart );
   return this->start_;
 }
 void FootStepTrajectory::setStart( ros::Geometry &start ){
   this->start_ = start;
+  this->start_.setFoot( start.getFoot() );
 }
 //publish a joint configuration trajectory and visualize it in RVIZ
 void FootStepTrajectory::execute_one_step(){
@@ -57,29 +70,37 @@ void FootStepTrajectory::execute_one_step(){
     //No footsteps avaiable
     return;
   }
-  if(current_step_index_ >= footsteps_.size()-1){
+  if(current_step_index_ > footsteps_.size()-1){
     //we are done
     return;
   }
-  if(current_step_index_ + step_horizon >= last_planner_start_index_){
-    //if we start to walk further than the standard step horizon, we have to
-    //check for collisions. If we are in collision, we have to wait for the
-    //planner
-    if( ContactTransition::isInCollision(footsteps_, current_step_index_ ) ){
-      return;
-    }
+
+  if( ContactTransition::isInCollision(footsteps_, current_step_index_, min(current_step_index_+step_horizon, footsteps_.size()-2) ) ){
+    ROS_INFO("*******************************************");
+    ROS_INFO("FATAL_ERROR IN MOTION_PLANNER");
+    ROS_INFO("COLLISION IN THE NEXT THREE STEP --- CANNOT REPLAN!");
+    ROS_INFO("*******************************************");
+    return;
   }
+  if( current_step_index_ > last_planner_start_index_ ){
+    return;
+  }
+
+  publish();
 
   MotionGenerator *mg;
   std::vector<double> q;
 
-
   mg = new MotionGenerator(ContactTransition::objects); //generate q
-  q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 'R'); //where is the right foot wrt the left foot (relative)
+
+  q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
+      footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
+
 
   lock.unlock();
+
   if(q.size()>0){
-    ROS_INFO("configuration vector: %d", q.size());
+    //ROS_INFO("configuration vector: %d", q.size());
     //Replay trajectory
     tv_->init(q);
     ros::Rate rq(400); //300
@@ -89,6 +110,7 @@ void FootStepTrajectory::execute_one_step(){
     }
   }
 
+  boost::mutex::scoped_lock lock2(footstep_mutex_);
   current_step_index_++;
   ROS_INFO("step_index: %d -> %d", current_step_index_-1, current_step_index_);
   return;
@@ -113,15 +135,23 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
       tv_ = new TrajectoryVisualizer(start.getX(), start.getY(), start.getYawRadian()); //visualize q with CoM offset
       return;
     }
-
-    if( !ContactTransition::isInCollision(footsteps_, current_step_index_ ) ){
-      // No need for updating
+    if(rhs.size()==0){ 
+      //nothing to append
       return;
     }
 
-    if(current_step_index_ + step_horizon >= footsteps_.size() + rhs.footsteps_.size()){
+    if( !ContactTransition::isInCollision(footsteps_, current_step_index_ ,footsteps_.size()-2 ) ){ //last two steps are prescripted
+      if(footsteps_.size() - last_planner_start_index_ <= rhs.size()){
+        // No need for updating
+        return;
+      }
+    }
+
+
+    if(current_step_index_ + step_horizon >= footsteps_.size() - last_planner_start_index_ + rhs.footsteps_.size()){
       //goal is reached in the next three steps, so we forget about the new
       //trajectory
+      ROS_INFO("Reaching End of Trajectory in %d steps" ,step_horizon);
       return;
     }
 
@@ -155,12 +185,18 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
       
     if(footsteps_.at(last_planner_start_index_).at(3) == rhs.footsteps_.at(0).at(3)){
       ROS_INFO("*************************************");
-      ROS_INFO("[FATAL_ERROR] SAME FOOT");
+      ROS_INFO("[FATAL_ERROR] NOT SAME FOOT");
       ROS_INFO("*************************************");
+      footsteps_.erase( footsteps_.begin()+last_planner_start_index_+1, footsteps_.end());
       cout << footsteps_ << endl;
-      cout << rhs.footsteps_ << endl;
+      cout << endl;
+      cout << rhs.footsteps_.at(0) << endl;
+      cout << rhs.footsteps_.at(1) << endl;
+      cout << rhs.footsteps_.at(2) << endl;
       this->start_.print();
       cout << this->start_.getYawRadian() << endl;
+      ROS_INFO("LAST PLANNER INDEX: %d", last_planner_start_index_);
+      cout << footsteps_.at(last_planner_start_index_) << endl;
       ros::FootMarker m(0,0,0);
       m.reset();
       exit(-1);
@@ -192,7 +228,7 @@ void FootStepTrajectory::publish(){
     double x = footsteps_.at(i).at(4);
     double y = footsteps_.at(i).at(5);
     double t = footsteps_.at(i).at(6);
-    double f = footsteps_.at(i).at(3);
+    char f = footsteps_.at(i).at(3);
 
     if(f == 'L'){
       ros::ColorFootMarker m(x,y,t,colorLeft);
@@ -207,14 +243,14 @@ void FootStepTrajectory::publish(){
     double x = footsteps_.at(last_planner_start_index_).at(4);
     double y = footsteps_.at(last_planner_start_index_).at(5);
     double t = footsteps_.at(last_planner_start_index_).at(6);
-    char f = footsteps_.at(last_planner_start_index_).at(3);
+    double f = footsteps_.at(last_planner_start_index_).at(3);
 
-    ros::ColorFootMarker m(x,y,t,"blue");
-    m.g.setSX(0.28); //0.24
-    m.g.setSY(0.15); //0.14
-    m.g.setSZ(0.08); //0.03
-    m.init_marker();
-    m.publish();
+    //ros::ColorFootMarker m(x,y,t,"blue");
+    //m.g.setSX(0.28); //0.24
+    //m.g.setSY(0.15); //0.14
+    //m.g.setSZ(0.08); //0.03
+    //m.init_marker();
+    //m.publish();
   }
   //ROS_INFO("step %d/%d", current_step_index_, fsi.size());
 

@@ -11,7 +11,8 @@ ConstraintsChecker::
 isInCollision( 
     std::vector<ros::RVIZVisualMarker*> &obj, 
     std::vector< std::vector<double> > &fsi, 
-    uint current_step_index ){
+    uint current_step_index,
+    uint end_step_index){
   NYI();
 }
 void ConstraintsChecker::loadSweptVolumeFileNames(const char *path){

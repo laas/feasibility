@@ -34,19 +34,21 @@ void thread_publish(){
 
   ros::Geometry goalG = environment->getGoal();
   astar->setGoal( goalG );
+
   ros::Geometry startG = environment->getStart();
+  startG.setFoot('L');
   astar->setStart( startG );
   while(1){
 			astar->plan();
-			if(astar->success()){
+			//if(astar->success()){
 				FootStepTrajectory fst_new = astar->get_footstep_trajectory();
 
 				fst->lock();
 				fst->append(astar->getStart(), fst_new);
-        fst->publish();
+        //fst->publish();
 				astar->setStart( fst->getStart() );
         fst->unlock();
-			}
+			//}
   }
 }
 
@@ -74,15 +76,12 @@ int main( int argc, char** argv )
 	plan=false;
 
 	subscriber = n.subscribe("/planner/stop", 100, &update);
-
 	environment = Environment::getSalleBauzil();
-
 	astar = new MotionPlannerAStar(environment, argc, argv);
 
 	//cc = new ConstraintsCheckerNaive();
 	cc = new ConstraintsCheckerSweptVolume();
 	astar->setConstraintsChecker(cc);
-
   fst = new FootStepTrajectory();
 
 	while (ros::ok())

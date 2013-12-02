@@ -30,6 +30,7 @@ private:
   void checkSafety( double &xr, double &yr, double &tr);
 public:
   FootStepTrajectory();
+  uint size();
   void lock();
   void unlock();
   FootStepTrajectory( const FootStepTrajectory &rhs );

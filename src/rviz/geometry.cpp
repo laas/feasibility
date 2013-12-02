@@ -113,6 +113,7 @@ namespace ros{
 		printf("X %f|Y %f|Z %f\n",x,y,z);
 		printf("rx %f|ry %f|rz %f|rw %f\n",rx,ry,rz,rw);
 		printf("SX %f|SY %f|SZ %f\n",sx,sy,sz);
+		printf("FOOT: %f\n", (double)foot);
 		std::cout << std::endl;
 	}
 };
