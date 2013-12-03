@@ -100,7 +100,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     {
       SearchState = astarsearch->SearchStep();
       SearchSteps++;
-      if(SearchSteps > 5000){
+      if(SearchSteps > 1000){
         astarsearch->CancelSearch();
         break;
       }

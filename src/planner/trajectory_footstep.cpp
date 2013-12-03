@@ -47,6 +47,10 @@ ros::Geometry& FootStepTrajectory::getStart(){
   if(last_planner_start_index_ > footsteps_.size()-1){
     last_planner_start_index_ = footsteps_.size()-1;
   }
+  if(footsteps_.size()==0){
+    //no footsteps aquired yet, so we do not update the starting position
+    return this->start_;
+  }
 
   newStart.setX( footsteps_.at(last_planner_start_index_).at(4) );
   newStart.setY( footsteps_.at(last_planner_start_index_).at(5) );
