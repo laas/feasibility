@@ -43,12 +43,20 @@ void thread_publish(){
 			astar->plan();
 			//if(astar->success()){
 				FootStepTrajectory fst_new = astar->get_footstep_trajectory();
+				if(fst_new.size()<=3){
+          ros::Rate r(1);
+          r.sleep();
+        }
 
 				fst->lock();
+				//if(fst_new.size()==2){
+
 				fst->append(astar->getStart(), fst_new);
         //fst->publish();
 				astar->setStart( fst->getStart() );
         fst->unlock();
+
+
 			//}
   }
 }
