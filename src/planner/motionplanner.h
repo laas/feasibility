@@ -39,7 +39,7 @@ public:
 	virtual ~MotionPlanner(){}
 	
 	void update(){
-		ROS_INFO("***update environment***");
+		//ROS_INFO("***update environment***");
 		//ros::Geometry goalG = environment->getGoal();
 		//setGoal( goalG );
 		//ros::Geometry start = environment->getStart();
@@ -57,9 +57,9 @@ public:
 		//if(environment->isChanged()){
 			environment_changed=true;
 			update();
-			ROS_INFO("[MOTION_PLANNER] replanning (ENV CHANGED)");
+			//ROS_INFO("[MOTION_PLANNER] replanning (ENV CHANGED)");
 			start_planner();
-			ROS_INFO("[MOTION_PLANNER] finished replanning");
+			//ROS_INFO("[MOTION_PLANNER] finished replanning");
 		//}else{
 			//environment_changed=false;
 		  //if(results.success==false){

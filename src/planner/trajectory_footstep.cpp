@@ -12,7 +12,7 @@
 
 #include "planner/trajectory_footstep.hh"
 
-#define DEBUG(x) x
+#define DEBUG(x)
 
 using namespace std;
 
@@ -58,8 +58,8 @@ ros::Geometry& FootStepTrajectory::getStart(){
   char flast = footsteps_.at(last_planner_start_index_).at(3);
   newStart.setFoot( flast=='R'?'L':'R');
 
-  cout << "SETTING NEW START VALUE" << endl;
-  cout<<footsteps_.at(last_planner_start_index_) <<endl;
+  DEBUG(cout << "SETTING NEW START VALUE" << endl;)
+  DEBUG( cout<<footsteps_.at(last_planner_start_index_) <<endl;)
   this->setStart( newStart );
   return this->start_;
 }
@@ -162,7 +162,7 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
     if(current_step_index_ + step_horizon >= footsteps_.size() - last_planner_start_index_ + rhs.footsteps_.size()){
       //goal is reached in the next three steps, so we forget about the new
       //trajectory
-      ROS_INFO("Reaching End of Trajectory in %d steps" ,step_horizon);
+      DEBUG(ROS_INFO("Reaching End of Trajectory in %d steps" ,step_horizon);)
       return;
     }
 

@@ -5,7 +5,7 @@
 #include "util/util_timer.h"
 #include "planner/trajectory_footstep.hh"
 
-#define DEBUG(x) x
+#define DEBUG(x)
 
 struct MotionPlannerAStar: public MotionPlanner{
 
@@ -121,9 +121,9 @@ struct MotionPlannerAStar: public MotionPlanner{
       }
     }
     ContactTransition::timer->end("a*");
-    ContactTransition::timer->print_summary();
-    ROS_INFO("PLAN START: ");
-    this->start_.g.print();
+    DEBUG( ContactTransition::timer->print_summary();)
+    DEBUG( ROS_INFO("PLAN START: ");)
+    DEBUG( this->start_.g.print();)
 
     results.feasibilityChecks = ContactTransition::feasibilityChecks;
     results.time = ContactTransition::timer->getFinalTime("a*");
@@ -147,7 +147,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     {
       ContactTransition *node = astarsearch->GetSolutionStart();
       std::vector<double> fs= vecD(node->g.getX(), node->g.getY(), node->g.getYawRadian(), node->L_or_R);
-      ROS_INFO("SOLUTION START: %f %f %f %f %f", fs.at(0), fs.at(1), fs.at(2), fs.at(3), (double)node->g.getFoot());
+      DEBUG( ROS_INFO("SOLUTION START: %f %f %f %f %f", fs.at(0), fs.at(1), fs.at(2), fs.at(3), (double)node->g.getFoot());)
       for( ;; ){
           node = astarsearch->GetSolutionNext();
           if( !node ) break;
@@ -167,7 +167,7 @@ struct MotionPlannerAStar: public MotionPlanner{
     		footlogger( fs_trajectory.getFootSteps() );
 		)
     astarsearch->EnsureMemoryFreed();
-    ROS_INFO("[PLANNER] OUTPUT %d FOOTSTEP TRAJECTORY", fs_trajectory.size());
+    DEBUG( ROS_INFO("[PLANNER] OUTPUT %d FOOTSTEP TRAJECTORY", fs_trajectory.size()); )
 
     return fs_trajectory;
   }
