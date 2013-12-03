@@ -7,6 +7,7 @@ namespace ros{
 	struct RVIZInterface{
 	private:
 		std::vector<visualization_msgs::Marker> marker_list;
+    boost::mutex marker_mutex_;
 	public:
 		ros::Publisher publisher;
 		ros::NodeHandle n;

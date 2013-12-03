@@ -15,6 +15,7 @@ RVIZInterface::RVIZInterface(){
 //can reset it conveniently
 void RVIZInterface::publish(visualization_msgs::Marker &m, bool save){
   if(save){
+    boost::mutex::scoped_lock lock(marker_mutex_);
     marker_list.push_back(m);
   }
   DEBUG(ROS_INFO("added marker %s,%d", m.ns.c_str(),m.id););
@@ -39,6 +40,7 @@ bool RVIZInterface::waitForSubscribers(ros::Duration timeout)
 
 void RVIZInterface::reset(){
 
+  boost::mutex::scoped_lock lock(marker_mutex_);
   std::vector<visualization_msgs::Marker>::iterator it;
   for(it=marker_list.begin(); it!=marker_list.end(); it++){
     visualization_msgs::Marker tmp = *it;
