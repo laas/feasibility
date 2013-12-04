@@ -35,8 +35,8 @@ void EnvironmentSalleBauzil::setObjects(){
   //c = new ros::PrimitiveMarkerCylinder(0.0, 0.0, 1, 2);
 	c->addText("FACOM<<(o,,,o)>>");
 	//c->set_constant_rotation_radian(0,0,M_PI);
-	c->make_interactive(1.5);
-	//c->subscribeToEvart("/evart/facom_box/PO");
+	//c->make_interactive(1.5);
+	c->subscribeToEvart("/evart/facom_box/PO");
 	c->set_color(ros::OBSTACLE);
 	objects.push_back(c);
 
@@ -52,12 +52,12 @@ void EnvironmentSalleBauzil::setGoalObject(){
   goal->addText("<GOAL>");
   goal->setRPYRadian(0,0,M_PI);
   //goal->set_constant_offset(0.75, 0);
-  //goal->subscribeToEvart("/evart/red_airbus_screw/PO");
+  goal->subscribeToEvart("/evart/red_airbus_screw/PO");
 }
 void EnvironmentSalleBauzil::setStartObject(){
   start = new ros::SphereMarker(2.0, -1.00, 0.2, 0.0);
   start->addText("<START>");
-  start->setRPYRadian(0,0,3*M_PI/4);
+  //start->setRPYRadian(0,0,3*M_PI/4);
   start->set_csf_in_chest_yaw(1.0438);
-  //start->subscribeToEvart("/evart/HRP2_waist_sensor_frame/PO",true,20);
+  start->subscribeToEvart("/evart/HRP2_waist_sensor_frame/PO",true,20);
 }
