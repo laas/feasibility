@@ -18,6 +18,7 @@ class FootStepTrajectory{
 private:
   uint current_step_index_;
   uint last_planner_start_index_;
+  uint number_of_prescripted_steps_;
   TrajectoryVisualizer *tv_;
 	boost::mutex footstep_mutex_;
   ros::NodeHandle n;

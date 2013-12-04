@@ -56,7 +56,6 @@ void thread_publish(){
 				astar->setStart( fst->getStart() );
         fst->unlock();
 
-
 			//}
   }
 }
