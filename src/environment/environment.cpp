@@ -55,7 +55,7 @@ void Environment::reloadObjects(){
   thread_start();
 }
 void Environment::thread_publish(){
-  ros::Rate r(100); //Hz
+  ros::Rate r(80); //Hz
   while(1){
 		{
 			DEBUG(std::cout << "[ENV] >>>>>>||" << std::flush;)
@@ -70,6 +70,15 @@ void Environment::thread_publish(){
 			}
 			this->goal->publish();
 			this->start->publish();
+			//*******************************
+			//*******************************
+			double yaw = this->start->g.getYawRadian();
+      double x = cos(yaw)*0.1+this->start->g.getX();
+      double y = sin(yaw)*0.1+this->start->g.getY();
+      ros::SphereMarker m(x,y,0.1);
+      m.publish();
+			//*******************************
+			//*******************************
 			change |= this->start->isChanged();
 			change |= this->goal->isChanged();
 

@@ -25,6 +25,7 @@ FootStepTrajectory::FootStepTrajectory(){
   }
   last_planner_start_index_=0;
   current_step_index_ = 0;
+  number_of_prescripted_steps_ = 0;
 }
 
 FootStepTrajectory::FootStepTrajectory( const FootStepTrajectory &rhs ){
@@ -141,6 +142,7 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
 
     if(footsteps_.size()==0){
       footsteps_ = rhs.footsteps_;
+      number_of_prescripted_steps_ = rhs.number_of_prescripted_steps_;
       DEBUG( ROS_INFO("TV START %f %f %f", start.getX(), start.getY(), start.getYawRadian()); )
       tv_ = new TrajectoryVisualizer(start.getX(), start.getY(), start.getYawRadian()); //visualize q with CoM offset
       return;
@@ -149,9 +151,17 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
       //nothing to append
       return;
     }
+    DEBUG(ROS_INFO("SIZE: %d - %d / %d+%d",footsteps_.size(), number_of_prescripted_steps_, current_step_index_, step_horizon);)
+    DEBUG(ROS_INFO("APPEND %d and %d (prescript %d and %d)", footsteps_.size(), rhs.size(), number_of_prescripted_steps_, rhs.number_of_prescripted_steps_);)
+    if(footsteps_.size()-number_of_prescripted_steps_ < current_step_index_ +  1 + step_horizon){
+      //in final prescript sequence, do not disturb the trajectory
+      return;
+
+    }
 
     uint collisionStartIndex = std::max(current_step_index_, (uint)1);
-    if( !ContactTransition::isInCollision(footsteps_, collisionStartIndex ,footsteps_.size()-2 ) ){ //last two steps are prescripted
+
+    if( !ContactTransition::isInCollision(footsteps_, collisionStartIndex ,footsteps_.size()-number_of_prescripted_steps_ ) ){ //last two steps are prescripted
       if(footsteps_.size() - last_planner_start_index_ <= rhs.size()){
         // No need for updating
         return;
@@ -216,6 +226,7 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
     //*********************************************************
 
     //everything seems fine, lets concatenate the two trajectories
+    number_of_prescripted_steps_ = rhs.number_of_prescripted_steps_;
     footsteps_.erase( footsteps_.begin()+last_planner_start_index_+1, footsteps_.end());
     footsteps_.insert( footsteps_.end(), rhs.footsteps_.begin(), rhs.footsteps_.end() );
 
@@ -307,11 +318,31 @@ void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
 //move the robot towards the exact position, thereby assuming that it is already
 //in the goal region, i.e. it can make the steps which we prescript
 void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal){
-
   if(footsteps_.size()>1){
     footsteps_.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
 
+    const double goal_offset_x = -0.1;
+    const double goal_offset_y = -0.1; //offset in L direction
+    const double step_y = 0.2; //distance between feet in half-sitting
     char sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
+
+    if(sf_f == 'R'){
+      if(footsteps_.size()==1){
+        //add new footstep to make L/R prescript possible
+        double xl = footsteps_.at( footsteps_.size() -1 ).at(4);
+        double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
+        double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
+        double abs_x = cos(yawl)*(0) - sin(yawl)*(step_y) + xl;
+        double abs_y = sin(yawl)*(0) + cos(yawl)*(step_y) + yl;
+        std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'L', abs_x, abs_y, yawl);
+        footsteps_.push_back(pre_script_foot0);
+      }else{
+        footsteps_.pop_back();
+      }
+
+      sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
+    }
+    uint N_planned_steps = footsteps_.size();
 
     double goal_x = goal.getX();
     double goal_y = goal.getY();
@@ -321,11 +352,91 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
     double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
     double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
 
-    double goal_offset_x = -0.1;
-    double goal_offset_y = -0.1; //offset in L direction
-    double step_y = 0.2; //distance between feet in half-sitting
+    double abs_x = cos(yawl)*(0) - sin(yawl)*(step_y) + xl;
+    double abs_y = sin(yawl)*(0) + cos(yawl)*(step_y) + yl;
 
-    if(sf_f == 'L'){
+    //*******************************************************
+    // move to half sitting
+    //*******************************************************
+    std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'R', abs_x, abs_y, yawl);
+    footsteps_.push_back(pre_script_foot0);
+
+    //*******************************************************
+    //rotate robot on the spot
+    //*******************************************************
+    double new_angle = yawl;
+    const double max_rotate_angle = M_PI/4; //rotate no more than radians per step
+
+    double last_step_x = abs_x;
+    double last_step_y = abs_y;
+    double last_step_t = yawl;
+
+    while( fabs(new_angle - yawg) > 0.01 ){
+      int sign = (yawg - new_angle)/fabs(yawg-new_angle); //+1 or -1 rotation direction
+      double angle_offset = sign*min( fabs(yawg - new_angle), max_rotate_angle );
+      new_angle += angle_offset;
+
+      double new_step_x = cos(last_step_t)*(0) - sin(last_step_t)*(-step_y) + last_step_x;
+      double new_step_y = sin(last_step_t)*(0) + cos(last_step_t)*(-step_y) + last_step_y;
+      double new_step_t = new_angle;
+
+      std::vector<double> pre_script_foot1 = vecD(0, -step_y , angle_offset, 'L', new_step_x, new_step_y, new_step_t);
+      footsteps_.push_back(pre_script_foot1);
+
+      new_step_x = cos(new_angle)*(0) - sin(new_angle)*(step_y) + new_step_x;
+      new_step_y = sin(new_angle)*(0) + cos(new_angle)*(step_y) + new_step_y;
+      new_step_t = new_angle;
+
+      std::vector<double> pre_script_foot2 = vecD(0, -step_y , 0, 'R', new_step_x, new_step_y, new_step_t);
+      footsteps_.push_back(pre_script_foot2);
+      last_step_x = new_step_x;
+      last_step_y = new_step_y;
+      last_step_t = new_step_t;
+    }
+    //*******************************************************
+    // move robot to precise position
+    //*******************************************************
+    const double max_step_distance = 0.2; //m of foot movement
+
+    while( norml2(last_step_x, goal_x, last_step_y, goal_y) > 0.01 ){
+      double vx = goal_x - last_step_x;
+      double vy = goal_y - last_step_y;
+
+      double lambda = norml2(vx,0,vy,0);
+      if(lambda>max_step_distance){
+        lambda=max_step_distance;
+      }
+
+      vx/=sqrtf(vx*vx+vy*vy); //normed
+      vy/=sqrtf(vx*vx+vy*vy);
+      double dx = cos(yawg)*0 - sin(yawg)*(-step_y);
+      double dy = cos(yawg)*0 + cos(yawg)*(-step_y);
+      double new_step_x_abs = vx*lambda + last_step_x + dx;
+      double new_step_y_abs = vy*lambda + last_step_y + dy;
+
+      double xr = cos(-yawg)*(dx + vx*lambda) - sin(-yawg)*(dy + vy*lambda);
+      double yr = sin(-yawg)*(dx + vx*lambda) + cos(-yawg)*(dy + vy*lambda);
+
+      std::vector<double> pre_script_foot1 = vecD(xr, yr, 0, 'L', new_step_x_abs, new_step_y_abs, yawg);
+      footsteps_.push_back(pre_script_foot1);
+
+      //*******************************************************
+      // move second foot to half sitting with respect to L foot
+      //*******************************************************
+      dx = cos(yawg)*0 - sin(yawg)*(step_y);
+      dy = cos(yawg)*0 + cos(yawg)*(step_y);
+
+      new_step_x_abs = dx + new_step_x_abs;
+      new_step_y_abs = dy + new_step_y_abs;
+
+      std::vector<double> pre_script_foot2 = vecD(0, -step_y , 0, 'R', new_step_x_abs, new_step_y_abs, yawg);
+      footsteps_.push_back(pre_script_foot2);
+
+
+      last_step_x = new_step_x_abs;
+      last_step_y = new_step_y_abs;
+    }
+      /*
       double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(-goal_offset_y) + goal_x;
       double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(-goal_offset_y) + goal_y;
       double goal_offset_in_right_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
@@ -342,29 +453,122 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
       double goal_left_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y+step_y) + goal_x;
       double goal_left_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y+step_y) + goal_y;
 
-      std::vector<double> pre_script_foot2 = vecD(0, -step_y, 0, 'L', goal_left_offset_abs_x,goal_left_offset_abs_y, yawg);
+      std::vector<double> pre_script_foot2 = vecD(0, -step_y, 0, 'L', goal_left_offset_abs_x,goal_left_offset_abs_y-step_y, yawg);
       footsteps_.push_back(pre_script_foot2);
-    }else{
-      double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y) + goal_x;
-      double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y) + goal_y;
-      double goal_offset_in_left_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
-      double goal_offset_in_left_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
+      */
+        /*
+#define DEBUG(x) 
+      while( norml2(last_step_x, goal_x, last_step_y, goal_y) > 0.01 ){
+        DEBUG(ROS_INFO("DIST: %f", norml2(last_step_x, goal_x, last_step_y, goal_y));)
+        DEBUG(ROS_INFO("STEP %f %f", last_step_x, last_step_y);)
 
-      double xr = goal_offset_in_left_foot_space_x;
-      double yr = goal_offset_in_left_foot_space_y;
-      double tr = yawg-yawl;
+        double vx = goal_x - last_step_x;
+        double vy = goal_y - last_step_y;
+
+        DEBUG(ROS_INFO("DIR %f %f", vx, vy);)
+        double lambda = norml2(vx,0,vy,0);
+
+        if(lambda>max_step_distance){
+          lambda=max_step_distance;
+        }
+        vx/=sqrtf(vx*vx+vy*vy); //normed
+        vy/=sqrtf(vx*vx+vy*vy);
+        DEBUG(ROS_INFO("DIR %f %f", vx, vy);)
+        DEBUG(ROS_INFO("LAMBDA %f", lambda);)
+
+        double dx = cos(yawg)*0 - sin(yawg)*(-step_y);
+        double dy = cos(yawg)*0 + cos(yawg)*(-step_y);
+        double new_step_x_abs = dx + last_step_x;
+        double new_step_y_abs = dy + last_step_y;
+
+        double new_step_x = last_step_x + vx*lambda;
+        double new_step_y = last_step_y + vy*lambda;
+
+        DEBUG(ROS_INFO("STEP %f %f", last_step_x, last_step_y);)
+        DEBUG(ROS_INFO("DIST: %f", norml2(new_step_x, goal_x, new_step_y, goal_y));)
+
+        double xr = cos(-yawg)*(new_step_x_abs-last_step_x) - sin(-yawg)*(new_step_y_abs-last_step_y);
+        double yr = sin(-yawg)*(new_step_x_abs-last_step_x) + cos(-yawg)*(new_step_y_abs-last_step_y);
+      //double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(-goal_offset_y) + goal_x;
+      //double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(-goal_offset_y) + goal_y;
+      //double goal_offset_in_right_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
+      //double goal_offset_in_right_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
+
+        std::vector<double> pre_script_foot1 = vecD(xr, yr, 0, 'L', new_step_x_abs, new_step_y_abs, yawg);
+        footsteps_.push_back(pre_script_foot1);
+
+        //*******************************************************
+        // move second foot to half sitting with respect to L foot
+        //*******************************************************
+
+        dx = cos(yawg)*0 - sin(yawg)*(step_y);
+        dy = cos(yawg)*0 + cos(yawg)*(step_y);
+
+        new_step_x_abs = dx + new_step_x_abs;
+        new_step_y_abs = dy + new_step_y_abs;
+
+        std::vector<double> pre_script_foot2 = vecD(0, -step_y , 0, 'R', new_step_x_abs, new_step_y_abs, yawg);
+        footsteps_.push_back(pre_script_foot2);
+
+
+        last_step_x = new_step_x;
+        last_step_y = new_step_y;
+      }
+      */
+
+      /*
+      while( fabs(new_angle - yawg) > 0.01 ){
+        int sign = (yawg - new_angle)/fabs(yawg-new_angle); //+1 or -1 rotation direction
+
+        double angle_offset = sign*min( fabs(yawg - new_angle), max_rotate_angle );
+        new_angle += angle_offset;
+
+        double new_step_x = cos(new_angle)*(0) - sin(-new_angle)*(step_y) + last_step_x;
+        double new_step_y = sin(new_angle)*(0) + cos(-new_angle)*(step_y) + last_step_y;
+        double new_step_t = new_angle;
+
+        std::vector<double> pre_script_foot1 = vecD(0, -step_y , angle_offset, 'L', new_step_x, new_step_y, new_step_t);
+        footsteps_.push_back(pre_script_foot1);
+
+        new_step_x = cos(new_angle)*(0) - sin(-new_angle)*(step_y) + new_step_x;
+        new_step_y = sin(new_angle)*(0) + cos(-new_angle)*(step_y) + new_step_y;
+        new_step_t = new_angle;
+
+        std::vector<double> pre_script_foot2 = vecD(0, -step_y , 0, 'R', new_step_x, new_step_y, new_step_t);
+        footsteps_.push_back(pre_script_foot2);
+
+        last_step_x = new_step_x;
+        last_step_y = new_step_y;
+        last_step_t = new_step_t;
+        ROS_INFO("added prescripted FOOTSTEP %f %f %f", new_step_x, new_step_y, new_step_t);
+
+      }
+
+      //*/
+
+
+      /*
+      double goal_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(-goal_offset_y) + goal_x;
+      double goal_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(-goal_offset_y) + goal_y;
+      double goal_offset_in_right_foot_space_x = cos(-yawl)*(goal_offset_abs_x-xl) - sin(-yawl)*(goal_offset_abs_y-yl);
+      double goal_offset_in_right_foot_space_y = sin(-yawl)*(goal_offset_abs_x-xl) + cos(-yawl)*(goal_offset_abs_y-yl);
+      double xr = goal_offset_in_right_foot_space_x;
+      double yr = goal_offset_in_right_foot_space_y;
+      double tr = (yawl - yawg);
 
       checkSafety(xr, yr, tr);
 
-      std::vector<double> pre_script_foot = vecD(xr, yr , tr, 'L', goal_offset_abs_x, goal_offset_abs_y, yawg);
+      std::vector<double> pre_script_foot = vecD(xr, -yr , tr, 'R', goal_offset_abs_x, goal_offset_abs_y, yawg);
       footsteps_.push_back(pre_script_foot);
+
       double goal_left_offset_abs_x = cos(yawg)*(goal_offset_x) - sin(yawg)*(goal_offset_y+step_y) + goal_x;
       double goal_left_offset_abs_y = sin(yawg)*(goal_offset_x) + cos(yawg)*(goal_offset_y+step_y) + goal_y;
 
-      std::vector<double> pre_script_foot2 = vecD(0, -step_y, 0, 'R', goal_left_offset_abs_x,goal_left_offset_abs_y, yawg);
+      std::vector<double> pre_script_foot2 = vecD(0, -step_y, 0, 'L', goal_left_offset_abs_x,goal_left_offset_abs_y-step_y, yawg);
       footsteps_.push_back(pre_script_foot2);
-    }
+      */
 
+    number_of_prescripted_steps_ = footsteps_.size() - N_planned_steps;
 
   }
 
