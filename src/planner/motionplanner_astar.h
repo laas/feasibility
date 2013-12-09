@@ -161,7 +161,9 @@ struct MotionPlannerAStar: public MotionPlanner{
       };
       astarsearch->FreeSolutionNodes();
     }
-    fs_trajectory.add_prescripted_end_sequence(this->goal_.g);
+    if(fs_trajectory.size()>0) fs_trajectory.pop_back(); //goal step
+
+    //fs_trajectory.add_prescripted_end_sequence(this->goal_.g);
 
     DEBUG(
     		Logger footlogger("footsteps.dat");

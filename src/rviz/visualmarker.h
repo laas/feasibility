@@ -129,13 +129,23 @@ namespace ros{
 		virtual std::string name();
 	};
 
-	struct CuboidMarker: public RVIZVisualMarker{
+  struct CommonMarker: public RVIZVisualMarker{
+		virtual std::string name() = 0;
+		virtual uint32_t get_shape() = 0;
+		virtual void publish();
+  };
+	struct CuboidMarker: public CommonMarker{
 		CuboidMarker(double x, double y, double l=1, double w=0.08, double h=1, double yaw=0);
 		virtual std::string name();
 		virtual uint32_t get_shape();
 		virtual double getTextZ();
 	};
-	struct SphereMarker: public RVIZVisualMarker{
+	struct ArrowMarker: public CommonMarker{
+		ArrowMarker(double x, double y, double yaw);
+		virtual std::string name();
+		virtual uint32_t get_shape();
+	};
+	struct SphereMarker: public CommonMarker{
 		SphereMarker(double x, double y, double r=0.08, double z=0);
 		virtual std::string name();
 		virtual uint32_t get_shape();

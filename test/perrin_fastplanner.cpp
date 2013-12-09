@@ -41,22 +41,29 @@ void thread_publish(){
 
   while(1){
 			astar->plan();
-			//if(astar->success()){
-				FootStepTrajectory fst_new = astar->get_footstep_trajectory();
-				if(fst_new.size()<=3){
-          ros::Rate r(1);
-          r.sleep();
-        }
 
-				fst->lock();
-				//if(fst_new.size()==2){
+      FootStepTrajectory fst_new = astar->get_footstep_trajectory();
 
-				fst->append(astar->getStart(), fst_new);
-        //fst->publish();
-				astar->setStart( fst->getStart() );
-        fst->unlock();
+      if(fst_new.size()<=3){
+        //avoid constant blocking of the trajectory, if the planner obtains
+        //small but very fast plans
+        ros::Rate r(1);
+        r.sleep();
+      }
 
-			//}
+
+      fst->lock();
+      fst->append(astar->getStart(), fst_new);
+      astar->setStart( fst->getStart() );
+
+      if(fst->isFinished()){
+        //FootStepTrajectory fs_trajectory;
+        ros::Geometry evart_com = environment->getGoal();
+        fst->add_prescripted_end_sequence( evart_com );
+        //fst->append(astar->getStart(), fs_trajectory);
+      }
+
+      fst->unlock();
   }
 }
 

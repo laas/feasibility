@@ -12,7 +12,7 @@
 
 #include "planner/trajectory_footstep.hh"
 
-#define DEBUG(x)
+#define DEBUG(x) x
 
 using namespace std;
 
@@ -39,6 +39,43 @@ std::vector<std::vector<double> >& FootStepTrajectory::getFootSteps(){
 }
 uint FootStepTrajectory::size(){
   return footsteps_.size();
+}
+
+ros::Geometry& FootStepTrajectory::getStartEvart(ros::Geometry &evart_com){
+  NYI();
+  /*
+
+  //CURRENT FOOTSTEP
+  ros::Geometry curStep;
+  curStep.setX( footsteps_.at(current_step_index_).at(4) );
+  curStep.setY( footsteps_.at(current_step_index_).at(5) );
+  curStep.setYawRadian( footsteps_.at(current_step_index_).at(6) );
+  curStep.setFoot( footsteps_.at(current_step_index_).at(3) );
+
+  //PREVIOUS FOOTSTEP
+  ros::Geometry prevStep;
+  if(current_step_index_ > 0){
+    prevStep.setX( footsteps_.at(current_step_index_ - 1).at(4) );
+    prevStep.setY( footsteps_.at(current_step_index_ - 1).at(5) );
+    prevStep.setYawRadian( footsteps_.at(current_step_index_ - 1).at(6) );
+    prevStep.setFoot( footsteps_.at(current_step_index_ - 1).at(3) );
+  }else{
+    // we haven't done any steps, therefore there is no drift, therefore we can
+    // just return starting position which does not include evart informations
+    return getStart();
+  }
+
+  // Compute the expected CoM (which we define here as the midpoint between
+  // previous step and current step, i.e. cS + 0.5*(pS - cS)
+  ros::Geometry expected_com;
+  expected_com.setX( curStep.getX() + 0.5*(prevStep.getX() - curStep.getX()) );
+  expected_com.setY( curStep.getY() + 0.5*(prevStep.getY() - curStep.getY()) );
+  expected_com.setYawRadian( curStep.getYawRadian() - 0.5*(curStep.getYawRadian()-prevStep.getYawRadian()) );
+
+  ros::ArrowMarker a(expected_com.getX(), expected_com.getY(), expected_com.getYawRadian());
+  a.publish();
+  */
+  return this->start_;
 }
 
 ros::Geometry& FootStepTrajectory::getStart(){
@@ -153,11 +190,13 @@ void FootStepTrajectory::append( ros::Geometry &start, FootStepTrajectory &rhs )
     }
     DEBUG(ROS_INFO("SIZE: %d - %d / %d+%d",footsteps_.size(), number_of_prescripted_steps_, current_step_index_, step_horizon);)
     DEBUG(ROS_INFO("APPEND %d and %d (prescript %d and %d)", footsteps_.size(), rhs.size(), number_of_prescripted_steps_, rhs.number_of_prescripted_steps_);)
+    /*
     if(footsteps_.size()-number_of_prescripted_steps_ < current_step_index_ +  1 + step_horizon){
       //in final prescript sequence, do not disturb the trajectory
       return;
 
     }
+    */
 
     uint collisionStartIndex = std::max(current_step_index_, (uint)1);
 
@@ -302,6 +341,17 @@ void FootStepTrajectory::publish(){
 void FootStepTrajectory::push_back( FootStepState &fss ){
   footsteps_.push_back(fss);
 }
+
+void FootStepTrajectory::pop_back(){
+  footsteps_.pop_back();
+}
+bool FootStepTrajectory::isFinished(){
+  if( current_step_index_ >= footsteps_.size()-1 && current_step_index_ > 0){
+    return true;
+  }else{
+    return false;
+  }
+}
 void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
   while(tr>M_PI) tr-=2*M_PI;
   while(tr<-M_PI) tr+=2*M_PI;
@@ -319,7 +369,7 @@ void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
 //in the goal region, i.e. it can make the steps which we prescript
 void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal){
   if(footsteps_.size()>1){
-    footsteps_.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
+    //footsteps_.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
 
     const double goal_offset_x = -0.1;
     const double goal_offset_y = -0.1; //offset in L direction
@@ -365,7 +415,7 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
     //rotate robot on the spot
     //*******************************************************
     double new_angle = yawl;
-    const double max_rotate_angle = M_PI/4; //rotate no more than radians per step
+    const double max_rotate_angle = M_PI/10; //rotate no more than radians per step
 
     double last_step_x = abs_x;
     double last_step_y = abs_y;

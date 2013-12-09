@@ -34,9 +34,12 @@ public:
   uint size();
   void lock();
   void unlock();
+
+  bool isFinished();
   FootStepTrajectory( const FootStepTrajectory &rhs );
 
   ros::Geometry& getStart();
+  ros::Geometry& getStartEvart(ros::Geometry &evart_com);
   void setStart(ros::Geometry &rhs);
   std::vector<std::vector<double> >& getFootSteps();
 
@@ -45,6 +48,7 @@ public:
   void publish();
 
   void push_back( FootStepState &fss );
+  void pop_back();
   void add_prescripted_end_sequence(const ros::Geometry &goal);
 };
 //static ros::Publisher FootStepTrajectory::pub_;
