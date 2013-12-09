@@ -59,8 +59,12 @@ void thread_publish(){
       if(fst->isFinished()){
         //FootStepTrajectory fs_trajectory;
         ros::Geometry evart_com = environment->getGoal();
+        evart_com.setX(1);
+        evart_com.setY(0);
         fst->add_prescripted_end_sequence( evart_com );
         //fst->append(astar->getStart(), fs_trajectory);
+        fst->unlock();
+        return;
       }
 
       fst->unlock();
@@ -103,7 +107,9 @@ int main( int argc, char** argv )
 	{
 		if(plan){
 			thread_start();
-			fst->execute_one_step();
+			while(ros::ok()){
+        fst->execute_one_step();
+      }
 		}else{
 			r.sleep();
 			thread_stop();

@@ -131,7 +131,11 @@ void FootStepTrajectory::execute_one_step(){
   */
 
   if( current_step_index_ > last_planner_start_index_ ){
-    return;
+    if(current_step_index_ < footsteps_.size() - number_of_prescripted_steps_){
+      //outside of prescripted area, and after start position of planner (lets
+      //wait for next plan)
+      return;
+    }
   }
 
   publish();
