@@ -19,7 +19,7 @@ static MotionPlannerAStar *astar;
 static ConstraintsChecker *cc;
 static FootStepTrajectory *fst;
 
-#define DEBUG(x) x
+#define DEBUG(x) 
 
 using namespace ros;
 bool plan=false;
@@ -58,10 +58,22 @@ void thread_publish(){
 
       if(fst->isFinished()){
         //FootStepTrajectory fs_trajectory;
-        ros::Geometry evart_com = environment->getGoal();
-        evart_com.setX(1);
-        evart_com.setY(0);
-        fst->add_prescripted_end_sequence( evart_com );
+        ros::Geometry goal = environment->getGoal();
+
+        ros::Geometry waist_evart = environment->getStart();
+        ros::Geometry waist_expected = fst->getWaist();
+
+        ros::Geometry evart_to_goal;
+        evart_to_goal.setX( goal.getX() - waist_evart.getX() );
+        evart_to_goal.setY( goal.getY() - waist_evart.getY() );
+
+        ros::Geometry goal_in_current;
+        goal_in_current.setX( waist_expected.getX() + evart_to_goal.getX() );
+        goal_in_current.setY( waist_expected.getY() + evart_to_goal.getY() );
+        double new_goal_yaw = goal.getYawRadian() + (waist_expected.getYawRadian() - waist_evart.getYawRadian());
+        goal_in_current.setYawRadian( new_goal_yaw );
+
+        fst->add_prescripted_end_sequence( goal_in_current );
         //fst->append(astar->getStart(), fs_trajectory);
         fst->unlock();
         return;

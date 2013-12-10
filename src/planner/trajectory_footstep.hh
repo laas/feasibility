@@ -41,6 +41,7 @@ public:
   ros::Geometry& getStart();
   ros::Geometry& getStartEvart(ros::Geometry &evart_com);
   void setStart(ros::Geometry &rhs);
+  ros::Geometry& getWaist();
   std::vector<std::vector<double> >& getFootSteps();
 
   void append( ros::Geometry &start, FootStepTrajectory &rhs );

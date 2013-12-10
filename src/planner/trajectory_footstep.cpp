@@ -41,6 +41,9 @@ uint FootStepTrajectory::size(){
   return footsteps_.size();
 }
 
+ros::Geometry& FootStepTrajectory::getWaist(){
+  return tv_->getCoM();
+}
 ros::Geometry& FootStepTrajectory::getStartEvart(ros::Geometry &evart_com){
   NYI();
   /*

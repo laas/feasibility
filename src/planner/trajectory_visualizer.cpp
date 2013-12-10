@@ -100,6 +100,19 @@ TrajectoryVisualizer(double x, double y, double t)
   seq_id_ = 0;
 }
 
+ros::Geometry& TrajectoryVisualizer::getCoM(){
+  ros::Geometry c;
+  c.setX( com_offset_x_ );
+  c.setY( com_offset_y_ );
+  c.setYawRadian( com_offset_t_ );
+  return c;
+}
+void TrajectoryVisualizer::showCoM(){
+  ros::ArrowMarker com( com_offset_x_, com_offset_y_, com_offset_t_);
+  com.reset();
+  com.publish();
+}
+
 void TrajectoryVisualizer::
 setCoMOffset(std::vector<double> com)
 {

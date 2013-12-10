@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <robot_state_publisher/robot_state_publisher.h>
+#include "rviz/geometry.h"
+#include "rviz/visualmarker.h"
 
 // We are using frames only in the form of the Perrin Fast Footstep
 // Planner
@@ -54,6 +56,8 @@ public:
   void setUpperBodyJointsDefault( std::map<std::string, double> &q );
   void setCoMOffset(double cur_com_x, double cur_com_y, double cur_com_t);
   void setCoMOffset(std::vector<double> com);
+  ros::Geometry& getCoM();
+  void showCoM();
   
   void setPlanarWorldBaseTransform(double x, double y, double yaw);
   void setTranslationTransform(const char* from, const char* to, double x, double y, double z, double roll, double pitch, double yaw);
