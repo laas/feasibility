@@ -472,6 +472,7 @@ computeFeaturesWithSmoothing(
     stepsVect.at(i).slideDOWN = -maxOne;
     NPSS->addStepFeaturesWithSlide(stepF1,stepDOWN,-maxOne);
   }
+  
   return stepF1;
 }
 
@@ -694,7 +695,8 @@ int MotionGenerator::checkCollisions(vector<vector<double> >& trajTimedRadQ, Ste
           for(unsigned int j=0; j < mp_Obstacles.size(); j++)
             {
               NB_TEST++;
-              PQP_Collide(&cres, mp_Objects[i].R, mp_Objects[i].T, mp_Objects[i].model, mp_Obstacles[j].R, mp_Obstacles[j].T, mp_Obstacles[j].model, PQP_FIRST_CONTACT);
+              PQP_Collide(&cres, mp_Objects[i].R, mp_Objects[i].T, mp_Objects[i].model, 
+                          mp_Obstacles[j].R, mp_Obstacles[j].T, mp_Obstacles[j].model, PQP_FIRST_CONTACT);
               if(cres.NumPairs()>0) {
                 DEBUG( printf("Collision 2 after : %d tests.\n",NB_TEST); )
                   DEBUG( printf("Collision between %d and %d at index %d.\n",i,j, count);)
