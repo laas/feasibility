@@ -59,7 +59,7 @@ init(std::vector<double> &q)
     ROS_INFO("***********************************************");
     ROS_INFO("WARNING publishing Q !");
     ROS_INFO("***********************************************");
-	}
+  }
 }
 
 TrajectoryVisualizer::
@@ -320,6 +320,8 @@ publishTrajectory()
   trajectory_msgs::JointTrajectory goal;
   struct timeval tv;
   gettimeofday(&tv,0);
+  //  std::ofstream dofs("/tmp/debug_traj_.dat",std::fstream::app );
+  
   
   /// Building header.
   goal.header.seq = seq_id_;
@@ -332,7 +334,7 @@ publishTrajectory()
   
   for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++){
     goal.joint_names.push_back(JointNames[i]);
-	}
+  }
   
   goal.points.resize(Nframes_);
 
@@ -341,9 +343,12 @@ publishTrajectory()
       goal.points[idPoint].positions.resize(NB_PUBLISHED_JOINT_HRP2);
       for(unsigned int i=0;i<NB_PUBLISHED_JOINT_HRP2;i++){
         goal.points[idPoint].positions[i]= q_->at(offset_+idPoint*17+i);
+        //      dofs << goal.points[idPoint].positions[i]<< " " ;
       }
+      //dofs << std::endl;
     }
   
+  //  dofs.close();
   // Trajectory publication through ROS
   trajectory_pub_.publish(goal);
 }

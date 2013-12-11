@@ -159,10 +159,11 @@ void FootStepTrajectory::execute_one_step(){
     //Replay trajectory
     tv_->init(q);
     ros::Rate rq(400); //300
-    while(tv_->next()){
-      ros::spinOnce();
-      rq.sleep();
-    }
+    while(tv_->next())
+      {
+        ros::spinOnce();
+        rq.sleep();
+      }
   }
 
   boost::mutex::scoped_lock lock2(footstep_mutex_);
@@ -422,7 +423,7 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
     //rotate robot on the spot
     //*******************************************************
     double new_angle = yawl;
-    const double max_rotate_angle = M_PI/10; //rotate no more than radians per step
+    const double max_rotate_angle = 10.0*M_PI/180.0;//M_PI/4; //rotate no more than radians per step
 
     double last_step_x = abs_x;
     double last_step_y = abs_y;
