@@ -353,7 +353,7 @@ void FootStepTrajectory::pop_back(){
   footsteps_.pop_back();
 }
 bool FootStepTrajectory::isFinished(){
-  if( current_step_index_ >= footsteps_.size()-1 && current_step_index_ > 0){
+  if( current_step_index_ >= footsteps_.size()-3 && current_step_index_ > 0){
     return true;
   }else{
     return false;
