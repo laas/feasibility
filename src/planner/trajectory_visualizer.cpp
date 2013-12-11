@@ -102,9 +102,18 @@ TrajectoryVisualizer(double x, double y, double t)
 
 ros::Geometry& TrajectoryVisualizer::getCoM(){
   ros::Geometry c;
-  c.setX( com_offset_x_ );
-  c.setY( com_offset_y_ );
-  c.setYawRadian( com_offset_t_ );
+  double x = cur_com_offset_x_;
+  double y = cur_com_offset_y_ - 0.1;
+
+  double yaw_start = com_offset_t_;
+
+  double xc = cos(yaw_start)*x - sin(yaw_start)*y + com_offset_x_;
+  double yc = sin(yaw_start)*x + cos(yaw_start)*y + com_offset_y_;
+  double yawc = cur_com_offset_t_ + com_offset_t_;
+
+  c.setX( xc );
+  c.setY( yc );
+  c.setYawRadian( yawc );
   return c;
 }
 void TrajectoryVisualizer::showCoM(){
@@ -283,7 +292,6 @@ setPlanarWorldBaseTransform(
   //setTranslationTransform("/base_link", "/world_frame", x, y-0.1, 0.650, 0, 0, yaw);
 }
 
-// deprecated transformation functions
 void 
 TrajectoryVisualizer::
 setTranslationTransform(

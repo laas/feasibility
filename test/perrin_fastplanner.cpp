@@ -51,30 +51,34 @@ void thread_publish(){
         r.sleep();
       }
 
-
       fst->lock();
       fst->append(astar->getStart(), fst_new);
       astar->setStart( fst->getStart() );
 
       if(fst->isFinished()){
-        //FootStepTrajectory fs_trajectory;
         ros::Geometry goal = environment->getGoal();
-
         ros::Geometry waist_evart = environment->getStart();
         ros::Geometry waist_expected = fst->getWaist();
+
+        waist_evart.print();
+        waist_expected.print();
+        goal.print();
 
         ros::Geometry evart_to_goal;
         evart_to_goal.setX( goal.getX() - waist_evart.getX() );
         evart_to_goal.setY( goal.getY() - waist_evart.getY() );
 
         ros::Geometry goal_in_current;
+
         goal_in_current.setX( waist_expected.getX() + evart_to_goal.getX() );
         goal_in_current.setY( waist_expected.getY() + evart_to_goal.getY() );
         double new_goal_yaw = goal.getYawRadian() + (waist_expected.getYawRadian() - waist_evart.getYawRadian());
         goal_in_current.setYawRadian( new_goal_yaw );
+        goal_in_current.print();
 
+        ROS_INFO("OLD STEP LENGTH %d", fst->size());
         fst->add_prescripted_end_sequence( goal_in_current );
-        //fst->append(astar->getStart(), fs_trajectory);
+        ROS_INFO("NEW STEP LENGTH %d", fst->size());
         fst->unlock();
         return;
       }
