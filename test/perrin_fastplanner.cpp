@@ -60,9 +60,9 @@ void thread_publish(){
         ros::Geometry waist_evart = environment->getStart();
         ros::Geometry waist_expected = fst->getWaist();
 
-        waist_evart.print();
-        waist_expected.print();
-        goal.print();
+        //waist_evart.print();
+        //waist_expected.print();
+        //goal.print();
 
         ros::Geometry evart_to_goal;
         evart_to_goal.setX( goal.getX() - waist_evart.getX() );
@@ -74,11 +74,11 @@ void thread_publish(){
         goal_in_current.setY( waist_expected.getY() + evart_to_goal.getY() );
         double new_goal_yaw = goal.getYawRadian() + (waist_expected.getYawRadian() - waist_evart.getYawRadian());
         goal_in_current.setYawRadian( new_goal_yaw );
-        goal_in_current.print();
+        //goal_in_current.print();
 
-        ROS_INFO("OLD STEP LENGTH %d", fst->size());
+        //ROS_INFO("OLD STEP LENGTH %d", fst->size());
         fst->add_prescripted_end_sequence( goal_in_current );
-        ROS_INFO("NEW STEP LENGTH %d", fst->size());
+        //ROS_INFO("NEW STEP LENGTH %d", fst->size());
         fst->unlock();
         return;
       }

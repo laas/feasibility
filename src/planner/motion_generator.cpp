@@ -25,7 +25,7 @@ MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects)
 {
   NPSS = new CnewPGstepStudy(STEP_LENGTH); 
   CGFBT = new CgenFullBodyTrajectory();
-  std::cout << "robot_path:" << mp_robot_path << std::endl;
+  //std::cout << "robot_path:" << mp_robot_path << std::endl;
   this->init_checkCollisionsPQP(mp_robot_path.c_str());
   
   //add object as PQP pointers to motion generator

@@ -110,7 +110,6 @@ ros::Geometry& TrajectoryVisualizer::getCoM(){
   double xc = cos(yaw_start)*x - sin(yaw_start)*y + com_offset_x_;
   double yc = sin(yaw_start)*x + cos(yaw_start)*y + com_offset_y_;
   double yawc = cur_com_offset_t_ + com_offset_t_;
-
   c.setX( xc );
   c.setY( yc );
   c.setYawRadian( yawc );
