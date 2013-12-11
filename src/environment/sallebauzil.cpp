@@ -48,7 +48,7 @@ void EnvironmentSalleBauzil::setObjects(){
 }
 
 void EnvironmentSalleBauzil::setGoalObject(){
-  goal = new ros::SphereMarker(-1.0, 1.0, 0.1, 0.0);
+  goal = new ros::SphereMarker(1.0, -1.0, 0.1, 0.0);
   goal->addText("<GOAL>");
   //  goal->setRPYRadian(0,0,M_PI);
   goal->set_constant_offset(0.9 ,0);
@@ -59,5 +59,6 @@ void EnvironmentSalleBauzil::setStartObject(){
   start->addText("<START>");
   start->setRPYRadian(0,0,3*M_PI/4);
   start->set_csf_in_chest_yaw(1.0438);
-  start->subscribeToEvart("/evart/HRP2_waist_sensor_frame/PO",true,20);
+  //start->subscribeToEvart("/evart/HRP2_waist_sensor_frame/PO",true,20);
+  start->subscribeToEvart("/evart/HRP2_waist_sensor_frame/PO");
 }
