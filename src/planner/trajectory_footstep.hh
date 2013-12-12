@@ -44,6 +44,8 @@ public:
   ros::Geometry& getWaist();
   std::vector<std::vector<double> >& getFootSteps();
 
+  uint getCurrentStepIndex();
+
   void append( ros::Geometry &start, FootStepTrajectory &rhs );
   void execute_one_step();
   void publish();

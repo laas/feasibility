@@ -12,7 +12,7 @@
 
 #include "planner/trajectory_footstep.hh"
 
-#define DEBUG(x) x
+#define DEBUG(x) 
 
 using namespace std;
 
@@ -116,8 +116,8 @@ void FootStepTrajectory::execute_one_step(){
     //No footsteps avaiable
     return;
   }
-  if(current_step_index_ > footsteps_.size()-1){
-    //we are done
+
+  if(isFinished()){
     return;
   }
 
@@ -353,6 +353,11 @@ void FootStepTrajectory::push_back( FootStepState &fss ){
 void FootStepTrajectory::pop_back(){
   footsteps_.pop_back();
 }
+
+uint FootStepTrajectory::getCurrentStepIndex(){
+  return current_step_index_;
+}
+
 bool FootStepTrajectory::isFinished(){
   if( current_step_index_ >= footsteps_.size()-3 && current_step_index_ > 0){
     return true;
@@ -360,6 +365,7 @@ bool FootStepTrajectory::isFinished(){
     return false;
   }
 }
+
 void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
   while(tr>M_PI) tr-=2*M_PI;
   while(tr<-M_PI) tr+=2*M_PI;
@@ -454,7 +460,7 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
     //*******************************************************
     // move robot to precise position
     //*******************************************************
-    const double max_step_distance = 0.2; //m of foot movement
+    const double max_step_distance = 0.09; //m of foot movement
 
     while( norml2(last_step_x, goal_x, last_step_y, goal_y) > 0.01 ){
       double vx = goal_x - last_step_x;

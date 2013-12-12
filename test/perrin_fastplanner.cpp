@@ -2,6 +2,7 @@
 #include <ros/time.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/UInt32.h>
 #include <visualization_msgs/Marker.h>
 #include <vector> //std::vector
 #include <iostream> //cout
@@ -23,12 +24,30 @@ static FootStepTrajectory *fst;
 
 using namespace ros;
 bool plan=false;
-
+bool current_foot_equals_last_foot=false;
+uint current_foot = 0;
+uint current_foot_sot = 0;
 boost::shared_ptr<boost::thread> astar_thread;
+
+//#############################################################################
+// update callbacks for rostopics
+//#############################################################################
+boost::mutex m;
+
+void update_current_foot(const std_msgs::UInt32& controller_foot){
+  m.lock();
+  current_foot_sot = controller_foot.data;
+  if(current_foot == controller_foot.data){
+    current_foot_equals_last_foot = true;
+  }
+  m.unlock();
+}
+
 void update(const std_msgs::Bool& stopPlanner){
 	plan = !stopPlanner.data;
 }
 
+//#############################################################################
 void thread_publish(){
   ros::Rate r(20); //Hz
 
@@ -56,13 +75,23 @@ void thread_publish(){
       astar->setStart( fst->getStart() );
 
       if(fst->isFinished()){
+        ros::NodeHandle n;
+        ros::Rate r(2);
+        ros::Subscriber sub_controller_foot;
+        current_foot = fst->getCurrentStepIndex();
+        sub_controller_foot = n.subscribe("/planner/sot_current_foot", 100, &update_current_foot);
+        while(ros::ok())
+        {
+          if(!current_foot_equals_last_foot){
+            ROS_INFO("Waiting for current foot (SOT: %d| PLANNER %d)", current_foot_sot, current_foot);
+            r.sleep();
+          }else{
+            break;
+          }
+        }
         ros::Geometry goal = environment->getGoal();
         ros::Geometry waist_evart = environment->getStart();
         ros::Geometry waist_expected = fst->getWaist();
-
-        //waist_evart.print();
-        //waist_expected.print();
-        //goal.print();
 
         ros::Geometry evart_to_goal;
         evart_to_goal.setX( goal.getX() - waist_evart.getX() );

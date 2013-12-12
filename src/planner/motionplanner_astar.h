@@ -91,7 +91,7 @@ struct MotionPlannerAStar: public MotionPlanner{
 
   void start_planner(){
     astarsearch->SetStartAndGoalStates( start_, goal_ );
-    ROS_INFO("START: %f %f %f",start_.g.getX(),start_.g.getY(),start_.g.getYawRadian());
+    DEBUG(ROS_INFO("START: %f %f %f",start_.g.getX(),start_.g.getY(),start_.g.getYawRadian());)
 
     ContactTransition::feasibilityChecks = 0;
     unsigned int SearchSteps = 0;
