@@ -81,7 +81,7 @@ createArticularValuesVector(vector<vector<double> >& trajTimedRadQ,
   int offset = 4; //size of header
   vector<double> vect(nbPosToSend*17 + offset);
 
-  vect[0] = 42;                      //ID TODO
+  vect[0] = last_step_smoothed_;                      //ID TODO
   vect[1] = stepF.size*0.005;                   //End of trajectory
   vect[2] = time_start*0.005;                   //Time of the begginnig of the modification
   vect[3] = (time_start + nbPosToSend)*0.005;   //Time of the end of the modification
@@ -768,6 +768,7 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
   DEBUG(ROS_INFO("stepLength %d, firstIndex %d, size %d", vectStep.size(), firstIndex, size);)
 
   if(size>0){
+    last_step_smoothed_ = lastStepSmoothed;
     vector<vector<double> > trajTimedRadQ;
     CGFBT->generateTrajectory( trajTimedRadQ, stepF, firstIndex, size);
     q = createArticularValuesVector(trajTimedRadQ, stepF, firstIndex, 0, size);

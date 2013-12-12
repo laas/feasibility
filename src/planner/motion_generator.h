@@ -70,6 +70,8 @@ private:
   // Path to robot specific files: geometric description, and semantic.
   static const std::string mp_robot_path;
 
+  uint last_step_smoothed_;
+
 public:
 
   MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects);
