@@ -151,8 +151,8 @@ void FootStepTrajectory::execute_one_step(){
     ros::Rate rq(400); //300
     while(tv_->next())
       {
-        //ros::spinOnce();
-        //rq.sleep();
+        ros::spinOnce();
+        rq.sleep();
       }
   }
 
@@ -180,10 +180,11 @@ void FootStepTrajectory::execute_one_step_fast_not_thread_safe(){
     //ROS_INFO("configuration vector: %d", q.size());
     //Replay trajectory
     tv_->init(q);
-    //ros::Rate rq(400); //300
+    ros::Rate rq(400); //300
     while(tv_->next())
     {
       ros::spinOnce();
+      rq.sleep();
     }
   }
   current_step_index_++;
