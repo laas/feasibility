@@ -139,6 +139,7 @@ void FootStepTrajectory::execute_one_step(){
   std::vector<double> q;
 
   mg = new MotionGenerator(ContactTransition::objects); //generate q
+  mg->set_smoothing(true);
 
   q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
       footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
@@ -170,6 +171,7 @@ void FootStepTrajectory::execute_one_step_fast_not_thread_safe(){
   MotionGenerator *mg;
   std::vector<double> q;
   mg = new MotionGenerator(ContactTransition::objects); //generate q
+  mg->set_smoothing(true);
 
   q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
       footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
