@@ -72,7 +72,14 @@ void thread_publish(){
 
         goal_in_current.setX( waist_expected.getX() + evart_to_goal.getX() );
         goal_in_current.setY( waist_expected.getY() + evart_to_goal.getY() );
-        double new_goal_yaw = goal.getYawRadian() + (waist_expected.getYawRadian() - waist_evart.getYawRadian());
+
+        double diff_expected_evart = 0;
+        if(fabs(waist_expected.getYawRadian() - waist_evart.getYawRadian()) < M_PI){
+          diff_expected_evart = waist_expected.getYawRadian() - waist_evart.getYawRadian();
+        }else{
+          diff_expected_evart = waist_evart.getYawRadian() - waist_expected.getYawRadian();
+        }
+        double new_goal_yaw = goal.getYawRadian() + diff_expected_evart;
         goal_in_current.setYawRadian( new_goal_yaw );
         //goal_in_current.print();
 
