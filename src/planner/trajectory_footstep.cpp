@@ -26,6 +26,7 @@ FootStepTrajectory::FootStepTrajectory(){
   last_planner_start_index_=0;
   current_step_index_ = 0;
   number_of_prescripted_steps_ = 0;
+  setHalt(false);
 }
 
 FootStepTrajectory::FootStepTrajectory( const FootStepTrajectory &rhs ){
@@ -117,22 +118,13 @@ void FootStepTrajectory::execute_one_step(){
     return;
   }
 
-  if(isFinished()){
+  if(onHalt()){
     return;
   }
 
-  /*
-  uint collisionStartIndex = std::max(current_step_index_, (uint)1); //firstHalfStep is from start Location, which has no swept volume definition, so we cannot test it
-  uint collisionEndIndex = std::min(current_step_index_+step_horizon, footsteps_.size()-2);
-  if( ContactTransition::isInCollision(footsteps_, collisionStartIndex, collisionEndIndex) ){
-    ROS_INFO("*******************************************");
-    ROS_INFO("FATAL_ERROR IN MOTION_PLANNER");
-    ROS_INFO("COLLISION IN THE NEXT THREE STEP --- CANNOT REPLAN!");
-    ROS_INFO("*******************************************");
+  if( current_step_index_ > footsteps_.size()-1 ){
     return;
   }
-  */
-
   if( current_step_index_ > last_planner_start_index_ ){
     if(current_step_index_ < footsteps_.size() - number_of_prescripted_steps_){
       //outside of prescripted area, and after start position of planner (lets
@@ -151,8 +143,6 @@ void FootStepTrajectory::execute_one_step(){
   q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
       footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
 
-  lock.unlock();
-
   if(q.size()>0){
     //ROS_INFO("configuration vector: %d", q.size());
     //Replay trajectory
@@ -160,15 +150,44 @@ void FootStepTrajectory::execute_one_step(){
     ros::Rate rq(400); //300
     while(tv_->next())
       {
-        ros::spinOnce();
-        rq.sleep();
+        //ros::spinOnce();
+        //rq.sleep();
       }
   }
 
-  boost::mutex::scoped_lock lock2(footstep_mutex_);
+  //boost::mutex::scoped_lock lock2(footstep_mutex_);
   current_step_index_++;
-  ROS_INFO("step_index: %d -> %d", current_step_index_-1, current_step_index_);
+  ROS_INFO("step_index: %d -> %d (%d)", current_step_index_-1, current_step_index_, size());
   return;
+}
+//only call this function, if you know what you are doing
+void FootStepTrajectory::execute_one_step_fast_not_thread_safe(){
+  if(footsteps_.size()<1){
+    return;
+  }
+  publish();
+
+  MotionGenerator *mg;
+  std::vector<double> q;
+  mg = new MotionGenerator(ContactTransition::objects); //generate q
+
+  q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
+      footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
+
+  if(q.size()>0){
+    //ROS_INFO("configuration vector: %d", q.size());
+    //Replay trajectory
+    tv_->init(q);
+    //ros::Rate rq(400); //300
+    while(tv_->next())
+    {
+      ros::spinOnce();
+    }
+  }
+  current_step_index_++;
+  ROS_INFO("step_index: %d -> %d (%d)", current_step_index_-1, current_step_index_, size());
+  return;
+
 }
 void FootStepTrajectory::lock(){
   footstep_mutex_.lock();
@@ -176,8 +195,6 @@ void FootStepTrajectory::lock(){
 void FootStepTrajectory::unlock(){
   footstep_mutex_.unlock();
 }
-
-
 
 // append a new trajectory from the planner to the current trajectory, thereby
 // making sure that they are consistent
@@ -357,10 +374,19 @@ uint FootStepTrajectory::getCurrentStepIndex(){
   return current_step_index_;
 }
 
+void FootStepTrajectory::setHalt(bool b){
+  halt_ = b;
+}
+
+bool FootStepTrajectory::onHalt(){
+  return halt_;
+}
 bool FootStepTrajectory::isFinished(){
-  if( current_step_index_ >= footsteps_.size()-3 && current_step_index_ > 0){
+  if( current_step_index_ >= footsteps_.size()-5 && current_step_index_ > 0){
+    setHalt(true);
     return true;
   }else{
+    setHalt(false);
     return false;
   }
 }

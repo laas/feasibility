@@ -18,6 +18,9 @@ namespace ros{
 		void lock();
 		void unlock();
 
+		const Geometry& operator+(const ros::Geometry& rhs );
+		Geometry& operator+=(const ros::Geometry& rhs );
+
     char getFoot() const;
     double getX() const;
     double getY() const;

@@ -20,6 +20,10 @@
 #include "planner/motion_generator.h"
 #define DEBUG(x) 
 
+void MotionGenerator::set_smoothing(bool s){
+  smoothing_ = s;
+}
+
 MotionGenerator::
 MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects)
 {
@@ -43,6 +47,7 @@ MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects)
       mp_Obstacles.push_back(PQPobj);
     }
   nbObs = mp_Obstacles.size();
+  smoothing_ = true;
 
 }
 
@@ -736,11 +741,10 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
   //###############################################################################
   recomputeZMP(vectStep, sf_f, sf_x, sf_y, sf_t);
 
-  bool smoothing=true;
   int size = -1;
   StepFeatures stepF;
 
-  if(smoothing){
+  if(smoothing_){
     stepF = computeFeaturesWithSmoothing(vectStep, lastStepSmoothed, 2);
     size = vectStep[lastStepSmoothed].stepFeaturesUP.size 
       + vectStep[lastStepSmoothed].stepFeaturesDOWN.size + 

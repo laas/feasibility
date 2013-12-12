@@ -72,6 +72,8 @@ private:
 
   uint last_step_smoothed_;
 
+  bool smoothing_;
+
 public:
 
   MotionGenerator(std::vector<ros::RVIZVisualMarker*> objects);
@@ -90,6 +92,9 @@ public:
 				double sf_x, double sf_y, double sf_t, char sf_f);
   bool
   isInCollision(std::vector<std::vector<double> > &fsi);
+
+  void set_smoothing(bool);
+
 private:
   std::vector<double> generateWholeBodyMotionFromStepVector(
       std::vector<step> &vectStep, int lastStepSmoothed);

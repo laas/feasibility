@@ -96,6 +96,22 @@ namespace ros{
     setRPYRadian(0,0,r);
   }
 
+
+  const ros::Geometry& Geometry::operator+(const ros::Geometry& rhs ){
+    this->setX(this->getX() + rhs.getX());
+    this->setY(this->getY() + rhs.getY());
+    this->setZ(this->getZ() + rhs.getZ());
+    this->setYawRadian(this->getYawRadian() + rhs.getYawRadian());
+    return *this;
+  }
+  ros::Geometry& Geometry::operator+=(const ros::Geometry& rhs ){
+    this->setX(this->getX() + rhs.getX());
+    this->setY(this->getY() + rhs.getY());
+    this->setZ(this->getZ() + rhs.getZ());
+    this->setYawRadian(this->getYawRadian() + rhs.getYawRadian());
+    return *this;
+  }
+
 	void Geometry::setRPYRadian(double roll, double pitch, double yaw){
 		tf::Quaternion q;
 		q.setRPY(roll, pitch, yaw); //in radian

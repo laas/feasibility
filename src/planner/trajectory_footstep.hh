@@ -26,6 +26,7 @@ private:
 
   //std::vector<FootStepState> footsteps_;
   ros::Geometry start_;
+  bool halt_;
   std::vector<std::vector<double> > footsteps_;
 
   void checkSafety( double &xr, double &yr, double &tr);
@@ -48,7 +49,10 @@ public:
 
   void append( ros::Geometry &start, FootStepTrajectory &rhs );
   void execute_one_step();
+  void execute_one_step_fast_not_thread_safe();
   void publish();
+  bool onHalt();
+  void setHalt(bool);
 
   void push_back( FootStepState &fss );
   void pop_back();
