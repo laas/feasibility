@@ -151,7 +151,6 @@ void FootStepTrajectory::execute_one_step(){
   q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
       footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
 
-
   lock.unlock();
 
   if(q.size()>0){
@@ -435,10 +434,20 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
     double last_step_y = abs_y;
     double last_step_t = yawl;
 
+    //make sure that the robot is walking into the shortest direction
+    if(fabs(new_angle-yawg) > M_PI){
+      if(new_angle > yawg){
+        yawg+=2*M_PI;
+      }else{
+        new_angle+=2*M_PI;
+      }
+    }
+
     while( fabs(new_angle - yawg) > 0.01 ){
       int sign = (yawg - new_angle)/fabs(yawg-new_angle); //+1 or -1 rotation direction
       double angle_offset = sign*min( fabs(yawg - new_angle), max_rotate_angle );
       new_angle += angle_offset;
+      DEBUG(ROS_INFO("new angle: %f (start: %f, goal: %f)", new_angle, yawl, yawg);)
 
       double new_step_x = cos(last_step_t)*(0) - sin(last_step_t)*(-step_y) + last_step_x;
       double new_step_y = sin(last_step_t)*(0) + cos(last_step_t)*(-step_y) + last_step_y;

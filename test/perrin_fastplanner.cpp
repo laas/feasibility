@@ -103,6 +103,7 @@ void thread_publish(){
         goal_in_current.setY( waist_expected.getY() + evart_to_goal.getY() );
 
         double diff_expected_evart = 0;
+        //ROS_INFO("THETA: S^: %f, S_: %f, G: %f", waist_expected.getYawRadian(), waist_evart.getYawRadian(), goal.getYawRadian());
         if(fabs(waist_expected.getYawRadian() - waist_evart.getYawRadian()) < M_PI){
           diff_expected_evart = waist_expected.getYawRadian() - waist_evart.getYawRadian();
         }else{
