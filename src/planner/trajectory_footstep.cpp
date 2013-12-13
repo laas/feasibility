@@ -12,7 +12,7 @@
 
 #include "planner/trajectory_footstep.hh"
 
-#define DEBUG(x) x
+#define DEBUG(x) 
 
 using namespace std;
 
@@ -152,7 +152,7 @@ void FootStepTrajectory::execute_one_step(){
   lock.unlock();
 
   if(q.size()>0){
-    //ROS_INFO("configuration vector: %d", q.size());
+    DEBUG(ROS_INFO("configuration vector: %d", q.size());)
     //Replay trajectory
     tv_->init(q);
     ros::Rate rq(400); //300
@@ -415,6 +415,7 @@ void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
   }
 }
 void FootStepTrajectory::add_half_sitting_step(){
+
   if(footsteps_.size()>0){
     const double step_y = 0.2; //distance between feet in half-sitting
     char sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
