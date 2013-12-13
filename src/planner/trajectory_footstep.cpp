@@ -120,15 +120,18 @@ void FootStepTrajectory::execute_one_step(){
 
   if(isFinished()){
     if(onHalt()){
+      DEBUG(ROS_INFO("ON HALT|NO EXECUTION"));
       return;
     }
   }
 
   if( current_step_index_ > footsteps_.size()-1 ){
+    DEBUG(ROS_INFO("FINISHED|NO EXECUTION"));
     return;
   }
   if( current_step_index_ > last_planner_start_index_ ){
     if(current_step_index_ < footsteps_.size() - number_of_prescripted_steps_){
+      DEBUG(ROS_INFO("WAITING|NO EXECUTION"));
       //outside of prescripted area, and after start position of planner (lets
       //wait for next plan)
       return;
@@ -439,28 +442,25 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
   if(footsteps_.size()>1){
     //footsteps_.pop_back(); //delete last element (is predefined goal positon and does not belong to the trajectory)
 
+    uint N_planned_steps = footsteps_.size();
+
     const double goal_offset_x = -0.1;
     const double goal_offset_y = -0.1; //offset in L direction
     const double step_y = 0.2; //distance between feet in half-sitting
     char sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
 
-    //if(sf_f == 'R'){
-    //  if(footsteps_.size()==1){
-    //    //add new footstep to make L/R prescript possible
-    //    double xl = footsteps_.at( footsteps_.size() -1 ).at(4);
-    //    double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
-    //    double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
-    //    double abs_x = cos(yawl)*(0) - sin(yawl)*(step_y) + xl;
-    //    double abs_y = sin(yawl)*(0) + cos(yawl)*(step_y) + yl;
-    //    std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'L', abs_x, abs_y, yawl);
-    //    footsteps_.push_back(pre_script_foot0);
-    //  }else{
-    //    footsteps_.pop_back();
-    //  }
-
-    //  sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
-    //}
-    uint N_planned_steps = footsteps_.size();
+    if(sf_f == 'R'){
+      //if(footsteps_.size()==1){
+        //add new footstep to make L/R prescript possible
+      double xl = footsteps_.at( footsteps_.size() -1 ).at(4);
+      double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
+      double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
+      double abs_x = cos(yawl)*(0) - sin(yawl)*(-step_y) + xl;
+      double abs_y = sin(yawl)*(0) + cos(yawl)*(-step_y) + yl;
+      std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'L', abs_x, abs_y, yawl);
+      footsteps_.push_back(pre_script_foot0);
+      sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
+    }
 
     double goal_x = goal.getX();
     double goal_y = goal.getY();
