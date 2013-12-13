@@ -86,12 +86,6 @@ void thread_publish(){
         fst->setHalt(true);
         current_foot = fst->getCurrentStepIndex();
 
-        //ros::Geometry waist_at_evart_time = fst->getWaist();
-        //ros::Geometry waist_final_step_offset = fst->getWaist();
-        //waist_final_step_offset.setX(waist_final_step_offset.getX() - waist_at_evart_time.getX());
-        //waist_final_step_offset.setY(waist_final_step_offset.getY() - waist_at_evart_time.getY());
-        //waist_final_step_offset.setYawRadian(waist_final_step_offset.getYawRadian() - waist_at_evart_time.getYawRadian());
-
         ros::Rate r(2);
         while(ros::ok())
         {
@@ -105,14 +99,12 @@ void thread_publish(){
         ros::Geometry waist_expected = fst->getWaist();
         ros::Geometry goal = environment->getGoal();
         ros::Geometry waist_evart = environment->getStart();
-        //waist_evart += waist_final_step_offset;
 
         ros::Geometry evart_to_goal;
         evart_to_goal.setX( goal.getX() - waist_evart.getX() );
         evart_to_goal.setY( goal.getY() - waist_evart.getY() );
 
         ros::Geometry goal_in_current;
-
         goal_in_current.setX( waist_expected.getX() + evart_to_goal.getX() );
         goal_in_current.setY( waist_expected.getY() + evart_to_goal.getY() );
 

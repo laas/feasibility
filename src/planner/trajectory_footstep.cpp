@@ -23,7 +23,7 @@ FootStepTrajectory::FootStepTrajectory(){
     pub_ = n.advertise< std_msgs::Float64MultiArray >(topic.c_str(), 1000);
     firsttime = false;
   }
-  last_planner_start_index_=0;
+  last_planner_start_index_ = step_horizon;
   current_step_index_ = 0;
   number_of_prescripted_steps_ = 0;
   setHalt(false);
@@ -129,6 +129,7 @@ void FootStepTrajectory::execute_one_step(){
     DEBUG(ROS_INFO("FINISHED|NO EXECUTION"));
     return;
   }
+  /*
   if( current_step_index_ > last_planner_start_index_ ){
     if(current_step_index_ < footsteps_.size() - number_of_prescripted_steps_){
       DEBUG(ROS_INFO("WAITING|NO EXECUTION"));
@@ -137,6 +138,7 @@ void FootStepTrajectory::execute_one_step(){
       return;
     }
   }
+  */
 
   publish();
 
