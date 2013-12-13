@@ -444,22 +444,22 @@ void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal)
     const double step_y = 0.2; //distance between feet in half-sitting
     char sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
 
-    if(sf_f == 'R'){
-      if(footsteps_.size()==1){
-        //add new footstep to make L/R prescript possible
-        double xl = footsteps_.at( footsteps_.size() -1 ).at(4);
-        double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
-        double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
-        double abs_x = cos(yawl)*(0) - sin(yawl)*(step_y) + xl;
-        double abs_y = sin(yawl)*(0) + cos(yawl)*(step_y) + yl;
-        std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'L', abs_x, abs_y, yawl);
-        footsteps_.push_back(pre_script_foot0);
-      }else{
-        footsteps_.pop_back();
-      }
+    //if(sf_f == 'R'){
+    //  if(footsteps_.size()==1){
+    //    //add new footstep to make L/R prescript possible
+    //    double xl = footsteps_.at( footsteps_.size() -1 ).at(4);
+    //    double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
+    //    double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
+    //    double abs_x = cos(yawl)*(0) - sin(yawl)*(step_y) + xl;
+    //    double abs_y = sin(yawl)*(0) + cos(yawl)*(step_y) + yl;
+    //    std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'L', abs_x, abs_y, yawl);
+    //    footsteps_.push_back(pre_script_foot0);
+    //  }else{
+    //    footsteps_.pop_back();
+    //  }
 
-      sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
-    }
+    //  sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
+    //}
     uint N_planned_steps = footsteps_.size();
 
     double goal_x = goal.getX();
