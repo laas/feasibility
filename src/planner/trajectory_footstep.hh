@@ -57,6 +57,7 @@ public:
   void push_back( FootStepState &fss );
   void pop_back();
   void add_prescripted_end_sequence(const ros::Geometry &goal);
+  void add_half_sitting_step();
 };
 //static ros::Publisher FootStepTrajectory::pub_;
 

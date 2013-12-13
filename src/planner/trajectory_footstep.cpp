@@ -409,6 +409,30 @@ void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
     yr = yr + 0.01*yr_real;
   }
 }
+void FootStepTrajectory::add_half_sitting_step(){
+  if(footsteps_.size()>1){
+    const double step_y = 0.2; //distance between feet in half-sitting
+    char sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
+
+    double xl = footsteps_.at( footsteps_.size() -1 ).at(4);
+    double yl = footsteps_.at(footsteps_.size() -1 ).at(5);
+    double yawl = footsteps_.at(footsteps_.size() -1 ).at(6);
+    double abs_x = cos(yawl)*(0) - sin(yawl)*(step_y) + xl;
+    double abs_y = sin(yawl)*(0) + cos(yawl)*(step_y) + yl;
+    if(sf_f == 'R'){
+      //add new footstep to make L/R prescript possible
+      double abs_x = cos(yawl)*(0) - sin(yawl)*(-step_y) + xl;
+      double abs_y = sin(yawl)*(0) + cos(yawl)*(-step_y) + yl;
+      std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'L', abs_x, abs_y, yawl);
+      footsteps_.push_back(pre_script_foot0);
+    }else{
+      std::vector<double> pre_script_foot0 = vecD(0, -step_y , 0, 'R', abs_x, abs_y, yawl);
+      footsteps_.push_back(pre_script_foot0);
+
+    }
+  }
+
+}
 //move the robot towards the exact position, thereby assuming that it is already
 //in the goal region, i.e. it can make the steps which we prescript
 void FootStepTrajectory::add_prescripted_end_sequence(const ros::Geometry &goal){
