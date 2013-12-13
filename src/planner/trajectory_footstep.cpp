@@ -12,7 +12,7 @@
 
 #include "planner/trajectory_footstep.hh"
 
-#define DEBUG(x) 
+#define DEBUG(x) x
 
 using namespace std;
 
@@ -149,6 +149,8 @@ void FootStepTrajectory::execute_one_step(){
   q =  mg->generateWholeBodyMotionFromAbsoluteFootsteps(footsteps_, current_step_index_, 0, 0.19, 0, 
       footsteps_.at(current_step_index_).at(3)); //where is the right foot wrt the left foot (relative)
 
+  lock.unlock();
+
   if(q.size()>0){
     //ROS_INFO("configuration vector: %d", q.size());
     //Replay trajectory
@@ -161,7 +163,7 @@ void FootStepTrajectory::execute_one_step(){
       }
   }
 
-  //boost::mutex::scoped_lock lock2(footstep_mutex_);
+  boost::mutex::scoped_lock lock2(footstep_mutex_);
   current_step_index_++;
   ROS_INFO("step_index: %d -> %d (%d)", current_step_index_-1, current_step_index_, size());
   return;
@@ -413,7 +415,7 @@ void FootStepTrajectory::checkSafety( double &xr, double &yr, double &tr){
   }
 }
 void FootStepTrajectory::add_half_sitting_step(){
-  if(footsteps_.size()>1){
+  if(footsteps_.size()>0){
     const double step_y = 0.2; //distance between feet in half-sitting
     char sf_f = footsteps_.at( footsteps_.size() -1 ).at(3);
 

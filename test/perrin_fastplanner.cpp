@@ -79,7 +79,6 @@ void thread_publish(){
       }
 
       fst->lock();
-      current_foot = fst->getCurrentStepIndex();
       fst->append(astar->getStart(), fst_new);
       astar->setStart( fst->getStart() );
 

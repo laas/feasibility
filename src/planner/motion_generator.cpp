@@ -731,7 +731,6 @@ std::vector<double> MotionGenerator::generateWholeBodyMotionFromStepVector(
     ROS_INFO("last step: %d / %d -> exit", lastStepSmoothed, vectStep.size());
     return q;
   }
-
   //int lastStep = vectStep.size();
   //###############################################################################
   //###############################################################################

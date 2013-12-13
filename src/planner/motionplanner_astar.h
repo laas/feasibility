@@ -162,6 +162,7 @@ struct MotionPlannerAStar: public MotionPlanner{
       astarsearch->FreeSolutionNodes();
     }
     if(fs_trajectory.size()>0) fs_trajectory.pop_back(); //goal step
+
     fs_trajectory.add_half_sitting_step();
 
     DEBUG(
