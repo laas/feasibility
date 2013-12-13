@@ -118,8 +118,10 @@ void FootStepTrajectory::execute_one_step(){
     return;
   }
 
-  if(onHalt()){
-    return;
+  if(isFinished()){
+    if(onHalt()){
+      return;
+    }
   }
 
   if( current_step_index_ > footsteps_.size()-1 ){
@@ -385,7 +387,7 @@ bool FootStepTrajectory::onHalt(){
   return halt_;
 }
 bool FootStepTrajectory::isFinished(){
-  if( current_step_index_ >= footsteps_.size()-5 && current_step_index_ > 0){
+  if( current_step_index_ >= footsteps_.size() && current_step_index_ > 0){
     setHalt(true);
     return true;
   }else{

@@ -39,6 +39,8 @@ void update_current_foot(const std_msgs::UInt32& controller_foot){
   current_foot_sot = controller_foot.data;
   if(current_foot == controller_foot.data){
     current_foot_equals_last_foot = true;
+  }else{
+    current_foot_equals_last_foot = false;
   }
   m.unlock();
 }
@@ -58,52 +60,53 @@ void thread_publish(){
   startG.setFoot('L');
   astar->setStart( startG );
 
+  ros::NodeHandle n;
+  ros::Subscriber sub_controller_foot;
+  sub_controller_foot = n.subscribe("/planner/sot_current_foot", 100, &update_current_foot);
+
+  fst->setHalt(true); //halt trajectory at the end
   while(1){
 			astar->plan();
 
       FootStepTrajectory fst_new = astar->get_footstep_trajectory();
 
+      ROS_INFO("SET HALT: %d/%d", current_foot, current_foot_sot);
       if(fst_new.size()<=3){
         //avoid constant blocking of the trajectory, if the planner obtains
         //small but very fast plans
-        ros::Rate r(1);
+        ros::Rate r(100);
         r.sleep();
       }
 
       fst->lock();
+      current_foot = fst->getCurrentStepIndex();
       fst->append(astar->getStart(), fst_new);
       astar->setStart( fst->getStart() );
 
       if(fst->isFinished()){
         fst->setHalt(true);
         current_foot = fst->getCurrentStepIndex();
-        ros::Geometry waist_at_evart_time = fst->getWaist();
-        fst->execute_one_step_fast_not_thread_safe();
 
-        ros::Geometry waist_expected = fst->getWaist();
+        //ros::Geometry waist_at_evart_time = fst->getWaist();
+        //ros::Geometry waist_final_step_offset = fst->getWaist();
+        //waist_final_step_offset.setX(waist_final_step_offset.getX() - waist_at_evart_time.getX());
+        //waist_final_step_offset.setY(waist_final_step_offset.getY() - waist_at_evart_time.getY());
+        //waist_final_step_offset.setYawRadian(waist_final_step_offset.getYawRadian() - waist_at_evart_time.getYawRadian());
 
-        ros::Geometry waist_final_step_offset = fst->getWaist();
-        waist_final_step_offset.setX(waist_final_step_offset.getX() - waist_at_evart_time.getX());
-        waist_final_step_offset.setY(waist_final_step_offset.getY() - waist_at_evart_time.getY());
-        waist_final_step_offset.setYawRadian(waist_final_step_offset.getYawRadian() - waist_at_evart_time.getYawRadian());
-
-        ros::NodeHandle n;
         ros::Rate r(2);
-        ros::Subscriber sub_controller_foot;
-        sub_controller_foot = n.subscribe("/planner/sot_current_foot", 100, &update_current_foot);
         while(ros::ok())
         {
-          if(!current_foot_equals_last_foot){
+          if(!(current_foot_sot == current_foot)){
             ROS_INFO("Waiting for current foot (SOT: %d| PLANNER %d)", current_foot_sot, current_foot);
             r.sleep();
           }else{
             break;
           }
         }
-
+        ros::Geometry waist_expected = fst->getWaist();
         ros::Geometry goal = environment->getGoal();
         ros::Geometry waist_evart = environment->getStart();
-        waist_evart += waist_final_step_offset;
+        //waist_evart += waist_final_step_offset;
 
         ros::Geometry evart_to_goal;
         evart_to_goal.setX( goal.getX() - waist_evart.getX() );
@@ -124,11 +127,10 @@ void thread_publish(){
         double new_goal_yaw = goal.getYawRadian() + diff_expected_evart;
         goal_in_current.setYawRadian( new_goal_yaw );
 
-        //ROS_INFO("OLD STEP LENGTH %d", fst->size());
         fst->add_prescripted_end_sequence( goal_in_current );
-        //ROS_INFO("NEW STEP LENGTH %d", fst->size());
         fst->setHalt(false);
         fst->unlock();
+
         return;
       }
 
